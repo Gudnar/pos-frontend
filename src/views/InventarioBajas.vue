@@ -1,0 +1,168 @@
+<template>
+  <div class="inv-root">
+    <div class="inv-two-col">
+
+      <!-- Lista izquierda -->
+      <div class="inv-panel">
+        <div class="inv-panel-header">
+          <span>Bajas recientes</span>
+          <button class="inv-refresh-btn" @click="cargarHistorial">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.49-4"/></svg>
+          </button>
+        </div>
+        <div v-if="loadingH" class="inv-loading"><div class="ct-spinner"></div></div>
+        <div v-else-if="!historial.length" class="inv-empty">Sin bajas registradas</div>
+        <div v-else class="inv-hist-list">
+          <div v-for="m in historial" :key="m.id" class="inv-hist-item">
+            <div class="inv-hist-top">
+              <span class="inv-mono">{{ m.productoNombre || '—' }}</span>
+              <span class="inv-tipo inv-tipo--ret">Baja</span>
+            </div>
+            <div class="inv-hist-sub">
+              <span>{{ formatFecha(m.fecha) }}</span>
+              <span class="inv-qty--neg">−{{ fmt(m.cantidad) }}</span>
+            </div>
+            <div v-if="m.motivo" class="inv-hist-motivo">{{ m.motivo }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulario -->
+      <div class="inv-panel">
+        <div class="inv-panel-header">Registrar baja</div>
+        <div class="inv-form">
+          <div style="background:#f8717122;border:1px solid #f8717133;border-radius:8px;padding:10px 14px;font-size:12px;color:#fca5a5;margin-bottom:4px;">
+            Una baja retira mercadería dañada, vencida o no comercializable. Acción irreversible.
+          </div>
+          <div class="ide-field">
+            <label>Sucursal *</label>
+            <select v-model="form.sucursalId" class="ide-select" @change="resetLote">
+              <option value="">Seleccionar…</option>
+              <option v-for="s in sucursales" :key="s.id" :value="s.id">{{ s.nombre }}</option>
+            </select>
+          </div>
+          <div class="ide-field">
+            <label>Producto *</label>
+            <select v-model="form.productoId" class="ide-select" @change="cargarLotes">
+              <option value="">Seleccionar…</option>
+              <option v-for="p in productos" :key="p.id" :value="p.id">{{ p.nombre }}</option>
+            </select>
+          </div>
+          <div class="ide-field">
+            <label>Lote *</label>
+            <select v-model="form.loteId" class="ide-select" :disabled="!lotes.length">
+              <option value="">{{ lotes.length ? 'Seleccionar lote…' : 'Seleccione producto primero' }}</option>
+              <option v-for="l in lotes" :key="l.id" :value="l.id">
+                {{ l.nroLote || l.loteInterno }} — Stock: {{ fmt(l.cantidadActual) }}
+              </option>
+            </select>
+          </div>
+          <div class="ide-field">
+            <label>Cantidad a dar de baja *</label>
+            <input v-model.number="form.cantidad" type="number" min="0.001" step="0.001" class="ide-input" placeholder="0.00" />
+          </div>
+          <div class="ide-field">
+            <label>Motivo / Descripción *</label>
+            <textarea v-model="form.motivo" class="ide-input" rows="3" placeholder="Ej: Producto dañado, vencimiento, merma…" style="resize:vertical;"></textarea>
+          </div>
+          <div class="inv-form-actions">
+            <button class="ct-btn-cancel" @click="resetForm">Limpiar</button>
+            <button class="ct-btn-danger" :disabled="saving || !formValido" @click="guardar">
+              <span v-if="saving"><div class="ct-spinner" style="width:14px;height:14px;border-width:2px;display:inline-block;"></div></span>
+              <span v-else>Registrar baja</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'InventarioBajas',
+  data: () => ({
+    historial: [], loadingH: false, saving: false,
+    productos: [], lotes: [],
+    form: { sucursalId: '', productoId: '', loteId: '', cantidad: null, motivo: '' },
+  }),
+  computed: {
+    sucursales() { return this.$store.getters.sucursales || [] },
+    formValido() {
+      const f = this.form
+      return f.sucursalId && f.productoId && f.loteId && f.cantidad > 0 && f.motivo.trim()
+    },
+  },
+  created() {
+    const s = this.$store.getters.sucursalActualId
+    if (s) this.form.sucursalId = s
+    this.cargarProductos(); this.cargarHistorial()
+  },
+  methods: {
+    async cargarProductos() {
+      try { this.productos = await this.$service.list('productos') || [] } catch { this.productos = [] }
+    },
+    async cargarLotes() {
+      this.form.loteId = ''; this.lotes = []
+      if (!this.form.productoId || !this.form.sucursalId) return
+      try {
+        const data = await this.$service.list(`lotes/por-producto?sucursalId=${this.form.sucursalId}&productoId=${this.form.productoId}`)
+        this.lotes = (data || []).filter(l => ['ACTIVO','VENCIDO','CUARENTENA'].includes(l.estadoLote))
+      } catch { this.lotes = [] }
+    },
+    async cargarHistorial() {
+      this.loadingH = true
+      try { this.historial = await this.$service.list('movimientos-stock/kardex?tipo=RETIRO') || [] }
+      finally { this.loadingH = false }
+    },
+    async guardar() {
+      if (!this.formValido) return
+      this.saving = true
+      try {
+        await this.$service.save('movimientos-stock', {
+          loteId: this.form.loteId, sucursalId: this.form.sucursalId,
+          tipo: 'RETIRO', cantidad: this.form.cantidad, motivo: this.form.motivo, tipoDocumento: 'BAJA',
+        })
+        this.$message.success('Baja registrada')
+        this.resetForm(); this.cargarHistorial()
+      } catch (e) {
+        this.$message.error(e?.response?.data?.mensaje || 'Error al registrar baja')
+      } finally { this.saving = false }
+    },
+    resetForm() {
+      this.form = { sucursalId: this.form.sucursalId, productoId: '', loteId: '', cantidad: null, motivo: '' }
+      this.lotes = []
+    },
+    resetLote() { this.form.productoId = ''; this.form.loteId = ''; this.lotes = [] },
+    fmt(v) { return Number(v || 0).toFixed(2) },
+    formatFecha(f) { return f ? String(f).slice(0, 16).replace('T', ' ') : '—' },
+  },
+}
+</script>
+
+<style scoped>
+.inv-root { height:100%; overflow:hidden; padding:24px; }
+.inv-two-col { display:flex; gap:16px; height:100%; }
+.inv-panel { background:#0d1526; border:1px solid #1e3a5f44; border-radius:12px; display:flex; flex-direction:column; overflow:hidden; flex:1; min-width:0; }
+.inv-panel-header { padding:14px 16px; border-bottom:1px solid #1e3a5f44; font-size:12px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:.4px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+.inv-refresh-btn { background:none; border:none; cursor:pointer; color:#475569; padding:4px; border-radius:4px; display:flex; }
+.inv-refresh-btn:hover { color:#818cf8; }
+.inv-hist-list { flex:1; overflow-y:auto; padding:8px; display:flex; flex-direction:column; gap:6px; }
+.inv-hist-item { background:#0f172a; border:1px solid #1e3a5f33; border-radius:8px; padding:10px 12px; display:flex; flex-direction:column; gap:4px; }
+.inv-hist-top { display:flex; justify-content:space-between; align-items:center; }
+.inv-hist-sub { display:flex; justify-content:space-between; font-size:11px; color:#64748b; }
+.inv-hist-motivo { font-size:11px; color:#475569; font-style:italic; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.inv-form { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:12px; }
+.inv-form-actions { display:flex; gap:10px; justify-content:flex-end; padding-top:4px; }
+.inv-loading { display:flex; justify-content:center; padding:40px; }
+.inv-empty { text-align:center; padding:40px; font-size:13px; color:#334155; font-style:italic; }
+.inv-mono { font-size:12px; font-weight:600; color:#818cf8; font-family:monospace; }
+.inv-tipo { font-size:9px; font-weight:700; padding:2px 7px; border-radius:4px; }
+.inv-tipo--ret { background:#ef444422; color:#f87171; border:1px solid #ef444433; }
+.inv-qty--neg { color:#f87171; font-weight:700; }
+.ct-btn-danger { background:#ef444422; border:1px solid #ef444444; color:#f87171; font-size:12px; font-weight:700; padding:8px 18px; border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:6px; }
+.ct-btn-danger:hover:not(:disabled) { background:#ef444433; }
+.ct-btn-danger:disabled { opacity:.4; cursor:not-allowed; }
+.ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid #1e3a5f44; border-top-color:#6366f1; animation:spin .8s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+</style>
