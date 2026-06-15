@@ -58,24 +58,24 @@
         <tbody>
           <tr v-for="r in filasFiltradas" :key="r.productoId + (r.sucursalId||'')" class="inv-tr">
             <td class="inv-mono">{{ r.codigo || '—' }}</td>
-            <td style="font-weight:600;color:#e2e8f0;">{{ r.productoNombre || '—' }}</td>
+            <td style="font-weight:600;color:var(--t2);">{{ r.productoNombre || '—' }}</td>
             <td style="text-align:right;font-weight:800;color:#4ade80;">{{ fmt(r.stockTotal) }}</td>
-            <td style="text-align:center;color:#94a3b8;">{{ r.nroLotes }}</td>
-            <td style="text-align:right;color:#64748b;">{{ r.precioCosto ? 'Bs ' + fmt(r.precioCosto) : '—' }}</td>
+            <td style="text-align:center;color:var(--t3);">{{ r.nroLotes }}</td>
+            <td style="text-align:right;color:var(--t4);">{{ r.precioCosto ? 'Bs ' + fmt(r.precioCosto) : '—' }}</td>
             <td style="text-align:right;font-weight:700;color:#818cf8;">
               {{ r.precioCosto ? 'Bs ' + fmt(Number(r.stockTotal) * Number(r.precioCosto)) : '—' }}
             </td>
             <td>
               <span v-if="r.proximoVencimiento" style="font-size:11px;color:#fbbf24;">{{ r.proximoVencimiento }}</span>
-              <span v-else style="color:#334155;">—</span>
+              <span v-else style="color:var(--b3);">—</span>
             </td>
           </tr>
         </tbody>
         <tfoot>
           <tr>
-            <td colspan="2" style="text-align:right;font-size:11px;font-weight:700;color:#64748b;padding:10px 12px;">Total:</td>
+            <td colspan="2" style="text-align:right;font-size:11px;font-weight:700;color:var(--t4);padding:10px 12px;">Total:</td>
             <td style="text-align:right;font-weight:800;color:#4ade80;padding:10px 12px;">{{ totalUnidades }}</td>
-            <td style="text-align:center;color:#94a3b8;padding:10px 12px;">{{ totalLotes }}</td>
+            <td style="text-align:center;color:var(--t3);padding:10px 12px;">{{ totalLotes }}</td>
             <td></td>
             <td style="text-align:right;font-weight:800;color:#818cf8;padding:10px 12px;">Bs {{ totalValor }}</td>
             <td></td>
@@ -134,20 +134,20 @@ export default {
 
 <style scoped>
 .inv-root { height:100%; overflow:hidden; padding:24px; display:flex; flex-direction:column; gap:12px; }
-.inv-filters { display:flex; gap:12px; flex-wrap:wrap; flex-shrink:0; background:#0d1526; border:1px solid #1e3a5f44; border-radius:12px; padding:14px 16px; align-items:flex-end; }
-.inv-kpi-bar { display:flex; gap:16px; flex-wrap:wrap; flex-shrink:0; background:#0d1526; border:1px solid #1e3a5f44; border-radius:12px; padding:16px 20px; }
+.inv-filters { display:flex; gap:12px; flex-wrap:wrap; flex-shrink:0; background:var(--bg-s); border:1px solid var(--b1); border-radius:12px; padding:14px 16px; align-items:flex-end; }
+.inv-kpi-bar { display:flex; gap:16px; flex-wrap:wrap; flex-shrink:0; background:var(--bg-s); border:1px solid var(--b1); border-radius:12px; padding:16px 20px; }
 .inv-kpi { display:flex; flex-direction:column; gap:4px; }
-.inv-kpi-label { font-size:10px; color:#64748b; text-transform:uppercase; letter-spacing:.4px; }
-.inv-kpi-value { font-size:18px; font-weight:800; color:#f1f5f9; }
-.inv-table-wrap { flex:1; background:#0d1526; border:1px solid #1e3a5f44; border-radius:12px; overflow:auto; }
+.inv-kpi-label { font-size:10px; color:var(--t4); text-transform:uppercase; letter-spacing:.4px; }
+.inv-kpi-value { font-size:18px; font-weight:800; color:var(--t1); }
+.inv-table-wrap { flex:1; background:var(--bg-s); border:1px solid var(--b1); border-radius:12px; overflow:auto; }
 .inv-loading { display:flex; justify-content:center; padding:40px; }
-.inv-empty { text-align:center; padding:40px; font-size:13px; color:#334155; font-style:italic; }
+.inv-empty { text-align:center; padding:40px; font-size:13px; color:var(--b3); font-style:italic; }
 .inv-table { width:100%; border-collapse:collapse; font-size:12px; }
-.inv-table th { background:#0f172a; color:#64748b; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; padding:10px 12px; text-align:left; white-space:nowrap; position:sticky; top:0; z-index:1; }
-.inv-table td { padding:10px 12px; border-top:1px solid #1e3a5f22; vertical-align:middle; }
-.inv-table tfoot td { background:#0f172a44; border-top:2px solid #1e3a5f44; }
-.inv-tr:hover { background:#1e293b; }
+.inv-table th { background:var(--bg-e); color:var(--t4); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; padding:10px 12px; text-align:left; white-space:nowrap; position:sticky; top:0; z-index:1; }
+.inv-table td { padding:10px 12px; border-top:1px solid var(--b2); vertical-align:middle; }
+.inv-table tfoot td { background:var(--b1); border-top:2px solid var(--b1); }
+.inv-tr:hover { background:var(--bg-c); }
 .inv-mono { font-family:monospace; font-size:11px; color:#818cf8; }
-.ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid #1e3a5f44; border-top-color:#6366f1; animation:spin .8s linear infinite; }
+.ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid var(--b1); border-top-color:#6366f1; animation:spin .8s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
 </style>

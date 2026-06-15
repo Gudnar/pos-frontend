@@ -149,7 +149,7 @@
               <span class="pos-si-main">
                 <span class="pos-si-name">{{ p.nombre }}</span>
                 <span v-if="p.nombreCategoria || p.nombreSubcategoria" class="pos-si-breadcrumb">
-                  {{ [p.nombreCategoria, p.nombreSubcategoria].filter(Boolean).join(' › ') }}
+                  {{ [p.nombreCategoria, p.nombreSubcategoria].filter(Boolean).join(' ') }}
                 </span>
               </span>
               <span class="pos-si-price">{{ p.precio != null ? 'Bs ' + formatNum(p.precio) : 'S/P' }}</span>
@@ -186,13 +186,11 @@
               <!-- Código -->
               <td class="pos-td pos-td--code">{{ item.codigoTienda || '—' }}</td>
 
-              <!-- Descripción apilada -->
+              <!-- Descripción: categoría subcategoría nombre -->
               <td class="pos-td">
-                <div class="pos-desc">
-                  <span v-if="item.nombreCategoria" class="pos-desc-cat">{{ item.nombreCategoria }}</span>
-                  <span v-if="item.nombreSubcategoria" class="pos-desc-subcat">{{ item.nombreSubcategoria }}</span>
-                  <span class="pos-desc-nombre">{{ item.nombre }}</span>
-                </div>
+                <span class="pos-desc-full">
+                  {{ [item.nombreCategoria, item.nombreSubcategoria, item.nombre].filter(Boolean).join(' ') }}
+                </span>
               </td>
 
               <!-- Precios: tiers según SF/CF activo -->
@@ -311,15 +309,15 @@
           <div class="pos-modal-body">
             <input v-model="clienteBusqueda" class="pos-input" placeholder="Nombre, NIT o CI..." @input="buscarClientes" />
             <div class="pos-cliente-list">
-              <div v-if="loadingClientes" style="text-align:center;padding:20px;color:#475569;font-size:12px;">Buscando...</div>
-              <div v-else-if="!clientesResultados.length && clienteBusqueda" style="text-align:center;padding:20px;color:#475569;font-size:12px;font-style:italic;">Sin resultados</div>
+              <div v-if="loadingClientes" style="text-align:center;padding:20px;color:var(--t5);font-size:12px;">Buscando...</div>
+              <div v-else-if="!clientesResultados.length && clienteBusqueda" style="text-align:center;padding:20px;color:var(--t5);font-size:12px;font-style:italic;">Sin resultados</div>
               <div
                 v-for="c in clientesResultados" :key="c.id"
                 class="pos-cliente-item"
                 @click="seleccionarCliente(c)"
               >
-                <div style="font-size:13px;font-weight:600;color:#e2e8f0;">{{ c.nombre }}</div>
-                <div style="font-size:11px;color:#475569;margin-top:2px;">NIT: {{ c.nit || '—' }} · {{ c.celular || '' }}</div>
+                <div style="font-size:13px;font-weight:600;color:var(--t2);">{{ c.nombre }}</div>
+                <div style="font-size:11px;color:var(--t5);margin-top:2px;">NIT: {{ c.nit || '—' }} · {{ c.celular || '' }}</div>
               </div>
             </div>
           </div>
@@ -327,36 +325,98 @@
       </div>
     </transition>
 
-    <!-- ══ MODAL: Confirmar cobro ══ -->
+    <!-- ══ MODAL: Cobro ══ -->
     <transition name="modal-fade">
       <div v-if="cobrarModal" class="pos-modal-backdrop" @click.self="cobrarModal = false">
-        <div class="pos-modal" style="max-width:400px;">
+        <div class="pos-modal pco-modal">
           <div class="pos-modal-header">
-            <span>Confirmar Cobro</span>
+            <span>Cobro de Venta</span>
             <button class="pos-modal-close" @click="cobrarModal = false">✕</button>
           </div>
           <div class="pos-modal-body">
-            <div class="pos-cobro-total">
-              <div style="font-size:11px;color:#475569;margin-bottom:4px;">Total a cobrar</div>
-              <div style="font-size:32px;font-weight:800;color:#22c55e;">Bs {{ formatNum(subtotal) }}</div>
+
+            <!-- Total -->
+            <div class="pco-total-card">
+              <div class="pco-total-label">Total a cobrar</div>
+              <div class="pco-total-amount">Bs {{ formatNum(subtotal) }}</div>
             </div>
-            <div style="margin-top:14px;font-size:12px;color:#64748b;">
-              <div v-for="m in pagoActivos" :key="m.value" style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #1e3a5f33;">
-                <span>{{ m.label }}</span>
-                <strong style="color:#e2e8f0;">Bs {{ formatNum(m.monto || 0) }}</strong>
-              </div>
-              <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:13px;">
-                <span>Saldo pendiente</span>
-                <strong :style="`color:${saldoPendiente <= 0 ? '#4ade80' : '#f87171'}`">
-                  Bs {{ formatNum(saldoPendiente) }}
-                </strong>
+
+            <!-- Métodos de pago -->
+            <div class="pco-section-title">Métodos de pago</div>
+            <div class="pco-metodos">
+              <div
+                v-for="m in metodosPago" :key="m.value"
+                class="pco-metodo-row"
+                :class="{ 'pco-metodo-row--active': m.activo }"
+              >
+                <label class="pco-toggle">
+                  <input type="checkbox" v-model="m.activo" @change="onTogglePago(m)" />
+                  <span class="pco-toggle-label">{{ m.label }}</span>
+                </label>
+                <div v-if="m.activo" class="pco-metodo-inputs">
+                  <div class="pco-amount-wrap">
+                    <span class="pco-currency">Bs</span>
+                    <input
+                      v-model.number="m.monto"
+                      class="pos-input pco-amount-input"
+                      type="number" min="0" step="0.01"
+                      placeholder="0.00"
+                    />
+                  </div>
+                  <input
+                    v-if="m.value === 'TRANSFERENCIA' || m.value === 'CHEQUE'"
+                    v-model="m.referencia"
+                    class="pos-input pco-ref-input"
+                    :placeholder="m.value === 'CHEQUE' ? 'Nro. cheque' : 'Referencia'"
+                  />
+                  <!-- Adelanto: selector -->
+                  <div v-if="m.value === 'ADELANTO'" style="flex:1;">
+                    <div v-if="cargandoAdelantos" style="font-size:11px;color:var(--t5);">Cargando...</div>
+                    <select v-else v-model="m.adelantoId" class="pos-select" style="width:100%;font-size:11px;" @change="onAdelantoSelected(m)">
+                      <option :value="null">Seleccionar adelanto...</option>
+                      <option v-for="a in adelantosDisponibles" :key="a.id" :value="a.id">
+                        {{ a.descripcion || a.id }} — Bs {{ formatNum(a.montoDisponible) }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
               </div>
             </div>
+
+            <!-- Resumen de pagos -->
+            <div class="pco-resumen">
+              <div class="pco-res-row">
+                <span>Total pagado</span>
+                <span class="pco-res-paid">Bs {{ formatNum(totalPagos) }}</span>
+              </div>
+              <div class="pco-res-row">
+                <span>{{ saldoPendiente > 0.01 ? 'Saldo pendiente' : 'Saldo' }}</span>
+                <span :class="saldoPendiente > 0.01 ? 'pco-res-debt' : 'pco-res-ok'">Bs {{ formatNum(saldoPendiente) }}</span>
+              </div>
+              <div v-if="totalPagos > subtotal + 0.01" class="pco-res-row">
+                <span>Cambio a devolver</span>
+                <span class="pco-res-change">Bs {{ formatNum(totalPagos - subtotal) }}</span>
+              </div>
+            </div>
+
+            <!-- Registrar como deuda -->
+            <div v-if="saldoPendiente > 0.01" class="pco-deuda-toggle">
+              <label class="pos-chk">
+                <input type="checkbox" v-model="registrarDeuda" />
+                <span>Registrar Bs {{ formatNum(saldoPendiente) }} como deuda del cliente</span>
+              </label>
+            </div>
+
           </div>
           <div class="pos-modal-footer">
             <button class="pos-btn-secondary" @click="cobrarModal = false">Cancelar</button>
-            <button class="pos-btn-cobrar" style="padding:10px 24px;" :disabled="cobrando || saldoPendiente > 0.01" @click="confirmarCobro">
-              {{ cobrando ? 'Procesando...' : 'Confirmar Cobro' }}
+            <button
+              class="pos-btn-cobrar"
+              style="padding:10px 24px;"
+              :disabled="cobrando || (!registrarDeuda && saldoPendiente > 0.01)"
+              @click="confirmarCobro"
+            >
+              {{ cobrando ? 'Procesando...' : (registrarDeuda && saldoPendiente > 0.01 ? 'Cobrar + Registrar Deuda' : 'Confirmar Cobro') }}
             </button>
           </div>
         </div>
@@ -375,7 +435,7 @@
             <div style="font-size:16px;font-weight:700;color:#4ade80;">¡Venta exitosa!</div>
             <div v-if="ultimaVenta" style="margin-top:12px;">
               <div style="font-size:22px;font-weight:800;color:#818cf8;">{{ ultimaVenta.numeroComprobante || ultimaVenta.id }}</div>
-              <div style="font-size:13px;color:#64748b;margin-top:6px;">Total: <strong style="color:#e2e8f0;">Bs {{ formatNum(ultimaVenta.total) }}</strong></div>
+              <div style="font-size:13px;color:var(--t4);margin-top:6px;">Total: <strong style="color:var(--t2);">Bs {{ formatNum(ultimaVenta.total) }}</strong></div>
             </div>
           </div>
           <div class="pos-modal-footer" style="justify-content:center;">
@@ -434,11 +494,11 @@ export default {
 
     // Métodos de pago
     metodosPago: [
-      { value: 'EFECTIVO',       label: '*EFECTIVO',       activo: false, monto: '' },
-      { value: 'DEPOSITO',       label: '*DEPÓSITO',       activo: false, monto: '' },
-      { value: 'TRANSFERENCIA',  label: '*TRANSFERENCIA',  activo: false, monto: '' },
-      { value: 'QR',             label: '*QR',             activo: false, monto: '' },
-      { value: 'ADELANTO',       label: '*ADELANTO',       activo: false, monto: '', adelantoId: null },
+      { value: 'EFECTIVO',      label: 'Efectivo',      activo: false, monto: '', referencia: '' },
+      { value: 'TRANSFERENCIA', label: 'Transferencia', activo: false, monto: '', referencia: '' },
+      { value: 'CHEQUE',        label: 'Cheque',        activo: false, monto: '', referencia: '' },
+      { value: 'QR',            label: 'QR',            activo: false, monto: '', referencia: '' },
+      { value: 'ADELANTO',      label: 'Adelanto',      activo: false, monto: '', referencia: '', adelantoId: null },
     ],
 
     // Adelantos disponibles para el cliente seleccionado
@@ -456,6 +516,7 @@ export default {
 
     saving: false,
     cobrando: false,
+    registrarDeuda: false,
   }),
 
   watch: {
@@ -646,9 +707,16 @@ export default {
     onTogglePago(metodo) {
       if (!metodo.activo) {
         metodo.monto = ''
+        metodo.referencia = ''
         if (metodo.value === 'ADELANTO') metodo.adelantoId = null
-      } else if (metodo.value === 'ADELANTO') {
-        this.cargarAdelantos()
+      } else {
+        // Auto-rellenar con el saldo restante aún no asignado
+        const yaAsignado = this.metodosPago
+          .filter(m => m.activo && m.value !== metodo.value)
+          .reduce((s, m) => s + (Number(m.monto) || 0), 0)
+        const restante = Math.max(0, this.subtotal - yaAsignado)
+        metodo.monto = restante > 0 ? restante : ''
+        if (metodo.value === 'ADELANTO') this.cargarAdelantos()
       }
     },
 
@@ -733,10 +801,11 @@ export default {
       if (!this.detalle.length) return
       if (!this.form.sucursalId) return this.$message.error('Selecciona una sucursal')
       if (!this.cajaAbierta) return this.$message.error('Caja no abierta. Debe abrir la caja primero.')
-      // Distribuir total al primer método activo si ninguno tiene monto
+      this.registrarDeuda = false
+      // Auto-seleccionar Efectivo con el total si no hay ningún método activo
       if (!this.pagoActivos.length) {
-        this.metodosPago[0].activo = true
-        this.metodosPago[0].monto = this.subtotal
+        const efectivo = this.metodosPago.find(m => m.value === 'EFECTIVO')
+        if (efectivo) { efectivo.activo = true; efectivo.monto = this.subtotal }
       }
       this.cobrarModal = true
     },
@@ -747,8 +816,14 @@ export default {
         const pagos = this.pagoActivos.map(m => ({
           metodoPago: m.value,
           monto: Number(m.monto) || 0,
+          referencia: m.referencia || undefined,
+          adelantoId: m.value === 'ADELANTO' ? m.adelantoId : undefined,
         }))
-        const payload = { ...this.buildPayload('COMPLETADA'), pagos }
+        const estado = (this.registrarDeuda && this.saldoPendiente > 0.01) ? 'PENDIENTE' : 'COMPLETADA'
+        const payload = { ...this.buildPayload(estado), pagos }
+        if (estado === 'PENDIENTE' && this.saldoPendiente > 0.01) {
+          payload.tipoVenta = payload.tipoVenta || 'CREDITO'
+        }
         const result = await this.$service.post('ventas/cobrar', payload)
         this.ultimaVenta = result
         this.cobrarModal = false
@@ -792,11 +867,13 @@ export default {
 
     nuevaVenta() {
       this.ticketModal = false
+      this.registrarDeuda = false
       this.form = emptyForm()
       this.detalle = []
       this.metodosPago.forEach(m => {
         m.activo = false
         m.monto = ''
+        m.referencia = ''
         if (m.value === 'ADELANTO') m.adelantoId = null
       })
       this.adelantosDisponibles = []
@@ -824,7 +901,7 @@ export default {
   flex-direction: column;
   height: 100%;
   overflow-y: auto;
-  background: #070d1a;
+  background: var(--bg);
   padding: 0 0 16px;
   gap: 0;
 }
@@ -855,8 +932,8 @@ export default {
   padding: 16px 20px 8px;
   flex-shrink: 0;
 }
-.pos-title { font-size: 18px; font-weight: 800; color: #f1f5f9; }
-.pos-subtitle { font-size: 12px; color: #475569; margin-top: 2px; }
+.pos-title { font-size: 18px; font-weight: 800; color: var(--t1); }
+.pos-subtitle { font-size: 12px; color: var(--t5); margin-top: 2px; }
 
 /* ── Botones header ──────────────────────────────────────────────────── */
 .pos-btn-primary {
@@ -868,7 +945,7 @@ export default {
 .pos-btn-secondary {
   display: flex; align-items: center; gap: 6px;
   padding: 7px 14px; border-radius: 8px;
-  background: #1e3a5f33; border: 1px solid #1e3a5f; color: #94a3b8;
+  background: var(--b2); border: 1px solid var(--b0); color: var(--t3);
   font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s;
 }
 .pos-btn-secondary:hover { border-color: #6366f155; color: #818cf8; }
@@ -876,8 +953,8 @@ export default {
 /* ── Sección formulario ──────────────────────────────────────────────── */
 .pos-form-section {
   margin: 0 16px 8px;
-  background: #0d1526;
-  border: 1px solid #1e3a5f44;
+  background: var(--bg-s);
+  border: 1px solid var(--b1);
   border-radius: 10px;
   padding: 14px 16px;
   flex-shrink: 0;
@@ -894,21 +971,22 @@ export default {
 }
 .pos-field--span2 { grid-column: span 2; }
 .pos-field label {
-  font-size: 10px; font-weight: 700; color: #64748b;
+  font-size: 10px; font-weight: 700; color: var(--t4);
   text-transform: uppercase; letter-spacing: .4px;
 }
 .pos-input {
   padding: 6px 10px; border-radius: 7px;
-  border: 1px solid #1e3a5f55; background: #0a0f1e;
-  color: #e2e8f0; font-size: 12px; outline: none;
+  border: 1px solid var(--b1); background: var(--bg-e);
+  color: var(--t2); font-size: 12px; outline: none;
   transition: border-color .15s;
 }
+.pos-input::placeholder { color: var(--ph, var(--t5)); }
 .pos-input:focus { border-color: #6366f1; }
 .pos-input:disabled { opacity: .4; cursor: not-allowed; }
 .pos-select {
   padding: 6px 10px; border-radius: 7px;
-  border: 1px solid #1e3a5f55; background: #0a0f1e;
-  color: #e2e8f0; font-size: 12px; outline: none;
+  border: 1px solid var(--b1); background: var(--bg-e);
+  color: var(--t2); font-size: 12px; outline: none;
   transition: border-color .15s;
 }
 .pos-select:focus { border-color: #6366f1; }
@@ -921,7 +999,7 @@ export default {
 }
 .pos-radio {
   display: flex; align-items: center; gap: 5px;
-  font-size: 12px; font-weight: 600; color: #94a3b8; cursor: pointer;
+  font-size: 12px; font-weight: 600; color: var(--t3); cursor: pointer;
   white-space: nowrap;
 }
 .pos-radio input { accent-color: #6366f1; cursor: pointer; }
@@ -939,7 +1017,7 @@ export default {
 }
 .pos-chk {
   display: flex; align-items: center; gap: 5px;
-  font-size: 12px; font-weight: 600; color: #94a3b8; cursor: pointer;
+  font-size: 12px; font-weight: 600; color: var(--t3); cursor: pointer;
 }
 .pos-chk input { accent-color: #6366f1; cursor: pointer; }
 .pos-search-input {
@@ -947,19 +1025,19 @@ export default {
 }
 .pos-search-dropdown {
   position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 50;
-  background: #111d35; border: 1px solid #1e3a5f66; border-radius: 8px;
+  background: var(--bg-n); border: 1px solid var(--b4); border-radius: 8px;
   box-shadow: 0 8px 24px #00000088; overflow: hidden; max-height: 260px; overflow-y: auto;
 }
 .pos-search-item {
   display: flex; align-items: center; gap: 10px; padding: 8px 12px;
-  cursor: pointer; transition: background .1s; border-bottom: 1px solid #1e3a5f22;
+  cursor: pointer; transition: background .1s; border-bottom: 1px solid var(--b2);
 }
 .pos-search-item:last-child { border-bottom: none; }
-.pos-search-item:hover { background: #1e293b; }
-.pos-si-code { font-size: 10px; color: #475569; font-family: monospace; width: 80px; flex-shrink: 0; }
+.pos-search-item:hover { background: var(--bg-c); }
+.pos-si-code { font-size: 10px; color: var(--t5); font-family: monospace; width: 80px; flex-shrink: 0; }
 .pos-si-main { flex: 1; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
-.pos-si-name { font-size: 12px; color: #e2e8f0; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pos-si-breadcrumb { font-size: 10px; color: #475569; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pos-si-name { font-size: 12px; color: var(--t2); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pos-si-breadcrumb { font-size: 10px; color: var(--t5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pos-si-price { font-size: 12px; font-weight: 700; color: #6366f1; flex-shrink: 0; }
 .dropdown-fade-enter-active, .dropdown-fade-leave-active { transition: opacity .15s; }
 .dropdown-fade-enter, .dropdown-fade-leave-to { opacity: 0; }
@@ -968,7 +1046,7 @@ export default {
 .pos-table-section {
   margin: 0 16px 0;
   display: flex; flex-direction: column;
-  background: #0d1526; border: 1px solid #1e3a5f44; border-radius: 10px;
+  background: var(--bg-s); border: 1px solid var(--b1); border-radius: 10px;
   overflow: hidden; flex-shrink: 0; min-height: 180px;
 }
 .pos-table-wrap { overflow-x: auto; }
@@ -976,35 +1054,32 @@ export default {
   width: 100%; border-collapse: collapse; min-width: 700px;
 }
 .pos-th {
-  padding: 8px 10px; font-size: 10px; font-weight: 700; color: #475569;
+  padding: 8px 10px; font-size: 10px; font-weight: 700; color: var(--t5);
   text-transform: uppercase; letter-spacing: .5px; text-align: left;
-  background: #111d35; border-bottom: 1px solid #1e3a5f44; white-space: nowrap;
+  background: var(--bg-n); border-bottom: 1px solid var(--b1); white-space: nowrap;
 }
 .pos-td {
-  padding: 10px 10px; font-size: 12px; color: #cbd5e1;
-  border-bottom: 1px solid #1e3a5f22; vertical-align: middle;
+  padding: 10px 10px; font-size: 12px; color: var(--scroll);
+  border-bottom: 1px solid var(--b2); vertical-align: middle;
 }
 .pos-td--center { text-align: center; }
-.pos-td--nro { font-size: 11px; color: #475569; width: 36px; }
-.pos-td--code { font-family: monospace; font-size: 11px; color: #475569; }
+.pos-td--nro { font-size: 11px; color: var(--t5); width: 36px; }
+.pos-td--code { font-family: monospace; font-size: 11px; color: var(--t5); }
 .pos-td--total { font-weight: 700; color: #6366f1; text-align: right; padding-right: 12px; font-size: 13px; }
 .pos-td-empty {
   text-align: center; padding: 32px 20px;
-  font-size: 12px; color: #334155; font-style: italic;
+  font-size: 12px; color: var(--b3); font-style: italic;
 }
-.pos-tr:hover .pos-td { background: #111d3522; }
+.pos-tr:hover .pos-td { background: var(--b2); }
 
-/* Descripción apilada */
-.pos-desc { display: flex; flex-direction: column; gap: 2px; }
-.pos-desc-cat { font-size: 12px; font-weight: 700; color: #e2e8f0; text-transform: uppercase; letter-spacing: 0.3px; }
-.pos-desc-subcat { font-size: 11px; font-weight: 500; color: #64748b; }
-.pos-desc-nombre { font-size: 11px; color: #94a3b8; }
+/* Descripción completa en una sola línea */
+.pos-desc-full { font-size: 12px; font-weight: 600; color: var(--t2); }
 
 /* Radio precios */
 .pos-precios-list { display: flex; flex-direction: column; gap: 4px; }
 .pos-precio-radio { display: flex; align-items: center; gap: 6px; cursor: pointer; }
 .pos-precio-radio input[type="radio"] { accent-color: #6366f1; cursor: pointer; width: 13px; height: 13px; flex-shrink: 0; }
-.pos-precio-lbl { font-size: 11px; color: #64748b; font-weight: 500; }
+.pos-precio-lbl { font-size: 11px; color: var(--t4); font-weight: 500; }
 .pos-precio-radio--active .pos-precio-lbl { color: #6366f1; font-weight: 700; }
 .pos-precio-auto { font-size: 10px; color: #eab308; font-style: italic; margin-top: 2px; }
 .pos-precio-sinprecio { font-size: 10px; color: #f87171; font-style: italic; }
@@ -1025,11 +1100,11 @@ export default {
 /* Barra total */
 .pos-total-bar {
   display: flex; align-items: center; justify-content: flex-end; gap: 16px;
-  padding: 8px 16px; background: #111d35; border-top: 1px solid #1e3a5f44;
+  padding: 8px 16px; background: var(--bg-n); border-top: 1px solid var(--b1);
   flex-shrink: 0;
 }
-.pos-total-label { font-size: 12px; font-weight: 700; color: #64748b; }
-.pos-total-value { font-size: 16px; font-weight: 800; color: #e2e8f0; }
+.pos-total-label { font-size: 12px; font-weight: 700; color: var(--t4); }
+.pos-total-value { font-size: 16px; font-weight: 800; color: var(--t2); }
 
 /* ── Footer ──────────────────────────────────────────────────────────── */
 .pos-footer {
@@ -1045,11 +1120,11 @@ export default {
 }
 .pos-footer-summary {
   display: flex; flex-direction: column; gap: 4px;
-  padding: 8px 12px; background: #111d35; border: 1px solid #1e3a5f44;
+  padding: 8px 12px; background: var(--bg-n); border: 1px solid var(--b1);
   border-radius: 8px; min-width: 140px;
 }
-.pos-summary-row { display: flex; justify-content: space-between; font-size: 11px; color: #475569; gap: 20px; }
-.pos-summary-total { font-size: 13px; font-weight: 800; color: #e2e8f0; padding-top: 4px; border-top: 1px solid #1e3a5f44; margin-top: 2px; }
+.pos-summary-row { display: flex; justify-content: space-between; font-size: 11px; color: var(--t5); gap: 20px; }
+.pos-summary-total { font-size: 13px; font-weight: 800; color: var(--t2); padding-top: 4px; border-top: 1px solid var(--b1); margin-top: 2px; }
 
 .pos-btn-pdf {
   background: none; border: none; cursor: pointer; padding: 4px;
@@ -1081,37 +1156,65 @@ export default {
   display: flex; align-items: center; justify-content: center; z-index: 200;
 }
 .pos-modal {
-  background: #0d1526; border: 1px solid #1e3a5f66; border-radius: 14px;
+  background: var(--bg-s); border: 1px solid var(--b4); border-radius: 14px;
   width: 90%; max-width: 520px; max-height: 88vh;
   display: flex; flex-direction: column;
   box-shadow: 0 20px 60px #00000088;
 }
 .pos-modal-header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 18px; border-bottom: 1px solid #1e3a5f44;
-  font-size: 14px; font-weight: 700; color: #e2e8f0; flex-shrink: 0;
+  padding: 14px 18px; border-bottom: 1px solid var(--b1);
+  font-size: 14px; font-weight: 700; color: var(--t2); flex-shrink: 0;
 }
-.pos-modal-close { background: none; border: none; color: #475569; cursor: pointer; font-size: 14px; }
-.pos-modal-close:hover { color: #e2e8f0; }
+.pos-modal-close { background: none; border: none; color: var(--t5); cursor: pointer; font-size: 14px; }
+.pos-modal-close:hover { color: var(--t2); }
 .pos-modal-body { flex: 1; overflow-y: auto; padding: 14px 18px; }
 .pos-modal-footer {
   display: flex; gap: 8px; justify-content: flex-end;
-  padding: 12px 18px; border-top: 1px solid #1e3a5f44; flex-shrink: 0;
+  padding: 12px 18px; border-top: 1px solid var(--b1); flex-shrink: 0;
 }
 
 /* Lista clientes */
 .pos-cliente-list { margin-top: 10px; max-height: 300px; overflow-y: auto; }
 .pos-cliente-item {
-  padding: 10px 12px; border-bottom: 1px solid #1e3a5f22;
+  padding: 10px 12px; border-bottom: 1px solid var(--b2);
   cursor: pointer; border-radius: 6px; transition: background .12s;
 }
-.pos-cliente-item:hover { background: #1e293b; }
+.pos-cliente-item:hover { background: var(--bg-c); }
 
-/* Cobro modal */
-.pos-cobro-total {
-  text-align: center; padding: 16px;
-  background: #111d35; border-radius: 10px; margin-bottom: 4px;
+/* ── Modal de cobro ──────────────────────────────────────────────────── */
+.pco-modal { max-width: 460px; }
+.pco-total-card {
+  text-align: center; padding: 14px 16px;
+  background: var(--bg-n); border-radius: 10px; margin-bottom: 14px;
 }
+.pco-total-label { font-size: 10px; font-weight: 700; color: var(--t5); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+.pco-total-amount { font-size: 30px; font-weight: 800; color: #22c55e; }
+.pco-section-title { font-size: 10px; font-weight: 700; color: var(--t4); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+.pco-metodos { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.pco-metodo-row {
+  border: 1px solid var(--b1); border-radius: 8px; padding: 10px 12px;
+  background: var(--bg-e); transition: border-color .15s, background .15s;
+}
+.pco-metodo-row--active { border-color: #6366f155; background: #6366f108; }
+.pco-toggle { display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+.pco-toggle input[type="checkbox"] { accent-color: #6366f1; width: 14px; height: 14px; cursor: pointer; flex-shrink: 0; }
+.pco-toggle-label { font-size: 12px; font-weight: 700; color: var(--t2); }
+.pco-metodo-inputs { display: flex; gap: 8px; margin-top: 8px; align-items: center; }
+.pco-amount-wrap { display: flex; align-items: stretch; border: 1px solid var(--b1); border-radius: 7px; background: var(--bg); overflow: hidden; flex: 1; min-width: 0; }
+.pco-currency { padding: 0 8px; font-size: 11px; font-weight: 700; color: var(--t4); border-right: 1px solid var(--b1); display: flex; align-items: center; flex-shrink: 0; }
+.pco-amount-input { border: none !important; border-radius: 0 !important; background: transparent !important; flex: 1; text-align: right; font-size: 13px; font-weight: 700; min-width: 0; padding: 6px 8px; outline: none; color: var(--t2); }
+.pco-ref-input { flex: 1; font-size: 11px; min-width: 0; }
+.pco-resumen { background: var(--bg-n); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; }
+.pco-res-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; font-size: 12px; color: var(--t4); }
+.pco-res-row + .pco-res-row { border-top: 1px solid var(--b2); }
+.pco-res-paid { font-weight: 700; color: #6366f1; }
+.pco-res-ok { font-weight: 700; color: #22c55e; }
+.pco-res-debt { font-weight: 700; color: #f87171; }
+.pco-res-change { font-weight: 700; color: #f59e0b; }
+.pco-deuda-toggle { background: #f5940018; border: 1px solid #f59e0b44; border-radius: 8px; padding: 10px 12px; }
+.pco-deuda-toggle .pos-chk { font-size: 12px; color: #f59e0b; font-weight: 600; gap: 8px; }
+.pco-deuda-toggle .pos-chk input { accent-color: #f59e0b; }
 
 /* ── Animaciones ─────────────────────────────────────────────────────── */
 .modal-fade-enter-active, .modal-fade-leave-active { transition: opacity .2s; }
@@ -1120,6 +1223,6 @@ export default {
 .expand-enter, .expand-leave-to { opacity: 0; width: 0; overflow: hidden; }
 
 /* ── Spinner ─────────────────────────────────────────────────────────── */
-.ct-spinner { width:22px; height:22px; border-radius:50%; border:2px solid #1e3a5f; border-top-color:#6366f1; animation:spin .7s linear infinite; }
+.ct-spinner { width:22px; height:22px; border-radius:50%; border:2px solid var(--b0); border-top-color:#6366f1; animation:spin .7s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 </style>

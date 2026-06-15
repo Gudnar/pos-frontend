@@ -1,8 +1,8 @@
 <template>
   <div class="probar-wrapper">
     <div class="section-header mb-4">
-      <div style="font-size: 16px; font-weight: 700; color: #e2e8f0;">Probar Agente IA</div>
-      <div style="font-size: 12px; color: #64748b;">
+      <div style="font-size: 16px; font-weight: 700; color: var(--t2);">Probar Agente IA</div>
+      <div style="font-size: 12px; color: var(--t4);">
         Conversando con {{ agente.modelo }}
       </div>
     </div>
@@ -14,7 +14,7 @@
           {{ agente.avatar }}
         </div>
         <div>
-          <div style="font-size: 13px; font-weight: 700; color: #e2e8f0;">{{ agente.nombre }}</div>
+          <div style="font-size: 13px; font-weight: 700; color: var(--t2);">{{ agente.nombre }}</div>
           <div style="font-size: 10px; font-weight: 600; color: #22c55e;">● En línea · {{ agente.modelo }}</div>
         </div>
         <button class="chat-reset" @click="reiniciar">Reiniciar</button>
@@ -30,7 +30,7 @@
             <div class="chat-bubble" :class="msg.role === 'user' ? 'chat-bubble--user' : 'chat-bubble--ai'">
               {{ msg.content }}
             </div>
-            <div style="font-size: 10px; color: #475569; margin-top: 3px;" :class="msg.role === 'user' ? 'text-right' : ''">
+            <div style="font-size: 10px; color: var(--t5); margin-top: 3px;" :class="msg.role === 'user' ? 'text-right' : ''">
               {{ msg.time }}
             </div>
           </div>
@@ -139,12 +139,12 @@ export default {
 <style scoped>
 .probar-wrapper { display: flex; flex-direction: column; height: 100%; max-width: 600px; }
 .chat-box {
-  background: #1e293b; border: 1px solid #1e3a5f33; border-radius: 12px;
+  background: var(--bg-c); border: 1px solid var(--b2); border-radius: 12px;
   overflow: hidden; display: flex; flex-direction: column;
   flex: 1; min-height: 400px;
 }
 .chat-header {
-  padding: 12px 16px; border-bottom: 1px solid #1e3a5f44;
+  padding: 12px 16px; border-bottom: 1px solid var(--b1);
   display: flex; align-items: center; gap: 10px;
 }
 .chat-avatar {
@@ -152,8 +152,8 @@ export default {
   display: flex; align-items: center; justify-content: center; font-size: 14px;
 }
 .chat-reset {
-  margin-left: auto; background: none; border: 1px solid #334155;
-  color: #64748b; border-radius: 6px; padding: 4px 10px;
+  margin-left: auto; background: none; border: 1px solid var(--b3);
+  color: var(--t4); border-radius: 6px; padding: 4px 10px;
   font-size: 11px; cursor: pointer;
 }
 .chat-reset:hover { border-color: #6366f1; color: #818cf8; }
@@ -172,10 +172,10 @@ export default {
 }
 .chat-bubble {
   max-width: 76%; padding: 10px 14px;
-  font-size: 13px; line-height: 1.5; color: #f1f5f9;
+  font-size: 13px; line-height: 1.5; color: var(--t1);
 }
 .chat-bubble--ai {
-  background: #1e293b; border: 1px solid #334155;
+  background: var(--bg-c); border: 1px solid var(--b3);
   border-radius: 16px 16px 16px 4px;
 }
 .chat-bubble--user {
@@ -194,12 +194,12 @@ export default {
   50% { opacity: 1; transform: scale(1.1); }
 }
 .chat-input-area {
-  padding: 12px 14px; border-top: 1px solid #1e3a5f44;
+  padding: 12px 14px; border-top: 1px solid var(--b1);
   display: flex; gap: 8px;
 }
 .chat-input {
-  flex: 1; background: #0f172a; border: 1px solid #334155;
-  border-radius: 8px; color: #f1f5f9; font-size: 13px; padding: 9px 12px;
+  flex: 1; background: var(--bg-e); border: 1px solid var(--b3);
+  border-radius: 8px; color: var(--t1); font-size: 13px; padding: 9px 12px;
   outline: none; font-family: inherit;
 }
 .chat-input:focus { border-color: #6366f1; }

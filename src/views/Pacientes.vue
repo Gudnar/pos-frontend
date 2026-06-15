@@ -24,7 +24,7 @@
 
       <!-- Empty -->
       <div v-else-if="pacientes.length === 0" class="pac-lista-empty">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="1.25"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--b3)" stroke-width="1.25"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
         <span>Sin pacientes{{ busqueda ? ' con ese criterio' : '' }}</span>
       </div>
 
@@ -55,7 +55,7 @@
 
       <!-- Sin selección -->
       <div v-if="!pacienteActivo" class="pac-empty-state">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#1e3a5f" stroke-width="1"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--b0)" stroke-width="1"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
         <div class="pac-empty-title">Selecciona un paciente</div>
         <div class="pac-empty-sub">Elige un paciente de la lista para ver su expediente</div>
         <button class="pac-btn-primary" @click="abrirModalPaciente()">+ Nuevo Paciente</button>
@@ -77,7 +77,7 @@
               <span v-if="edad(pacienteActivo.fechaNacimiento)">{{ edad(pacienteActivo.fechaNacimiento) }} años</span>
               <span v-if="pacienteActivo.grupoSanguineo" class="pac-sangre">{{ pacienteActivo.grupoSanguineo }}</span>
               <span>{{ pacienteActivo.telefono }}</span>
-              <span v-if="pacienteActivo.email" style="color:#64748b;">{{ pacienteActivo.email }}</span>
+              <span v-if="pacienteActivo.email" style="color:var(--t4);">{{ pacienteActivo.email }}</span>
             </div>
           </div>
           <div class="pac-det-actions">
@@ -192,7 +192,7 @@
         <!-- ── Tab: Citas ── -->
         <div v-if="tabActivo === 'citas'" class="pac-tab-body">
           <div class="pac-tab-toolbar">
-            <span style="font-size:13px; color:#64748b;">Historial de citas agendadas</span>
+            <span style="font-size:13px; color:var(--t4);">Historial de citas agendadas</span>
             <button class="pac-btn-outline" @click="$router.push({ name: 'citas-medicas' })">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
               Nueva cita
@@ -223,7 +223,7 @@
         <!-- ── Tab: Consultas ── -->
         <div v-if="tabActivo === 'consultas'" class="pac-tab-body">
           <div class="pac-tab-toolbar">
-            <span style="font-size:13px; color:#64748b;">Expediente clínico</span>
+            <span style="font-size:13px; color:var(--t4);">Expediente clínico</span>
             <button class="pac-btn-primary pac-btn-sm" @click="abrirModalConsulta()">+ Nueva consulta</button>
           </div>
 
@@ -701,25 +701,25 @@ export default {
   display: flex;
   height: 100%;
   overflow: hidden;
-  background: #0a0f1e;
+  background: var(--bg);
 }
 
 /* ── Panel izquierdo: lista ── */
 .pac-lista {
   width: 280px;
   flex-shrink: 0;
-  border-right: 1px solid #1e3a5f44;
+  border-right: 1px solid var(--b1);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: #0d1526;
+  background: var(--bg-s);
 }
 .pac-lista-hd {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 14px 12px 10px;
-  border-bottom: 1px solid #1e3a5f44;
+  border-bottom: 1px solid var(--b1);
   flex-shrink: 0;
 }
 .pac-search-wrap {
@@ -731,22 +731,22 @@ export default {
 .pac-search-ico {
   position: absolute;
   left: 9px;
-  color: #475569;
+  color: var(--t5);
   pointer-events: none;
 }
 .pac-search-input {
   width: 100%;
-  background: #111827;
-  border: 1px solid #1e3a5f66;
+  background: var(--bg);
+  border: 1px solid var(--b4);
   border-radius: 8px;
   padding: 6px 10px 6px 28px;
   font-size: 12px;
-  color: #e2e8f0;
+  color: var(--t2);
   outline: none;
   transition: border-color 0.15s;
 }
 .pac-search-input:focus { border-color: #6366f1; }
-.pac-search-input::placeholder { color: #475569; }
+.pac-search-input::placeholder { color: var(--t5); }
 .pac-new-btn {
   display: flex;
   align-items: center;
@@ -766,7 +766,7 @@ export default {
   padding: 6px 14px;
   font-size: 10px;
   font-weight: 700;
-  color: #475569;
+  color: var(--t5);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   flex-shrink: 0;
@@ -777,7 +777,7 @@ export default {
   align-items: center;
   gap: 8px;
   padding: 40px 16px;
-  color: #475569;
+  color: var(--t5);
   font-size: 12px;
   text-align: center;
 }
@@ -800,7 +800,7 @@ export default {
   transition: background 0.12s;
   position: relative;
 }
-.pac-item:hover { background: #1e293b55; }
+.pac-item:hover { background: var(--b1); }
 .pac-item--active { background: #6366f122 !important; }
 .pac-item-avatar {
   width: 34px; height: 34px;
@@ -810,8 +810,8 @@ export default {
   flex-shrink: 0;
 }
 .pac-item-info { flex: 1; min-width: 0; }
-.pac-item-nombre { font-size: 13px; font-weight: 600; color: #e2e8f0; display: flex; align-items: center; gap: 5px; }
-.pac-item-sub { font-size: 11px; color: #64748b; }
+.pac-item-nombre { font-size: 13px; font-weight: 600; color: var(--t2); display: flex; align-items: center; gap: 5px; }
+.pac-item-sub { font-size: 11px; color: var(--t4); }
 .pac-item-dot { width: 6px; height: 6px; border-radius: 50%; background: #6366f1; flex-shrink: 0; }
 .pac-badge-ia { display: inline-flex; align-items: center; font-size: 9px; font-weight: 700; letter-spacing: .04em; padding: 1px 5px; border-radius: 4px; background: #6366f118; border: 1px solid #6366f166; color: #a5b4fc; flex-shrink: 0; }
 .pac-badge-ia--lg { font-size: 11px; padding: 2px 8px; border-radius: 5px; }
@@ -830,10 +830,10 @@ export default {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  color: #334155;
+  color: var(--b3);
 }
-.pac-empty-title { font-size: 15px; font-weight: 700; color: #475569; }
-.pac-empty-sub { font-size: 12px; color: #334155; }
+.pac-empty-title { font-size: 15px; font-weight: 700; color: var(--t5); }
+.pac-empty-sub { font-size: 12px; color: var(--b3); }
 
 /* ── Header paciente seleccionado ── */
 .pac-det-hd {
@@ -841,9 +841,9 @@ export default {
   align-items: center;
   gap: 14px;
   padding: 16px 24px;
-  border-bottom: 1px solid #1e3a5f44;
+  border-bottom: 1px solid var(--b1);
   flex-shrink: 0;
-  background: #0d1526;
+  background: var(--bg-s);
 }
 .pac-det-avatar {
   width: 42px; height: 42px;
@@ -853,7 +853,7 @@ export default {
   flex-shrink: 0;
 }
 .pac-det-info { flex: 1; min-width: 0; }
-.pac-det-nombre { font-size: 16px; font-weight: 800; color: #f1f5f9; }
+.pac-det-nombre { font-size: 16px; font-weight: 800; color: var(--t1); }
 .pac-det-meta {
   display: flex;
   align-items: center;
@@ -861,7 +861,7 @@ export default {
   gap: 10px;
   margin-top: 3px;
   font-size: 12px;
-  color: #94a3b8;
+  color: var(--t3);
 }
 .pac-sangre {
   background: #ef444422;
@@ -876,10 +876,10 @@ export default {
 .pac-ico-btn {
   display: flex; align-items: center; justify-content: center;
   width: 30px; height: 30px;
-  border: 1px solid #1e3a5f66;
+  border: 1px solid var(--b4);
   border-radius: 7px;
-  background: #111827;
-  color: #64748b;
+  background: var(--bg);
+  color: var(--t4);
   cursor: pointer;
   transition: all 0.15s;
 }
@@ -891,15 +891,15 @@ export default {
   display: flex;
   gap: 2px;
   padding: 10px 24px 0;
-  border-bottom: 1px solid #1e3a5f44;
+  border-bottom: 1px solid var(--b1);
   flex-shrink: 0;
-  background: #0d1526;
+  background: var(--bg-s);
 }
 .pac-tab {
   padding: 8px 16px;
   font-size: 13px;
   font-weight: 600;
-  color: #64748b;
+  color: var(--t4);
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
@@ -907,7 +907,7 @@ export default {
   transition: all 0.15s;
   margin-bottom: -1px;
 }
-.pac-tab:hover { color: #94a3b8; }
+.pac-tab:hover { color: var(--t3); }
 .pac-tab--active { color: #818cf8; border-bottom-color: #6366f1; }
 
 /* ── Tab body ── */
@@ -925,7 +925,7 @@ export default {
 .pac-tab-empty {
   text-align: center;
   padding: 40px;
-  color: #475569;
+  color: var(--t5);
   font-size: 13px;
 }
 .pac-form-grid {
@@ -948,9 +948,9 @@ export default {
   padding: 10px 14px !important;
 }
 .pac-cita-fecha { min-width: 100px; }
-.pac-cita-dia { font-size: 13px; font-weight: 700; color: #e2e8f0; }
-.pac-cita-hora { font-size: 11px; color: #64748b; }
-.pac-cita-svc { flex: 1; font-size: 13px; color: #94a3b8; }
+.pac-cita-dia { font-size: 13px; font-weight: 700; color: var(--t2); }
+.pac-cita-hora { font-size: 11px; color: var(--t4); }
+.pac-cita-svc { flex: 1; font-size: 13px; color: var(--t3); }
 .pac-cita-estado {
   font-size: 10px;
   font-weight: 700;
@@ -963,17 +963,17 @@ export default {
 .pac-cita-conf  { background: #22c55e22; color: #22c55e; border: 1px solid #22c55e44; }
 .pac-cita-canc  { background: #ef444422; color: #ef4444; border: 1px solid #ef444444; }
 .pac-cita-comp  { background: #6366f122; color: #818cf8; border: 1px solid #6366f144; }
-.pac-cita-notas { width: 100%; font-size: 11px; color: #64748b; padding-top: 4px; }
+.pac-cita-notas { width: 100%; font-size: 11px; color: var(--t4); padding-top: 4px; }
 
 /* ── Consultas ── */
 .pac-consultas-list { display: flex; flex-direction: column; gap: 12px; }
 .pac-consulta-card { display: flex; flex-direction: column; gap: 10px; }
 .pac-consulta-hd { display: flex; align-items: flex-start; justify-content: space-between; }
-.pac-consulta-fecha { font-size: 13px; font-weight: 700; color: #e2e8f0; }
+.pac-consulta-fecha { font-size: 13px; font-weight: 700; color: var(--t2); }
 .pac-consulta-svc { font-size: 11px; color: #818cf8; margin-top: 2px; font-weight: 600; }
 .pac-consulta-section { display: flex; flex-direction: column; gap: 3px; }
-.pac-consulta-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #475569; }
-.pac-consulta-txt { font-size: 13px; color: #cbd5e1; line-height: 1.5; white-space: pre-wrap; }
+.pac-consulta-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--t5); }
+.pac-consulta-txt { font-size: 13px; color: var(--scroll); line-height: 1.5; white-space: pre-wrap; }
 .pac-consulta-proxima {
   display: flex;
   align-items: center;
@@ -1001,21 +1001,21 @@ export default {
 .pac-btn-sm { padding: 6px 14px; font-size: 12px; }
 .pac-btn-cancel {
   padding: 8px 16px;
-  border: 1px solid #1e3a5f66;
+  border: 1px solid var(--b4);
   border-radius: 8px;
   background: none;
-  color: #64748b;
+  color: var(--t4);
   font-size: 13px; font-weight: 600;
   cursor: pointer; transition: all 0.15s;
 }
-.pac-btn-cancel:hover { border-color: #475569; color: #94a3b8; }
+.pac-btn-cancel:hover { border-color: var(--t5); color: var(--t3); }
 .pac-btn-outline {
   display: flex; align-items: center; gap: 6px;
   padding: 6px 12px;
-  border: 1px solid #1e3a5f66;
+  border: 1px solid var(--b4);
   border-radius: 7px;
   background: none;
-  color: #64748b;
+  color: var(--t4);
   font-size: 12px; font-weight: 600;
   cursor: pointer; transition: all 0.15s;
 }
@@ -1032,8 +1032,8 @@ export default {
   z-index: 1000;
 }
 .pac-modal {
-  background: #111827;
-  border: 1px solid #1e3a5f66;
+  background: var(--bg);
+  border: 1px solid var(--b4);
   border-radius: 14px;
   width: 100%;
   max-width: 520px;
@@ -1046,28 +1046,28 @@ export default {
 .pac-modal-hd {
   display: flex; align-items: center; justify-content: space-between;
   padding: 18px 24px;
-  border-bottom: 1px solid #1e3a5f44;
-  font-size: 15px; font-weight: 700; color: #f1f5f9;
+  border-bottom: 1px solid var(--b1);
+  font-size: 15px; font-weight: 700; color: var(--t1);
   flex-shrink: 0;
 }
 .pac-modal-close {
   background: none; border: none; cursor: pointer;
-  color: #64748b; padding: 2px; display: flex; border-radius: 5px;
+  color: var(--t4); padding: 2px; display: flex; border-radius: 5px;
   transition: color 0.15s;
 }
-.pac-modal-close:hover { color: #94a3b8; }
+.pac-modal-close:hover { color: var(--t3); }
 .pac-modal-body { padding: 20px 24px; overflow-y: auto; flex: 1; }
 .pac-modal-ft {
   display: flex; align-items: center; justify-content: flex-end; gap: 10px;
   padding: 14px 24px;
-  border-top: 1px solid #1e3a5f44;
+  border-top: 1px solid var(--b1);
   flex-shrink: 0;
 }
 
 /* ── Spinner ── */
 .pac-spinner {
   width: 22px; height: 22px;
-  border: 3px solid #1e3a5f;
+  border: 3px solid var(--b0);
   border-top-color: #6366f1;
   border-radius: 50%;
   animation: pac-spin 0.75s linear infinite;

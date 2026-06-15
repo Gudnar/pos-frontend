@@ -10,7 +10,7 @@
         </div>
         <button class="cp-add-btn" @click="abrirIngreso()">+ Ingresar</button>
       </div>
-      <div style="padding:8px 10px;display:flex;gap:6px;align-items:center;border-bottom:1px solid #1e3a5f44;">
+      <div style="padding:8px 10px;display:flex;gap:6px;align-items:center;border-bottom:1px solid var(--b1);">
         <input v-model="qProd" class="cp-search" style="margin:0;flex:1;" placeholder="Buscar producto..." />
         <button class="cp-icon-btn" title="Actualizar" @click="cargarStock">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
@@ -31,7 +31,7 @@
         >
           <div style="flex:1;min-width:0;">
             <div class="inv-prod-name">{{ p.nombre }}</div>
-            <div style="font-size:10px;color:#475569;margin-top:2px;">
+            <div style="font-size:10px;color:var(--t5);margin-top:2px;">
               {{ p.codigo || '' }}
               <span v-if="p.requiereLote" style="margin-left:4px;padding:0 4px;border-radius:3px;background:#6366f122;color:#818cf8;border:1px solid #6366f133;font-size:9px;">LOTES</span>
             </div>
@@ -40,18 +40,18 @@
             <div class="inv-stock-val" :class="p.stockTotal <= 0 ? 'inv-stock-val--zero' : ''">
               {{ formatCant(p.stockTotal) }}
             </div>
-            <div style="font-size:9px;color:#64748b;">{{ p.unidadNombre || 'und' }}</div>
+            <div style="font-size:9px;color:var(--t4);">{{ p.unidadNombre || 'und' }}</div>
           </div>
         </div>
       </div>
 
       <!-- Proximos a vencer -->
-      <div v-if="vencimientos.length" style="padding:8px 10px;border-top:1px solid #1e3a5f44;">
+      <div v-if="vencimientos.length" style="padding:8px 10px;border-top:1px solid var(--b1);">
         <div style="font-size:10px;color:#f59e0b;font-weight:600;margin-bottom:6px;">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           {{ vencimientos.length }} lote(s) próximos a vencer
         </div>
-        <div v-for="v in vencimientos.slice(0,3)" :key="v.loteId" style="font-size:10px;color:#94a3b8;margin-bottom:3px;">
+        <div v-for="v in vencimientos.slice(0,3)" :key="v.loteId" style="font-size:10px;color:var(--t3);margin-bottom:3px;">
           · {{ v.productoNombre }} — {{ v.nroLote || '—' }} (vence {{ formatFecha(v.fechaVencimiento) }})
         </div>
       </div>
@@ -61,9 +61,9 @@
     <div class="inv-col inv-col--lots">
       <template v-if="!selectedProd">
         <div class="inv-empty-state">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="1.5"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-          <div style="margin-top:12px;color:#475569;font-size:13px;">Selecciona un producto</div>
-          <div style="color:#334155;font-size:11px;margin-top:4px;">para ver sus lotes y movimientos</div>
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--b3)" stroke-width="1.5"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          <div style="margin-top:12px;color:var(--t5);font-size:13px;">Selecciona un producto</div>
+          <div style="color:var(--b3);font-size:11px;margin-top:4px;">para ver sus lotes y movimientos</div>
         </div>
       </template>
       <template v-else>
@@ -71,7 +71,7 @@
         <div class="cp-col-header" style="border-radius:14px 14px 0 0;flex-wrap:wrap;gap:6px;">
           <div style="min-width:0;flex:1;">
             <div class="cp-col-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ selectedProd.nombre }}</div>
-            <div style="font-size:10px;color:#64748b;margin-top:1px;">
+            <div style="font-size:10px;color:var(--t4);margin-top:1px;">
               Stock total: <strong style="color:#6366f1;">{{ formatCant(selectedProd.stockTotal) }} {{ selectedProd.unidadNombre || 'und' }}</strong>
             </div>
           </div>
@@ -84,7 +84,7 @@
         </div>
 
         <!-- Tabs: Lotes / Movimientos -->
-        <div style="display:flex;border-bottom:1px solid #1e3a5f44;">
+        <div style="display:flex;border-bottom:1px solid var(--b1);">
           <button
             v-for="t in ['lotes','movimientos']"
             :key="t"
@@ -101,21 +101,21 @@
             <div style="display:flex;align-items:flex-start;gap:8px;">
               <div :class="['inv-lote-badge', `inv-lote-badge--${lote.estadoLote.toLowerCase()}`]">{{ lote.estadoLote }}</div>
               <div style="flex:1;min-width:0;">
-                <div style="font-size:12px;font-weight:600;color:#e2e8f0;">
+                <div style="font-size:12px;font-weight:600;color:var(--t2);">
                   {{ lote.nroLote || lote.loteInterno }}
-                  <span v-if="lote.nroSerie" style="font-size:10px;color:#64748b;"> · S/N {{ lote.nroSerie }}</span>
+                  <span v-if="lote.nroSerie" style="font-size:10px;color:var(--t4);"> · S/N {{ lote.nroSerie }}</span>
                 </div>
-                <div style="font-size:10px;color:#64748b;margin-top:2px;">
+                <div style="font-size:10px;color:var(--t4);margin-top:2px;">
                   Ingreso: {{ formatFecha(lote.fechaIngreso) }}
                   <span v-if="lote.fechaVencimiento"> · Vence: <span :style="esProximoVencer(lote.fechaVencimiento) ? 'color:#f59e0b;font-weight:600;' : ''">{{ formatFecha(lote.fechaVencimiento) }}</span></span>
                 </div>
               </div>
               <div style="text-align:right;flex-shrink:0;">
                 <div style="font-size:14px;font-weight:700;color:#6366f1;">{{ formatCant(lote.cantidadActual) }}</div>
-                <div style="font-size:9px;color:#475569;">de {{ formatCant(lote.cantidadInicial) }}</div>
+                <div style="font-size:9px;color:var(--t5);">de {{ formatCant(lote.cantidadInicial) }}</div>
               </div>
             </div>
-            <div v-if="lote.proveedorId || lote.nroFacturaProveedor" style="font-size:10px;color:#475569;margin-top:4px;">
+            <div v-if="lote.proveedorId || lote.nroFacturaProveedor" style="font-size:10px;color:var(--t5);margin-top:4px;">
               <span v-if="lote.nroFacturaProveedor">Factura: {{ lote.nroFacturaProveedor }}</span>
             </div>
             <div style="display:flex;gap:4px;margin-top:6px;">
@@ -156,14 +156,14 @@
           <div v-else v-for="m in movimientos" :key="m.id" class="inv-mov-row">
             <div :class="['inv-mov-tipo', tipoClass(m.tipo)]">{{ tipoLabel(m.tipo) }}</div>
             <div style="flex:1;min-width:0;">
-              <div style="font-size:11px;color:#cbd5e1;">{{ m.motivo || m.referenciaDocumento || '—' }}</div>
-              <div style="font-size:10px;color:#475569;margin-top:1px;">{{ formatFechaHora(m.fechaCreacion) }}</div>
+              <div style="font-size:11px;color:var(--scroll);">{{ m.motivo || m.referenciaDocumento || '—' }}</div>
+              <div style="font-size:10px;color:var(--t5);margin-top:1px;">{{ formatFechaHora(m.fechaCreacion) }}</div>
             </div>
             <div style="text-align:right;flex-shrink:0;">
               <div :class="['inv-mov-cant', m.tipo.includes('SALIDA') || m.tipo === 'RETIRO' ? 'inv-mov-cant--neg' : 'inv-mov-cant--pos']">
                 {{ m.tipo.includes('SALIDA') || m.tipo === 'RETIRO' || m.tipo === 'AJUSTE_NEGATIVO' ? '-' : '+' }}{{ formatCant(m.cantidad) }}
               </div>
-              <div style="font-size:9px;color:#475569;">{{ formatCant(m.cantidadPosterior) }}</div>
+              <div style="font-size:9px;color:var(--t5);">{{ formatCant(m.cantidadPosterior) }}</div>
             </div>
           </div>
         </div>
@@ -192,9 +192,8 @@
                   @focus="ingresoForm._showDrop = !!ingresoForm._busqueda"
                   @blur="ocultarDropIngreso"
                 />
-                <div v-if="ingresoForm.productoId && ingresoForm._subcategoriaNombre" class="inv-sel-cats">
-                  <span class="inv-cat-chip" :style="{ borderColor: ingresoForm._categoriaColor + '66', color: ingresoForm._categoriaColor }">{{ ingresoForm._categoriaNombre }}</span>
-                  <span class="inv-subcat">{{ ingresoForm._subcategoriaNombre }}</span>
+                <div v-if="ingresoForm.productoId && (ingresoForm._categoriaNombre || ingresoForm._subcategoriaNombre)" class="inv-sel-cats">
+                  <span class="inv-sel-breadcrumb">{{ [ingresoForm._categoriaNombre, ingresoForm._subcategoriaNombre].filter(Boolean).join(' ') }}</span>
                 </div>
                 <div v-if="ingresoForm._showDrop" class="inv-prod-drop">
                   <div v-if="!filtrarProductosAC(ingresoForm._busqueda).length" class="inv-drop-empty">Sin resultados</div>
@@ -205,11 +204,7 @@
                     @mousedown.prevent="elegirProducto(p)"
                   >
                     <div style="flex:1;min-width:0;">
-                      <div class="inv-drop-nombre">{{ p.nombre }}</div>
-                      <div v-if="p.subcategoriaNombre" class="inv-drop-cats">
-                        <span class="inv-cat-chip" :style="{ borderColor: p.categoriaColor + '66', color: p.categoriaColor }">{{ p.categoriaNombre }}</span>
-                        <span class="inv-subcat">{{ p.subcategoriaNombre }}</span>
-                      </div>
+                      <div class="inv-drop-nombre">{{ [p.categoriaNombre, p.subcategoriaNombre, p.nombre].filter(Boolean).join(' ') }}</div>
                     </div>
                     <span v-if="p.codigoBarras || p.codigoTienda" class="inv-drop-code">{{ p.codigoBarras || p.codigoTienda }}</span>
                   </div>
@@ -362,23 +357,23 @@
             <div v-if="loadingTraz" class="cp-loading" style="padding:30px;"><div class="ct-spinner"></div></div>
             <div v-else-if="trazabilidad">
               <!-- Info del lote -->
-              <div style="padding:14px 16px;border-bottom:1px solid #1e3a5f44;">
+              <div style="padding:14px 16px;border-bottom:1px solid var(--b1);">
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                  <div><div style="font-size:9px;color:#64748b;">Lote interno</div><div style="font-size:12px;color:#e2e8f0;">{{ trazabilidad.lote.loteInterno }}</div></div>
-                  <div v-if="trazabilidad.lote.nroLote"><div style="font-size:9px;color:#64748b;">Nro. Lote</div><div style="font-size:12px;color:#e2e8f0;">{{ trazabilidad.lote.nroLote }}</div></div>
-                  <div><div style="font-size:9px;color:#64748b;">Cant. Inicial</div><div style="font-size:12px;color:#6366f1;font-weight:700;">{{ formatCant(trazabilidad.lote.cantidadInicial) }}</div></div>
-                  <div><div style="font-size:9px;color:#64748b;">Cant. Actual</div><div style="font-size:12px;color:#6366f1;font-weight:700;">{{ formatCant(trazabilidad.lote.cantidadActual) }}</div></div>
-                  <div v-if="trazabilidad.lote.fechaVencimiento"><div style="font-size:9px;color:#64748b;">Vencimiento</div><div style="font-size:12px;color:#f59e0b;">{{ formatFecha(trazabilidad.lote.fechaVencimiento) }}</div></div>
-                  <div v-if="trazabilidad.lote.nroFacturaProveedor"><div style="font-size:9px;color:#64748b;">Factura proveedor</div><div style="font-size:12px;color:#e2e8f0;">{{ trazabilidad.lote.nroFacturaProveedor }}</div></div>
+                  <div><div style="font-size:9px;color:var(--t4);">Lote interno</div><div style="font-size:12px;color:var(--t2);">{{ trazabilidad.lote.loteInterno }}</div></div>
+                  <div v-if="trazabilidad.lote.nroLote"><div style="font-size:9px;color:var(--t4);">Nro. Lote</div><div style="font-size:12px;color:var(--t2);">{{ trazabilidad.lote.nroLote }}</div></div>
+                  <div><div style="font-size:9px;color:var(--t4);">Cant. Inicial</div><div style="font-size:12px;color:#6366f1;font-weight:700;">{{ formatCant(trazabilidad.lote.cantidadInicial) }}</div></div>
+                  <div><div style="font-size:9px;color:var(--t4);">Cant. Actual</div><div style="font-size:12px;color:#6366f1;font-weight:700;">{{ formatCant(trazabilidad.lote.cantidadActual) }}</div></div>
+                  <div v-if="trazabilidad.lote.fechaVencimiento"><div style="font-size:9px;color:var(--t4);">Vencimiento</div><div style="font-size:12px;color:#f59e0b;">{{ formatFecha(trazabilidad.lote.fechaVencimiento) }}</div></div>
+                  <div v-if="trazabilidad.lote.nroFacturaProveedor"><div style="font-size:9px;color:var(--t4);">Factura proveedor</div><div style="font-size:12px;color:var(--t2);">{{ trazabilidad.lote.nroFacturaProveedor }}</div></div>
                 </div>
               </div>
               <!-- Línea de tiempo -->
               <div style="padding:10px 16px;">
-                <div style="font-size:10px;color:#64748b;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;">Historial de movimientos ({{ trazabilidad.movimientos.length }})</div>
+                <div style="font-size:10px;color:var(--t4);font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;">Historial de movimientos ({{ trazabilidad.movimientos.length }})</div>
                 <div v-for="(m, i) in trazabilidad.movimientos" :key="m.id" style="display:flex;gap:10px;margin-bottom:8px;">
                   <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;">
                     <div :class="['inv-traz-dot', tipoClass(m.tipo)]"></div>
-                    <div v-if="i < trazabilidad.movimientos.length-1" style="width:1px;flex:1;background:#1e3a5f;margin:2px 0;"></div>
+                    <div v-if="i < trazabilidad.movimientos.length-1" style="width:1px;flex:1;background:var(--b0);margin:2px 0;"></div>
                   </div>
                   <div style="flex:1;padding-bottom:4px;">
                     <div style="display:flex;align-items:center;gap:6px;">
@@ -387,8 +382,8 @@
                         {{ m.tipo.includes('SALIDA') || m.tipo === 'RETIRO' || m.tipo === 'AJUSTE_NEGATIVO' ? '-' : '+' }}{{ formatCant(m.cantidad) }}
                       </span>
                     </div>
-                    <div style="font-size:10px;color:#475569;margin-top:1px;">{{ formatFechaHora(m.fechaCreacion) }}{{ m.motivo ? ' — ' + m.motivo : '' }}</div>
-                    <div style="font-size:9px;color:#334155;margin-top:1px;">Anterior: {{ formatCant(m.cantidadAnterior) }} → Posterior: {{ formatCant(m.cantidadPosterior) }}</div>
+                    <div style="font-size:10px;color:var(--t5);margin-top:1px;">{{ formatFechaHora(m.fechaCreacion) }}{{ m.motivo ? ' — ' + m.motivo : '' }}</div>
+                    <div style="font-size:9px;color:var(--b3);margin-top:1px;">Anterior: {{ formatCant(m.cantidadAnterior) }} → Posterior: {{ formatCant(m.cantidadPosterior) }}</div>
                   </div>
                 </div>
               </div>
@@ -467,9 +462,9 @@ export default {
     async cargarTodosProductos() {
       try {
         const [p, subs, cats] = await Promise.all([
-          this.$service.list('productos'),
-          this.$service.list('subcategorias-producto').catch(() => []),
-          this.$service.list('categorias-producto').catch(() => []),
+          this.$service.list('productos?soloActivos=true'),
+          this.$service.list('subcategorias-producto?soloActivos=true').catch(() => []),
+          this.$service.list('categorias-producto?soloActivos=true').catch(() => []),
         ])
         this.subcategorias = subs || []
         this.categorias = cats || []
@@ -706,8 +701,8 @@ export default {
 .inv-col {
   display: flex;
   flex-direction: column;
-  background: #0d1526;
-  border: 1px solid #1e3a5f44;
+  background: var(--bg-s);
+  border: 1px solid var(--b1);
   border-radius: 14px;
   overflow: hidden;
 }
@@ -724,18 +719,18 @@ export default {
   border-bottom: 1px solid #0d1a2d;
   transition: background .15s;
 }
-.inv-prod-row:hover { background: #111d35; }
-.inv-prod-row--active { background: #1e3a5f33; border-left: 2px solid #6366f1; }
-.inv-prod-name { font-size: 12px; font-weight: 600; color: #e2e8f0; }
+.inv-prod-row:hover { background: var(--bg-n); }
+.inv-prod-row--active { background: var(--b2); border-left: 2px solid #6366f1; }
+.inv-prod-name { font-size: 12px; font-weight: 600; color: var(--t2); }
 .inv-stock-val { font-size: 15px; font-weight: 700; color: #6366f1; }
-.inv-stock-val--zero { color: #475569; }
+.inv-stock-val--zero { color: var(--t5); }
 
 /* Detail tabs */
 .inv-tab {
   padding: 8px 16px;
   font-size: 11px;
   font-weight: 600;
-  color: #475569;
+  color: var(--t5);
   background: none;
   border: none;
   cursor: pointer;
@@ -743,7 +738,7 @@ export default {
   transition: color .15s, border-color .15s;
 }
 .inv-tab--active { color: #818cf8; border-bottom-color: #6366f1; }
-.inv-tab:hover:not(.inv-tab--active) { color: #94a3b8; }
+.inv-tab:hover:not(.inv-tab--active) { color: var(--t3); }
 
 .inv-detail-body {
   flex: 1;
@@ -756,8 +751,8 @@ export default {
 
 /* Lot cards */
 .inv-lote-card {
-  background: #111d35;
-  border: 1px solid #1e3a5f44;
+  background: var(--bg-n);
+  border: 1px solid var(--b1);
   border-radius: 10px;
   padding: 10px 12px;
 }
@@ -770,7 +765,7 @@ export default {
   flex-shrink: 0;
 }
 .inv-lote-badge--activo    { background: #22c55e22; color: #4ade80; border: 1px solid #22c55e44; }
-.inv-lote-badge--agotado   { background: #47556922; color: #64748b; border: 1px solid #47556944; }
+.inv-lote-badge--agotado   { background: var(--b2); color: var(--t4); border: 1px solid var(--b1); }
 .inv-lote-badge--vencido   { background: #ef444422; color: #f87171; border: 1px solid #ef444444; }
 .inv-lote-badge--cuarentena{ background: #f59e0b22; color: #fbbf24; border: 1px solid #f59e0b44; }
 .inv-lote-badge--retirado  { background: #6366f122; color: #818cf8; border: 1px solid #6366f144; }
@@ -779,13 +774,13 @@ export default {
   font-size: 10px;
   padding: 3px 8px;
   border-radius: 6px;
-  background: #1e3a5f44;
-  color: #94a3b8;
-  border: 1px solid #1e3a5f;
+  background: var(--b1);
+  color: var(--t3);
+  border: 1px solid var(--b0);
   cursor: pointer;
   transition: background .15s;
 }
-.inv-lote-btn:hover { background: #1e3a5f88; color: #e2e8f0; }
+.inv-lote-btn:hover { background: var(--b4); color: var(--t2); }
 .inv-lote-btn--warn { color: #fbbf24; border-color: #f59e0b44; }
 .inv-lote-btn--danger { color: #f87171; border-color: #ef444444; }
 
@@ -836,11 +831,11 @@ export default {
 .cp-col-header {
   display: flex; align-items: center; justify-content: space-between;
   padding: 12px 14px;
-  background: #111d35;
-  border-bottom: 1px solid #1e3a5f44;
+  background: var(--bg-n);
+  border-bottom: 1px solid var(--b1);
 }
-.cp-col-title { font-size: 13px; font-weight: 700; color: #e2e8f0; }
-.cp-col-count  { font-size: 10px; color: #475569; margin-top: 1px; }
+.cp-col-title { font-size: 13px; font-weight: 700; color: var(--t2); }
+.cp-col-count  { font-size: 10px; color: var(--t5); margin-top: 1px; }
 .cp-add-btn {
   font-size: 11px; font-weight: 600; padding: 5px 12px; border-radius: 8px;
   background: #6366f1; color: #fff; border: none; cursor: pointer; white-space: nowrap;
@@ -848,18 +843,18 @@ export default {
 .cp-add-btn:hover { background: #4f46e5; }
 .cp-search {
   width: 100%; padding: 8px 12px; font-size: 12px;
-  background: #0a0f1e; border: none; border-bottom: 1px solid #1e3a5f44;
-  color: #e2e8f0; outline: none; box-sizing: border-box;
+  background: var(--bg); border: none; border-bottom: 1px solid var(--b1);
+  color: var(--t2); outline: none; box-sizing: border-box;
 }
-.cp-search::placeholder { color: #334155; }
+.cp-search::placeholder { color: var(--b3); }
 .cp-list { flex: 1; overflow-y: auto; }
 .cp-loading { display:flex; align-items:center; justify-content:center; padding:30px; }
-.cp-empty { padding:20px; text-align:center; color:#334155; font-size:12px; }
+.cp-empty { padding:20px; text-align:center; color:var(--b3); font-size:12px; }
 .cp-icon-btn {
-  padding:5px; border-radius:6px; background:#1e3a5f44; border:1px solid #1e3a5f;
-  color:#64748b; cursor:pointer; display:inline-flex; align-items:center; justify-content:center;
+  padding:5px; border-radius:6px; background:var(--b1); border:1px solid var(--b0);
+  color:var(--t4); cursor:pointer; display:inline-flex; align-items:center; justify-content:center;
 }
-.cp-icon-btn:hover { background:#1e3a5f88; color:#94a3b8; }
+.cp-icon-btn:hover { background:var(--b4); color:var(--t3); }
 
 /* Modal reutilizado de CatalogoProductos */
 .ct-modal-backdrop {
@@ -867,60 +862,58 @@ export default {
   display: flex; align-items: center; justify-content: center; z-index: 200;
 }
 .ct-modal {
-  background: #0d1526; border: 1px solid #1e3a5f66; border-radius: 16px;
+  background: var(--bg-s); border: 1px solid var(--b4); border-radius: 16px;
   width: 90%; max-height: 88vh; display: flex; flex-direction: column;
   box-shadow: 0 20px 60px #00000088;
 }
 .ct-modal-header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 18px; border-bottom: 1px solid #1e3a5f44;
-  font-size: 14px; font-weight: 700; color: #e2e8f0;
+  padding: 14px 18px; border-bottom: 1px solid var(--b1);
+  font-size: 14px; font-weight: 700; color: var(--t2);
 }
-.ct-modal-close { background:none; border:none; color:#475569; cursor:pointer; font-size:14px; }
-.ct-modal-close:hover { color:#e2e8f0; }
+.ct-modal-close { background:none; border:none; color:var(--t5); cursor:pointer; font-size:14px; }
+.ct-modal-close:hover { color:var(--t2); }
 .ct-modal-body { flex:1; overflow-y:auto; padding:14px 16px; }
 .ct-modal-footer {
   display:flex; gap:8px; justify-content:flex-end;
-  padding:12px 16px; border-top:1px solid #1e3a5f44;
+  padding:12px 16px; border-top:1px solid var(--b1);
 }
-.ct-btn-cancel { padding:8px 16px; border-radius:8px; background:#1e3a5f44; color:#64748b; border:1px solid #1e3a5f; cursor:pointer; font-size:12px; }
-.ct-btn-cancel:hover { color:#94a3b8; }
+.ct-btn-cancel { padding:8px 16px; border-radius:8px; background:var(--b1); color:var(--t4); border:1px solid var(--b0); cursor:pointer; font-size:12px; }
+.ct-btn-cancel:hover { color:var(--t3); }
 .ct-btn-ok { padding:8px 18px; border-radius:8px; background:#6366f1; color:#fff; border:none; cursor:pointer; font-size:12px; font-weight:600; }
 .ct-btn-ok:disabled { opacity:.5; cursor:not-allowed; }
 .ct-btn-ok:hover:not(:disabled) { background:#4f46e5; }
 .ct-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
 .ct-form-full { grid-column:1/-1; }
 .ide-field { display:flex; flex-direction:column; gap:4px; }
-.ide-field label { font-size:10px; color:#64748b; font-weight:600; }
+.ide-field label { font-size:10px; color:var(--t4); font-weight:600; }
 .ide-input {
-  padding:7px 10px; border-radius:8px; border:1px solid #1e3a5f; background:#0a0f1e;
-  color:#e2e8f0; font-size:12px; outline:none; transition:border-color .15s;
+  padding:7px 10px; border-radius:8px; border:1px solid var(--b0); background:var(--bg);
+  color:var(--t2); font-size:12px; outline:none; transition:border-color .15s;
 }
 .ide-input:focus { border-color:#6366f1; }
 .ide-select {
-  padding:7px 10px; border-radius:8px; border:1px solid #1e3a5f; background:#0a0f1e;
-  color:#e2e8f0; font-size:12px; outline:none;
+  padding:7px 10px; border-radius:8px; border:1px solid var(--b0); background:var(--bg);
+  color:var(--t2); font-size:12px; outline:none;
 }
 .ide-textarea {
-  padding:7px 10px; border-radius:8px; border:1px solid #1e3a5f; background:#0a0f1e;
-  color:#e2e8f0; font-size:12px; outline:none; resize:vertical;
+  padding:7px 10px; border-radius:8px; border:1px solid var(--b0); background:var(--bg);
+  color:var(--t2); font-size:12px; outline:none; resize:vertical;
 }
 .ct-spinner {
   width:22px; height:22px; border-radius:50%;
-  border:2px solid #1e3a5f; border-top-color:#6366f1; animation:spin .7s linear infinite;
+  border:2px solid var(--b0); border-top-color:#6366f1; animation:spin .7s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 .inv-prod-ok { border-color:#6366f144 !important; }
-.inv-sel-cats { display:flex; align-items:center; gap:5px; margin-top:3px; padding:0 2px; }
-.inv-prod-drop { position:absolute; top:100%; left:0; right:0; z-index:300; background:#0f172a; border:1px solid #1e3a5f66; border-radius:8px; max-height:260px; overflow-y:auto; box-shadow:0 8px 24px #00000066; margin-top:2px; }
-.inv-drop-item { display:flex; align-items:flex-start; gap:8px; padding:7px 10px; cursor:pointer; }
-.inv-drop-item:hover { background:#1e293b; }
-.inv-drop-nombre { font-size:12px; color:#e2e8f0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.inv-drop-cats { display:flex; align-items:center; gap:5px; margin-top:2px; }
-.inv-cat-chip { font-size:9px; font-weight:700; padding:1px 5px; border-radius:3px; border:1px solid; }
-.inv-subcat { font-size:10px; color:#475569; }
-.inv-drop-code { font-size:10px; color:#475569; font-family:monospace; flex-shrink:0; padding-top:1px; }
-.inv-drop-empty { padding:10px; font-size:11px; color:#334155; font-style:italic; text-align:center; }
+.inv-sel-cats { margin-top:3px; padding:0 2px; }
+.inv-sel-breadcrumb { font-size:10px; color:var(--t5); }
+.inv-prod-drop { position:absolute; top:100%; left:0; right:0; z-index:300; background:var(--bg-e); border:1px solid var(--b4); border-radius:8px; max-height:260px; overflow-y:auto; box-shadow:0 8px 24px #00000066; margin-top:2px; }
+.inv-drop-item { display:flex; align-items:center; gap:8px; padding:7px 10px; cursor:pointer; }
+.inv-drop-item:hover { background:var(--bg-c); }
+.inv-drop-nombre { font-size:12px; font-weight:600; color:var(--t2); overflow:hidden; text-overflow:ellipsis; }
+.inv-drop-code { font-size:10px; color:var(--t5); font-family:monospace; flex-shrink:0; padding-top:1px; }
+.inv-drop-empty { padding:10px; font-size:11px; color:var(--b3); font-style:italic; text-align:center; }
 .modal-fade-enter-active, .modal-fade-leave-active { transition:opacity .2s; }
 .modal-fade-enter, .modal-fade-leave-to { opacity:0; }
 </style>

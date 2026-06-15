@@ -21,8 +21,8 @@
     <!-- Empty state -->
     <div v-else-if="agentes.length === 0" class="ide-ia-card" style="text-align:center; padding:48px;">
       <div style="font-size:48px; margin-bottom:16px;">🤖</div>
-      <div style="color:#e2e8f0; font-size:15px; font-weight:700; margin-bottom:8px;">No hay agentes creados</div>
-      <div style="color:#64748b; font-size:13px; margin-bottom:24px;">Crea tu primer agente IA con Claude</div>
+      <div style="color:var(--t2); font-size:15px; font-weight:700; margin-bottom:8px;">No hay agentes creados</div>
+      <div style="color:var(--t4); font-size:13px; margin-bottom:24px;">Crea tu primer agente IA con Claude</div>
       <button class="ag-new-btn" @click="abrirDialog()">Crear primer agente</button>
     </div>
 
@@ -55,7 +55,7 @@
             {{ ag.activo ? '● Activo' : '● Inactivo' }}
           </span>
           <span class="ag-badge" style="background:#6366f122; color:#818cf8;">{{ ag.modoOperacion }}</span>
-          <div style="margin-left:auto; font-size:11px; color:#64748b;">{{ ag.totalConversaciones }} conv.</div>
+          <div style="margin-left:auto; font-size:11px; color:var(--t4);">{{ ag.totalConversaciones }} conv.</div>
         </div>
       </div>
     </div>
@@ -107,16 +107,16 @@
                 <textarea v-model="form.systemPrompt" class="ide-textarea" placeholder="Eres un agente de ventas llamado Sofía…" rows="5"></textarea>
               </div>
               <div class="ide-field ag-form-full">
-                <label>Canales asignados <span style="color:#64748b; font-weight:400;">(selecciona los medios donde actúa por defecto)</span></label>
+                <label>Canales asignados <span style="color:var(--t4); font-weight:400;">(selecciona los medios donde actúa por defecto)</span></label>
                 <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:4px;">
                   <label v-for="c in canalesDisponibles" :key="c.id" style="display:flex; align-items:center; gap:6px; padding:6px 12px; border-radius:8px; cursor:pointer; user-select:none; font-size:12px; font-weight:600; transition:all .15s;"
-                    :style="form.canalesAsignados.includes(c.id) ? { background: c.color + '22', border: '1px solid ' + c.color + '55', color: c.color } : { background: '#1e293b', border: '1px solid #334155', color: '#64748b' }">
+                    :style="form.canalesAsignados.includes(c.id) ? { background: c.color + '22', border: '1px solid ' + c.color + '55', color: c.color } : { background: 'var(--bg-c)', border: '1px solid var(--b3)', color: 'var(--t4)' }">
                     <input type="checkbox" :value="c.id" v-model="form.canalesAsignados" style="display:none;" />
                     <span v-html="c.icon" style="display:flex; width:13px; height:13px;"></span>
                     {{ c.label }}
                   </label>
                 </div>
-                <div style="font-size:10px; color:#475569; margin-top:5px;">Para asignar este agente a publicaciones o anuncios específicos, usa la sección <strong style="color:#818cf8;">Campañas</strong>.</div>
+                <div style="font-size:10px; color:var(--t5); margin-top:5px;">Para asignar este agente a publicaciones o anuncios específicos, usa la sección <strong style="color:#818cf8;">Campañas</strong>.</div>
               </div>
             </div>
           </div>
@@ -214,17 +214,17 @@ export default {
 
 .ag-card__hd { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
 .ag-avatar { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-.ag-name   { font-size: 14px; font-weight: 700; color: #e2e8f0; }
-.ag-model  { font-size: 11px; color: #64748b; margin-top: 1px; }
+.ag-name   { font-size: 14px; font-weight: 700; color: var(--t2); }
+.ag-model  { font-size: 11px; color: var(--t4); margin-top: 1px; }
 
 .ag-ico-btn {
-  background: none; border: none; cursor: pointer; color: #475569;
+  background: none; border: none; cursor: pointer; color: var(--t5);
   padding: 4px; border-radius: 5px; display: flex; transition: color 0.15s;
 }
-.ag-ico-btn:hover { color: #94a3b8; }
+.ag-ico-btn:hover { color: var(--t3); }
 .ag-ico-btn--del:hover { color: #ef4444; }
 
-.ag-desc { font-size: 12px; color: #64748b; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin: 0 0 12px; }
+.ag-desc { font-size: 12px; color: var(--t4); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin: 0 0 12px; }
 .ag-footer { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .ag-badge  { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 999px; }
 
@@ -246,31 +246,31 @@ export default {
   justify-content: center; z-index: 9999;
 }
 .ag-modal {
-  background: #1e293b; border: 1px solid #334155; border-radius: 12px;
+  background: var(--bg-c); border: 1px solid var(--b3); border-radius: 12px;
   width: 100%; max-width: 560px; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
   display: flex; flex-direction: column; max-height: 90vh;
 }
 .ag-modal-header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 20px 24px 14px; font-size: 15px; font-weight: 700; color: #f1f5f9;
-  border-bottom: 1px solid #1e3a5f33; flex-shrink: 0;
+  padding: 20px 24px 14px; font-size: 15px; font-weight: 700; color: var(--t1);
+  border-bottom: 1px solid var(--b2); flex-shrink: 0;
 }
 .ag-modal-close {
-  background: none; border: none; color: #475569; cursor: pointer;
+  background: none; border: none; color: var(--t5); cursor: pointer;
   padding: 2px; border-radius: 4px; display: flex;
 }
-.ag-modal-close:hover { color: #94a3b8; }
+.ag-modal-close:hover { color: var(--t3); }
 .ag-modal-body { padding: 20px 24px; overflow-y: auto; flex: 1; }
 .ag-modal-footer {
   display: flex; justify-content: flex-end; gap: 8px;
-  padding: 14px 24px 20px; border-top: 1px solid #1e3a5f33; flex-shrink: 0;
+  padding: 14px 24px 20px; border-top: 1px solid var(--b2); flex-shrink: 0;
 }
 .ag-btn-cancel {
-  background: transparent; border: 1px solid #334155; color: #64748b;
+  background: transparent; border: 1px solid var(--b3); color: var(--t4);
   border-radius: 8px; padding: 8px 16px; font-size: 12px; font-weight: 600;
   cursor: pointer; font-family: inherit; transition: border-color 0.15s;
 }
-.ag-btn-cancel:hover { border-color: #475569; color: #94a3b8; }
+.ag-btn-cancel:hover { border-color: var(--t5); color: var(--t3); }
 .ag-btn-ok {
   background: #6366f1; color: #fff; border: none; border-radius: 8px;
   padding: 8px 20px; font-size: 12px; font-weight: 700; cursor: pointer;

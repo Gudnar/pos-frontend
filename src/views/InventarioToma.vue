@@ -29,11 +29,11 @@
     </div>
 
     <!-- Info -->
-    <div v-if="!sucursalId" class="inv-empty" style="background:#0d1526;border:1px solid #1e3a5f44;border-radius:12px;padding:40px;">
+    <div v-if="!sucursalId" class="inv-empty" style="background:var(--bg-s);border:1px solid var(--b1);border-radius:12px;padding:40px;">
       Seleccione una sucursal para cargar el inventario actual
     </div>
 
-    <div v-else-if="loading" class="inv-empty" style="background:#0d1526;border:1px solid #1e3a5f44;border-radius:12px;padding:40px;">
+    <div v-else-if="loading" class="inv-empty" style="background:var(--bg-s);border:1px solid var(--b1);border-radius:12px;padding:40px;">
       <div class="ct-spinner"></div>
     </div>
 
@@ -76,10 +76,10 @@
           </thead>
           <tbody>
             <tr v-for="f in filas" :key="f.id" :class="['inv-tr', f.diferencia !== 0 ? (f.diferencia > 0 ? 'inv-tr--pos' : 'inv-tr--neg') : '']">
-              <td style="font-weight:600;color:#e2e8f0;">{{ f.productoNombre || '—' }}</td>
+              <td style="font-weight:600;color:var(--t2);">{{ f.productoNombre || '—' }}</td>
               <td class="inv-mono">{{ f.nroLote || '—' }}</td>
-              <td class="inv-mono" style="color:#64748b;">{{ f.loteInterno || '—' }}</td>
-              <td style="text-align:right;color:#94a3b8;">{{ fmt(f.cantidadSistema) }}</td>
+              <td class="inv-mono" style="color:var(--t4);">{{ f.loteInterno || '—' }}</td>
+              <td style="text-align:right;color:var(--t3);">{{ fmt(f.cantidadSistema) }}</td>
               <td style="text-align:right;padding:4px 8px;">
                 <input
                   v-model.number="f.conteo"
@@ -175,24 +175,24 @@ export default {
 
 <style scoped>
 .inv-root { height:100%; overflow:hidden; padding:24px; display:flex; flex-direction:column; gap:12px; }
-.inv-header-bar { display:flex; gap:12px; flex-wrap:wrap; flex-shrink:0; background:#0d1526; border:1px solid #1e3a5f44; border-radius:12px; padding:14px 16px; align-items:flex-end; }
-.inv-summary-bar { display:flex; gap:20px; flex-wrap:wrap; flex-shrink:0; background:#0d1526; border:1px solid #1e3a5f44; border-radius:12px; padding:12px 20px; }
+.inv-header-bar { display:flex; gap:12px; flex-wrap:wrap; flex-shrink:0; background:var(--bg-s); border:1px solid var(--b1); border-radius:12px; padding:14px 16px; align-items:flex-end; }
+.inv-summary-bar { display:flex; gap:20px; flex-wrap:wrap; flex-shrink:0; background:var(--bg-s); border:1px solid var(--b1); border-radius:12px; padding:12px 20px; }
 .inv-summary-item { display:flex; flex-direction:column; gap:2px; }
-.inv-summary-item span { font-size:10px; color:#64748b; text-transform:uppercase; letter-spacing:.4px; }
-.inv-summary-item strong { font-size:15px; color:#f1f5f9; }
-.inv-table-wrap { flex:1; background:#0d1526; border:1px solid #1e3a5f44; border-radius:12px; overflow:auto; }
-.inv-empty { text-align:center; padding:40px; font-size:13px; color:#334155; font-style:italic; display:flex; justify-content:center; align-items:center; }
+.inv-summary-item span { font-size:10px; color:var(--t4); text-transform:uppercase; letter-spacing:.4px; }
+.inv-summary-item strong { font-size:15px; color:var(--t1); }
+.inv-table-wrap { flex:1; background:var(--bg-s); border:1px solid var(--b1); border-radius:12px; overflow:auto; }
+.inv-empty { text-align:center; padding:40px; font-size:13px; color:var(--b3); font-style:italic; display:flex; justify-content:center; align-items:center; }
 .inv-table { width:100%; border-collapse:collapse; font-size:12px; }
-.inv-table th { background:#0f172a; color:#64748b; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; padding:10px 12px; text-align:left; white-space:nowrap; position:sticky; top:0; z-index:1; }
-.inv-table td { padding:6px 12px; border-top:1px solid #1e3a5f22; vertical-align:middle; }
-.inv-tr:hover { background:#1e293b22; }
+.inv-table th { background:var(--bg-e); color:var(--t4); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; padding:10px 12px; text-align:left; white-space:nowrap; position:sticky; top:0; z-index:1; }
+.inv-table td { padding:6px 12px; border-top:1px solid var(--b2); vertical-align:middle; }
+.inv-tr:hover { background:var(--b2); }
 .inv-tr--pos td { background:#4ade8008; }
 .inv-tr--neg td { background:#f8717108; }
 .inv-mono { font-family:monospace; font-size:11px; color:#818cf8; }
 .inv-qty--pos { color:#4ade80; }
 .inv-qty--neg { color:#f87171; }
-.inv-conteo-input { background:#0f172a; border:1px solid #1e3a5f44; border-radius:6px; color:#e2e8f0; font-size:12px; padding:4px 8px; width:90px; text-align:right; outline:none; }
+.inv-conteo-input { background:var(--bg-e); border:1px solid var(--b1); border-radius:6px; color:var(--t2); font-size:12px; padding:4px 8px; width:90px; text-align:right; outline:none; }
 .inv-conteo-input:focus { border-color:#6366f1; }
-.ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid #1e3a5f44; border-top-color:#6366f1; animation:spin .8s linear infinite; }
+.ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid var(--b1); border-top-color:#6366f1; animation:spin .8s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
 </style>

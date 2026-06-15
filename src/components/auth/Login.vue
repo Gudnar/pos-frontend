@@ -6,9 +6,9 @@
         <div class="ide-login__logo">
           <span style="font-size: 40px;">✦</span>
         </div>
-        <h1 class="ide-login__title">IDE-IA</h1>
+        <h1 class="ide-login__title">POS-IA</h1>
         <p class="ide-login__subtitle">
-          Plataforma de gestión de Agentes Inteligentes con Anthropic Claude
+          Sistema de ventas con agentes de inteligencia artificial
         </p>
         <div class="ide-login__dots">
           <span></span><span></span><span></span>
@@ -74,7 +74,7 @@
         </div>
 
         <div class="ide-login__footer">
-          <span>IDE-IA v1.0.0 · Anthropic Claude</span>
+          <span>POS-IA v1.0.0 · Anthropic Claude</span>
         </div>
       </div>
     </div>
@@ -127,6 +127,12 @@ export default {
           this.$store.commit('setAuth', true);
           this.$store.commit('setUser', userInfo);
           this.$store.commit('setClienteId', userInfo.clienteId);
+          // Aplicar tema guardado para este usuario
+          const userTheme = localStorage.getItem(`ide-theme-${userInfo.id}`) || localStorage.getItem('ide-theme');
+          const isLight = userTheme === 'light';
+          document.body.classList.toggle('theme-light', isLight);
+          localStorage.setItem('ide-theme', isLight ? 'light' : 'dark');
+          this.$vuetify.theme.dark = !isLight;
           this.$router.push({ name: 'home' });
         } else {
           this.error = 'Credenciales inválidas';
@@ -145,9 +151,11 @@ export default {
 .ide-login {
   display: flex;
   min-height: 100vh;
-  background: #0f172a;
+  background: var(--bg-e);
+  transition: background 0.25s;
 }
 
+/* Brand panel — keeps gradient in both themes */
 .ide-login__brand {
   flex: 1;
   background: linear-gradient(145deg, #1e1b4b 0%, #312e81 40%, #4338ca 100%);
@@ -239,9 +247,7 @@ export default {
   font-size: 13px;
   color: rgba(241, 245, 249, 0.7);
 }
-.ide-login__feature-icon {
-  font-size: 16px;
-}
+.ide-login__feature-icon { font-size: 16px; }
 
 /* Formulario */
 .ide-login__form-panel {
@@ -249,17 +255,20 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #0d1526;
+  background: var(--bg-s);
   padding: 40px 24px;
+  transition: background 0.25s;
 }
 
 .ide-login__card {
   width: 100%;
   max-width: 360px;
-  background: #1e293b;
-  border: 1px solid #334155;
+  background: var(--bg-c);
+  border: 1px solid var(--b3);
   border-radius: 16px;
   padding: 36px 32px;
+  transition: background 0.25s, border-color 0.25s;
+  box-shadow: 0 4px 24px rgba(0,0,0,.08);
 }
 
 .ide-login__card-header {
@@ -281,14 +290,14 @@ export default {
 .ide-login__card-title {
   font-size: 1.4rem;
   font-weight: 800;
-  color: #f1f5f9;
+  color: var(--t1);
   margin-bottom: 6px;
   letter-spacing: -0.3px;
 }
 
 .ide-login__card-sub {
   font-size: 12px;
-  color: #64748b;
+  color: var(--t4);
   margin: 0;
 }
 
@@ -298,24 +307,24 @@ export default {
   display: block;
   font-size: 12px;
   font-weight: 700;
-  color: #94a3b8;
+  color: var(--t3);
   margin-bottom: 6px;
 }
 
 .ide-login__input {
   width: 100%;
-  background: #0f172a;
-  border: 1px solid #334155;
+  background: var(--bg-e);
+  border: 1px solid var(--b3);
   border-radius: 8px;
-  color: #f1f5f9;
+  color: var(--t1);
   font-size: 13px;
   padding: 10px 12px;
   outline: none;
   font-family: inherit;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, background 0.25s, color 0.25s;
 }
 .ide-login__input:focus { border-color: #6366f1; }
-.ide-login__input::placeholder { color: #475569; }
+.ide-login__input::placeholder { color: var(--ph); }
 
 .ide-login__eye {
   position: absolute;
@@ -355,7 +364,7 @@ export default {
   text-align: center;
   margin-top: 20px;
   font-size: 11px;
-  color: #334155;
+  color: var(--t5);
 }
 
 @media (max-width: 767px) {

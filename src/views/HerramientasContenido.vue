@@ -4,7 +4,7 @@
     <div class="hc-stats">
       <div v-for="s in stats" :key="s.label" class="ide-ia-card hc-stat">
         <div class="stat-value" :style="{ color: s.color }">{{ s.value }}</div>
-        <div style="font-size:11px; color:#64748b; margin-top:2px;">{{ s.label }}</div>
+        <div style="font-size:11px; color:var(--t4); margin-top:2px;">{{ s.label }}</div>
       </div>
     </div>
 
@@ -17,9 +17,9 @@
 
       <!-- Separador herramientas de sistema -->
       <div v-if="herramientas.some(h => h.esSistema)" style="display:flex; align-items:center; gap:10px; margin-top:4px;">
-        <div style="font-size:10px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:1px; white-space:nowrap;">Herramientas del sistema</div>
-        <div style="flex:1; height:1px; background:#1e3a5f;"></div>
-        <div style="font-size:10px; color:#334155; white-space:nowrap;">Solo lectura · siempre activas para Claude</div>
+        <div style="font-size:10px; font-weight:700; color:var(--t5); text-transform:uppercase; letter-spacing:1px; white-space:nowrap;">Herramientas del sistema</div>
+        <div style="flex:1; height:1px; background:var(--b0);"></div>
+        <div style="font-size:10px; color:var(--b3); white-space:nowrap;">Solo lectura · siempre activas para Claude</div>
       </div>
 
       <!-- Cards de herramientas -->
@@ -27,7 +27,7 @@
         v-for="h in herramientas" :key="h.id"
         class="ide-ia-card hc-card"
         :class="{ 'hc-card--sistema': h.esSistema }"
-        :style="{ borderColor: h.esSistema ? h.color+'33' : (h.activa ? h.color+'44' : '#1e3a5f22') }"
+        :style="{ borderColor: h.esSistema ? h.color+'33' : (h.activa ? h.color+'44' : 'var(--b2)') }"
       >
         <!-- Separador antes de las personalizadas -->
         <template v-if="!h.esSistema && herramientas.indexOf(h) > 0 && herramientas[herramientas.indexOf(h)-1].esSistema">
@@ -45,8 +45,8 @@
           <!-- Info -->
           <div style="flex:1; min-width:0;">
             <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px; flex-wrap:wrap;">
-              <span style="font-size:13px; font-weight:700; color:#e2e8f0;">{{ h.label }}</span>
-              <code style="font-size:10px; color:#64748b; background:#0f172a; padding:1px 6px; border-radius:4px;">{{ h.nombre }}</code>
+              <span style="font-size:13px; font-weight:700; color:var(--t2);">{{ h.label }}</span>
+              <code style="font-size:10px; color:var(--t4); background:var(--bg-e); padding:1px 6px; border-radius:4px;">{{ h.nombre }}</code>
               <!-- Badge sistema -->
               <span v-if="h.esSistema" class="hc-badge hc-badge--sistema">
                 <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:3px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -57,29 +57,29 @@
                 <span v-if="h.activa" class="hc-badge" :style="h.autoConfirmar ? 'background:#22c55e22;color:#22c55e;' : 'background:#f59e0b22;color:#f59e0b;'">
                   {{ h.autoConfirmar ? '✓ Auto' : '⏳ Aprobación' }}
                 </span>
-                <span v-else class="hc-badge" style="background:#47556922;color:#64748b;">Inactiva</span>
+                <span v-else class="hc-badge" style="background:var(--b2);color:var(--t4);">Inactiva</span>
               </template>
             </div>
-            <div style="font-size:11px; color:#64748b; line-height:1.5;">{{ h.descripcion }}</div>
+            <div style="font-size:11px; color:var(--t4); line-height:1.5;">{{ h.descripcion }}</div>
 
             <!-- Parámetros como chips -->
             <div v-if="h.parametros && h.parametros.length" style="display:flex; gap:5px; flex-wrap:wrap; margin-top:8px;">
               <div v-for="p in h.parametros" :key="p" class="hc-param">
-                <span style="color:#94a3b8;">{{ extraerNombre(p) }}</span>
+                <span style="color:var(--t3);">{{ extraerNombre(p) }}</span>
                 <span style="color:#6366f1; font-size:9px; margin-left:3px;">{{ extraerTipo(p) }}</span>
-                <span v-if="p.includes('?')" style="color:#475569; font-size:9px; margin-left:2px;">opt</span>
+                <span v-if="p.includes('?')" style="color:var(--t5); font-size:9px; margin-left:2px;">opt</span>
               </div>
             </div>
 
             <!-- Ejemplo -->
-            <div v-if="h.ejemplo" style="margin-top:6px; font-size:10px; color:#475569; font-family:monospace; background:#0f172a; padding:5px 10px; border-radius:6px; border-left:2px solid #1e3a5f;">
+            <div v-if="h.ejemplo" style="margin-top:6px; font-size:10px; color:var(--t5); font-family:monospace; background:var(--bg-e); padding:5px 10px; border-radius:6px; border-left:2px solid var(--b0);">
               {{ h.ejemplo }}
             </div>
 
             <!-- Barra de confianza (solo custom activas) -->
             <div v-if="!h.esSistema && h.activa" style="display:flex; align-items:center; gap:8px; margin-top:10px;">
-              <span style="font-size:10px; color:#475569; flex-shrink:0;">Confianza:</span>
-              <div style="flex:1; height:4px; background:#1e3a5f; border-radius:2px; overflow:hidden;">
+              <span style="font-size:10px; color:var(--t5); flex-shrink:0;">Confianza:</span>
+              <div style="flex:1; height:4px; background:var(--b0); border-radius:2px; overflow:hidden;">
                 <div :style="{ width: h.confianzaMinima+'%', height:'100%', background: h.color, borderRadius:'2px' }"></div>
               </div>
               <span style="font-size:11px; font-weight:700;" :style="{ color: h.color }">{{ h.confianzaMinima }}%</span>
@@ -104,15 +104,15 @@
 
           <!-- Icono candado para herramientas de sistema -->
           <div v-else style="flex-shrink:0; opacity:0.3; padding-top:2px;" title="Herramienta de sistema — no editable">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
           </div>
         </div>
       </div>
 
       <!-- Separador herramientas personalizadas -->
       <div v-if="herramientas.some(h => !h.esSistema)" style="display:flex; align-items:center; gap:10px; margin-top:4px;">
-        <div style="font-size:10px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:1px; white-space:nowrap;">Herramientas personalizadas</div>
-        <div style="flex:1; height:1px; background:#1e3a5f;"></div>
+        <div style="font-size:10px; font-weight:700; color:var(--t5); text-transform:uppercase; letter-spacing:1px; white-space:nowrap;">Herramientas personalizadas</div>
+        <div style="flex:1; height:1px; background:var(--b0);"></div>
       </div>
 
       <!-- Botón agregar -->
@@ -147,7 +147,7 @@
                   :disabled="!!editId"
                   style="font-family:monospace;"
                 />
-                <span style="font-size:10px; color:#475569;">snake_case — Claude usa este nombre exacto</span>
+                <span style="font-size:10px; color:var(--t5);">snake_case — Claude usa este nombre exacto</span>
               </div>
               <div class="ide-field">
                 <label>Etiqueta *</label>
@@ -157,7 +157,7 @@
 
             <!-- Descripción -->
             <div class="ide-field">
-              <label>Descripción * <span style="font-weight:400;color:#475569;">(Claude la lee para decidir cuándo usar esta herramienta)</span></label>
+              <label>Descripción * <span style="font-weight:400;color:var(--t5);">(Claude la lee para decidir cuándo usar esta herramienta)</span></label>
               <textarea v-model="form.descripcion" class="ide-textarea" rows="2" placeholder="Registra el score del lead según el interés detectado en la conversación."></textarea>
             </div>
 
@@ -168,7 +168,7 @@
                 <button class="hc-btn-text" @click="agregarParam">+ Agregar parámetro</button>
               </div>
 
-              <div v-if="paramEditors.length === 0" style="font-size:11px; color:#475569; padding:10px 12px; background:#0f172a; border-radius:8px; border:1px dashed #1e3a5f;">
+              <div v-if="paramEditors.length === 0" style="font-size:11px; color:var(--t5); padding:10px 12px; background:var(--bg-e); border-radius:8px; border:1px dashed var(--b0);">
                 Sin parámetros — Claude ejecutará la herramienta sin datos de entrada.
               </div>
 
@@ -193,7 +193,7 @@
                     placeholder="val1, val2, val3"
                     style="flex:1; min-width:100px; font-size:11px;"
                   />
-                  <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#94a3b8;cursor:pointer;flex-shrink:0;">
+                  <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--t3);cursor:pointer;flex-shrink:0;">
                     <input type="checkbox" v-model="p.opcional" style="accent-color:#6366f1;" />
                     opcional
                   </label>
@@ -212,7 +212,7 @@
                   <div
                     v-for="c in COLORES" :key="c"
                     class="hc-color-dot"
-                    :style="{ background: c, boxShadow: form.color === c ? '0 0 0 2px #1e293b, 0 0 0 4px '+c : 'none' }"
+                    :style="{ background: c, boxShadow: form.color === c ? '0 0 0 2px var(--bg-c), 0 0 0 4px '+c : 'none' }"
                     @click="form.color = c"
                   ></div>
                 </div>
@@ -242,7 +242,7 @@
 
             <!-- Ejemplo -->
             <div class="ide-field">
-              <label>Ejemplo <span style="font-weight:400;color:#475569;">(opcional)</span></label>
+              <label>Ejemplo <span style="font-weight:400;color:var(--t5);">(opcional)</span></label>
               <input v-model="form.ejemplo" class="ide-input" style="font-family:monospace;font-size:11px;" :placeholder="ejemploPlaceholder" />
             </div>
 
@@ -264,9 +264,9 @@
     <transition name="modal-fade">
       <div v-if="dialogDel" class="ag-modal-backdrop" @mousedown.self="dialogDel = false">
         <div class="ag-modal" style="max-width:380px;">
-          <div style="font-size:15px; font-weight:700; color:#e2e8f0; margin-bottom:8px;">¿Eliminar herramienta?</div>
-          <div style="font-size:13px; color:#94a3b8; margin-bottom:20px;">
-            Se eliminará <strong style="color:#e2e8f0;">{{ aEliminar ? aEliminar.label : '' }}</strong>. Claude dejará de tener acceso a esta acción.
+          <div style="font-size:15px; font-weight:700; color:var(--t2); margin-bottom:8px;">¿Eliminar herramienta?</div>
+          <div style="font-size:13px; color:var(--t3); margin-bottom:20px;">
+            Se eliminará <strong style="color:var(--t2);">{{ aEliminar ? aEliminar.label : '' }}</strong>. Claude dejará de tener acceso a esta acción.
           </div>
           <div style="display:flex; justify-content:flex-end; gap:8px;">
             <button class="ag-btn-cancel" @click="dialogDel = false">Cancelar</button>
@@ -283,7 +283,7 @@
 </template>
 
 <script>
-const COLORES = ['#6366f1','#f59e0b','#ef4444','#22c55e','#06b6d4','#ec4899','#8b5cf6','#64748b','#c96442','#0ea5e9'];
+const COLORES = ['#6366f1','#f59e0b','#ef4444','#22c55e','#06b6d4','#ec4899','#8b5cf6','var(--t4)','#c96442','#0ea5e9'];
 
 function formVacio() {
   return { nombre: '', label: '', descripcion: '', color: '#6366f1', autoConfirmar: true, confianzaMinima: 70, ejemplo: '', activa: true };
@@ -316,7 +316,7 @@ export default {
         { label: 'Activas',           value: h.filter(t => t.activa).length,                     color: '#22c55e' },
         { label: 'Auto-confirmación', value: h.filter(t => t.activa && t.autoConfirmar).length,  color: '#6366f1' },
         { label: 'Req. aprobación',   value: h.filter(t => t.activa && !t.autoConfirmar).length, color: '#f59e0b' },
-        { label: 'Inactivas',         value: h.filter(t => !t.activa).length,                    color: '#475569' },
+        { label: 'Inactivas',         value: h.filter(t => !t.activa).length,                    color: 'var(--t5)' },
       ];
     },
     ejemploPlaceholder() {
@@ -508,7 +508,7 @@ export default {
 .hc-stat  { text-align: center; padding: 14px; }
 
 /* Card */
-.hc-card  { border: 1px solid #1e3a5f22; transition: border-color 0.2s; }
+.hc-card  { border: 1px solid var(--b2); transition: border-color 0.2s; }
 
 .hc-ico {
   width: 36px; height: 36px; border-radius: 9px;
@@ -520,28 +520,28 @@ export default {
   background: #0ea5e922; color: #0ea5e9;
   display: inline-flex; align-items: center;
 }
-.hc-card--sistema { background: #0f172a88; }
+.hc-card--sistema { background: var(--b4); }
 
 .hc-param {
   display: inline-flex; align-items: center; font-size: 10px; font-family: monospace;
-  background: #0f172a; color: #94a3b8; padding: 3px 8px;
-  border-radius: 4px; border: 1px solid #1e3a5f44;
+  background: var(--bg-e); color: var(--t3); padding: 3px 8px;
+  border-radius: 4px; border: 1px solid var(--b1);
 }
 
 /* Action buttons */
 .hc-btn-ic {
-  width: 26px; height: 26px; border-radius: 6px; border: 1px solid #334155;
-  background: #0f172a; color: #64748b; cursor: pointer;
+  width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--b3);
+  background: var(--bg-e); color: var(--t4); cursor: pointer;
   display: flex; align-items: center; justify-content: center; transition: all 0.15s;
 }
-.hc-btn-ic:hover        { background: #1e3a5f; color: #94a3b8; }
+.hc-btn-ic:hover        { background: var(--b0); color: var(--t3); }
 .hc-btn-ic--del:hover   { background: #ef444422; color: #ef4444; border-color: #ef444433; }
 
 /* Add button */
 .hc-add {
   display: flex; align-items: center; justify-content: center; gap: 8px;
-  border: 1px dashed #334155; cursor: pointer; padding: 14px;
-  border-radius: 12px; color: #475569; font-size: 12px; transition: all 0.15s;
+  border: 1px dashed var(--b3); cursor: pointer; padding: 14px;
+  border-radius: 12px; color: var(--t5); font-size: 12px; transition: all 0.15s;
 }
 .hc-add:hover { border-color: #c96442; color: #e8956d; }
 
@@ -554,8 +554,8 @@ export default {
 .hc-btn-text:hover { background: #6366f133; }
 
 .hc-param-row {
-  background: #0f172a; padding: 10px; border-radius: 8px;
-  border: 1px solid #1e3a5f; margin-bottom: 6px;
+  background: var(--bg-e); padding: 10px; border-radius: 8px;
+  border: 1px solid var(--b0); margin-bottom: 6px;
 }
 
 .hc-btn-rm {
@@ -575,11 +575,11 @@ export default {
 /* Radio selector */
 .hc-radio {
   display: flex; align-items: center; gap: 7px; cursor: pointer;
-  padding: 6px 8px; border-radius: 7px; border: 1px solid #1e3a5f;
-  font-size: 11px; color: #64748b; transition: all 0.15s; user-select: none;
+  padding: 6px 8px; border-radius: 7px; border: 1px solid var(--b0);
+  font-size: 11px; color: var(--t4); transition: all 0.15s; user-select: none;
 }
-.hc-radio--on { border-color: #334155; color: #e2e8f0; background: #0f172a; }
-.hc-rdot { width: 8px; height: 8px; border-radius: 50%; background: #334155; flex-shrink: 0; transition: background 0.15s; }
+.hc-radio--on { border-color: var(--b3); color: var(--t2); background: var(--bg-e); }
+.hc-rdot { width: 8px; height: 8px; border-radius: 50%; background: var(--b3); flex-shrink: 0; transition: background 0.15s; }
 
 /* Modal */
 .ag-modal-backdrop {
@@ -588,31 +588,31 @@ export default {
   justify-content: center; z-index: 9999;
 }
 .ag-modal {
-  background: #1e293b; border: 1px solid #334155; border-radius: 12px;
+  background: var(--bg-c); border: 1px solid var(--b3); border-radius: 12px;
   width: 100%; max-width: 560px; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
   display: flex; flex-direction: column; max-height: 90vh;
 }
 .ag-modal-header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 20px 24px 14px; font-size: 15px; font-weight: 700; color: #f1f5f9;
-  border-bottom: 1px solid #1e3a5f33; flex-shrink: 0;
+  padding: 20px 24px 14px; font-size: 15px; font-weight: 700; color: var(--t1);
+  border-bottom: 1px solid var(--b2); flex-shrink: 0;
 }
 .ag-modal-close {
-  background: none; border: none; color: #475569; cursor: pointer;
+  background: none; border: none; color: var(--t5); cursor: pointer;
   padding: 2px; border-radius: 4px; font-size: 16px; line-height: 1;
 }
-.ag-modal-close:hover { color: #94a3b8; }
+.ag-modal-close:hover { color: var(--t3); }
 .ag-modal-body { padding: 20px 24px; overflow-y: auto; flex: 1; }
 .ag-modal-footer {
   display: flex; justify-content: flex-end; gap: 8px;
-  padding: 14px 24px 20px; border-top: 1px solid #1e3a5f33; flex-shrink: 0;
+  padding: 14px 24px 20px; border-top: 1px solid var(--b2); flex-shrink: 0;
 }
 .ag-btn-cancel {
-  background: transparent; border: 1px solid #334155; color: #64748b;
+  background: transparent; border: 1px solid var(--b3); color: var(--t4);
   border-radius: 8px; padding: 8px 16px; font-size: 12px; font-weight: 600;
   cursor: pointer; font-family: inherit; transition: border-color 0.15s;
 }
-.ag-btn-cancel:hover { border-color: #475569; color: #94a3b8; }
+.ag-btn-cancel:hover { border-color: var(--t5); color: var(--t3); }
 .ag-btn-ok {
   background: #6366f1; color: #fff; border: none; border-radius: 8px;
   padding: 8px 20px; font-size: 12px; font-weight: 700; cursor: pointer;

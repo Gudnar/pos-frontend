@@ -81,17 +81,17 @@
         </thead>
         <tbody>
           <tr v-for="m in movimientos" :key="m.id" class="inv-tr">
-            <td style="white-space:nowrap;color:#94a3b8;font-size:11px;">{{ formatFecha(m.fecha) }}</td>
-            <td style="font-weight:600;color:#e2e8f0;">{{ m.productoNombre || '—' }}</td>
+            <td style="white-space:nowrap;color:var(--t3);font-size:11px;">{{ formatFecha(m.fecha) }}</td>
+            <td style="font-weight:600;color:var(--t2);">{{ m.productoNombre || '—' }}</td>
             <td><span :class="['inv-tipo', tipoCss(m.tipo)]">{{ labelTipo(m.tipo) }}</span></td>
             <td class="inv-mono">{{ m.nroLote || m.loteInterno || '—' }}</td>
             <td :class="['inv-qty', esEntrada(m.tipo) ? 'inv-qty--pos' : 'inv-qty--neg']" style="text-align:right;font-weight:800;">
               {{ esEntrada(m.tipo) ? '+' : '-' }}{{ fmt(m.cantidad) }}
             </td>
-            <td style="text-align:right;color:#64748b;">{{ fmt(m.cantidadAnterior) }}</td>
-            <td style="text-align:right;color:#94a3b8;">{{ fmt(m.cantidadPosterior) }}</td>
-            <td style="color:#64748b;font-size:11px;">{{ m.referenciaDocumento || '—' }}</td>
-            <td style="color:#64748b;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" :title="m.motivo">{{ m.motivo || '—' }}</td>
+            <td style="text-align:right;color:var(--t4);">{{ fmt(m.cantidadAnterior) }}</td>
+            <td style="text-align:right;color:var(--t3);">{{ fmt(m.cantidadPosterior) }}</td>
+            <td style="color:var(--t4);font-size:11px;">{{ m.referenciaDocumento || '—' }}</td>
+            <td style="color:var(--t4);max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" :title="m.motivo">{{ m.motivo || '—' }}</td>
           </tr>
         </tbody>
       </table>
@@ -150,7 +150,7 @@ export default {
       } finally { this.loading = false }
     },
     async cargarProductos() {
-      try { this.productos = await this.$service.list('productos') || [] } catch { this.productos = [] }
+      try { this.productos = await this.$service.list('productos?soloActivos=true') || [] } catch { this.productos = [] }
     },
     limpiar() {
       this.filtro = { sucursalId: '', productoId: '', tipo: '', fechaDesde: '', fechaHasta: '' }
@@ -167,18 +167,18 @@ export default {
 
 <style scoped>
 .inv-root { height:100%; overflow:hidden; padding:24px; display:flex; flex-direction:column; gap:12px; }
-.inv-filters { display:flex; gap:12px; flex-wrap:wrap; flex-shrink:0; background:#0d1526; border:1px solid #1e3a5f44; border-radius:12px; padding:14px 16px; align-items:flex-end; }
-.inv-summary-bar { display:flex; gap:20px; flex-wrap:wrap; flex-shrink:0; background:#0d1526; border:1px solid #1e3a5f44; border-radius:12px; padding:12px 20px; }
+.inv-filters { display:flex; gap:12px; flex-wrap:wrap; flex-shrink:0; background:var(--bg-s); border:1px solid var(--b1); border-radius:12px; padding:14px 16px; align-items:flex-end; }
+.inv-summary-bar { display:flex; gap:20px; flex-wrap:wrap; flex-shrink:0; background:var(--bg-s); border:1px solid var(--b1); border-radius:12px; padding:12px 20px; }
 .inv-summary-item { display:flex; flex-direction:column; gap:2px; }
-.inv-summary-item span { font-size:10px; color:#64748b; text-transform:uppercase; letter-spacing:.4px; }
-.inv-summary-item strong { font-size:15px; color:#f1f5f9; }
-.inv-table-wrap { flex:1; background:#0d1526; border:1px solid #1e3a5f44; border-radius:12px; overflow:auto; }
+.inv-summary-item span { font-size:10px; color:var(--t4); text-transform:uppercase; letter-spacing:.4px; }
+.inv-summary-item strong { font-size:15px; color:var(--t1); }
+.inv-table-wrap { flex:1; background:var(--bg-s); border:1px solid var(--b1); border-radius:12px; overflow:auto; }
 .inv-loading { display:flex; justify-content:center; padding:40px; }
-.inv-empty { text-align:center; padding:40px; font-size:13px; color:#334155; font-style:italic; }
+.inv-empty { text-align:center; padding:40px; font-size:13px; color:var(--b3); font-style:italic; }
 .inv-table { width:100%; border-collapse:collapse; font-size:12px; }
-.inv-table th { background:#0f172a; color:#64748b; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; padding:10px 12px; text-align:left; white-space:nowrap; position:sticky; top:0; z-index:1; }
-.inv-table td { padding:9px 12px; border-top:1px solid #1e3a5f22; vertical-align:middle; }
-.inv-tr:hover { background:#1e293b; }
+.inv-table th { background:var(--bg-e); color:var(--t4); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; padding:10px 12px; text-align:left; white-space:nowrap; position:sticky; top:0; z-index:1; }
+.inv-table td { padding:9px 12px; border-top:1px solid var(--b2); vertical-align:middle; }
+.inv-tr:hover { background:var(--bg-c); }
 .inv-mono { font-family:monospace; font-size:11px; color:#818cf8; }
 .inv-tipo { font-size:9px; font-weight:700; padding:2px 7px; border-radius:4px; }
 .inv-tipo--in    { background:#4ade8022; color:#4ade80; border:1px solid #4ade8033; }
@@ -190,6 +190,6 @@ export default {
 .inv-qty { font-size:12px; }
 .inv-qty--pos { color:#4ade80; }
 .inv-qty--neg { color:#f87171; }
-.ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid #1e3a5f44; border-top-color:#6366f1; animation:spin .8s linear infinite; }
+.ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid var(--b1); border-top-color:#6366f1; animation:spin .8s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
 </style>

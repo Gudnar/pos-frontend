@@ -36,18 +36,18 @@
         <div class="home-stats">
           <div v-for="stat in stats" :key="stat.label" class="ide-ia-card home-stat">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-              <span style="font-size:12px; color:#64748b; font-weight:500;">{{ stat.label }}</span>
+              <span style="font-size:12px; color:var(--t4); font-weight:500;">{{ stat.label }}</span>
               <div class="home-stat-ico" :style="{ background: stat.color + '18' }">
                 <span :style="{ color: stat.color, fontSize:'16px' }">{{ stat.emoji }}</span>
               </div>
             </div>
             <div class="stat-value" :style="{ color: stat.color }">{{ stat.value }}</div>
-            <div style="font-size:11px; color:#64748b; margin-top:4px;">{{ stat.sub }}</div>
+            <div style="font-size:11px; color:var(--t4); margin-top:4px;">{{ stat.sub }}</div>
           </div>
         </div>
 
         <div style="display:flex; align-items:center; justify-content:space-between; margin:24px 0 12px;">
-          <div style="font-size:14px; font-weight:700; color:#e2e8f0;">Agentes recientes</div>
+          <div style="font-size:14px; font-weight:700; color:var(--t2);">Agentes recientes</div>
           <router-link :to="{ name: 'agentes' }" style="font-size:12px; color:#6366f1; text-decoration:none;">Ver todos →</router-link>
         </div>
 
@@ -56,7 +56,7 @@
         </div>
         <div v-else-if="agentes.length === 0" class="ide-ia-card" style="text-align:center; padding:32px;">
           <div style="font-size:32px; margin-bottom:12px;">🤖</div>
-          <div style="color:#64748b; font-size:13px; margin-bottom:16px;">No tienes agentes creados aún.</div>
+          <div style="color:var(--t4); font-size:13px; margin-bottom:16px;">No tienes agentes creados aún.</div>
           <router-link :to="{ name: 'agentes' }">
             <v-btn depressed color="primary" style="font-size:12px; border-radius:8px;">Crear primer agente</v-btn>
           </router-link>
@@ -71,21 +71,21 @@
             <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
               <div class="home-ag-avatar" :style="{ background: ag.color+'22', color: ag.color }">{{ ag.avatar }}</div>
               <div style="flex:1; min-width:0;">
-                <div style="font-size:13px; font-weight:700; color:#e2e8f0;">{{ ag.nombre }}</div>
-                <div style="font-size:11px; color:#64748b;">{{ ag.modelo }}</div>
+                <div style="font-size:13px; font-weight:700; color:var(--t2);">{{ ag.nombre }}</div>
+                <div style="font-size:11px; color:var(--t4);">{{ ag.modelo }}</div>
               </div>
               <div class="home-ag-badge" :class="ag.activo ? 'home-ag-badge--on' : ''">
                 {{ ag.activo ? 'Activo' : 'Inactivo' }}
               </div>
             </div>
-            <div style="font-size:11px; color:#64748b; line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-bottom:10px;">
+            <div style="font-size:11px; color:var(--t4); line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-bottom:10px;">
               {{ ag.systemPrompt || ag.descripcion || 'Sin descripción' }}
             </div>
             <div style="display:flex; gap:16px;">
-              <div style="font-size:11px; color:#64748b;">
+              <div style="font-size:11px; color:var(--t4);">
                 <span style="color:#818cf8; font-weight:700;">{{ ag.totalConversaciones }}</span> conv.
               </div>
-              <div style="font-size:11px; color:#64748b;">
+              <div style="font-size:11px; color:var(--t4);">
                 <span style="color:#818cf8; font-weight:700;">{{ ag.totalMensajes }}</span> msg.
               </div>
             </div>
@@ -107,8 +107,8 @@
               <span v-else>{{ i+1 }}</span>
             </div>
             <div style="flex:1;">
-              <div style="font-size:13px; font-weight:700; color:#e2e8f0; margin-bottom:4px;">{{ step.title }}</div>
-              <div style="font-size:12px; color:#64748b; line-height:1.5; margin-bottom:10px;">{{ step.desc }}</div>
+              <div style="font-size:13px; font-weight:700; color:var(--t2); margin-bottom:4px;">{{ step.title }}</div>
+              <div style="font-size:12px; color:var(--t4); line-height:1.5; margin-bottom:10px;">{{ step.desc }}</div>
               <router-link :to="{ name: step.route }" style="font-size:11px; color:#6366f1; font-weight:600; text-decoration:none;">
                 {{ step.cta }} →
               </router-link>

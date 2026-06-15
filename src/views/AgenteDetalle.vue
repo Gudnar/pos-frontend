@@ -28,8 +28,8 @@
         {{ s.label }}
       </button>
 
-      <div style="margin-top:auto; padding-top:12px; border-top:1px solid #1e3a5f33;">
-        <button class="ide-sn-btn" @click="$router.push({ name: 'agentes' })" style="color:#475569;">
+      <div style="margin-top:auto; padding-top:12px; border-top:1px solid var(--b2);">
+        <button class="ide-sn-btn" @click="$router.push({ name: 'agentes' })" style="color:var(--t5);">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
           Volver a Agentes
         </button>
@@ -109,7 +109,7 @@
                 <label>Tokens máximos por respuesta</label>
                 <input type="range" min="64" max="2048" step="64" v-model.number="formConfig.maxTokens"
                   style="width:100%; accent-color:#c96442; margin-top:8px;" />
-                <div style="font-size:11px; color:#64748b; margin-top:2px;">{{ formConfig.maxTokens }} tokens ≈ {{ Math.round(formConfig.maxTokens * 0.75) }} palabras</div>
+                <div style="font-size:11px; color:var(--t4); margin-top:2px;">{{ formConfig.maxTokens }} tokens ≈ {{ Math.round(formConfig.maxTokens * 0.75) }} palabras</div>
               </div>
               <div class="ide-field">
                 <label>Idioma principal</label>
@@ -125,20 +125,20 @@
           <div class="ide-field" style="margin-bottom:16px;">
             <label>
               System Prompt — Instrucciones para Claude
-              <span style="margin-left:8px; font-size:10px; font-weight:500; color:#475569;">Define completamente el comportamiento del agente</span>
+              <span style="margin-left:8px; font-size:10px; font-weight:500; color:var(--t5);">Define completamente el comportamiento del agente</span>
             </label>
             <textarea v-model="formConfig.systemPrompt" class="ide-textarea" rows="14"
               placeholder="Eres un agente de ventas llamado Sofía que trabaja para [Empresa]…"
               style="font-size:12px; line-height:1.7;"
             ></textarea>
             <div style="display:flex; justify-content:space-between; margin-top:4px;">
-              <span style="font-size:10px; color:#475569;">{{ (formConfig.systemPrompt || '').length }} caracteres</span>
-              <span style="font-size:10px; color:#64748b;">{{ agente.nombre }} · {{ formConfig.modelo }}</span>
+              <span style="font-size:10px; color:var(--t5);">{{ (formConfig.systemPrompt || '').length }} caracteres</span>
+              <span style="font-size:10px; color:var(--t4);">{{ agente.nombre }} · {{ formConfig.modelo }}</span>
             </div>
           </div>
 
           <div class="ide-ia-card" style="margin-bottom:16px;">
-            <div style="font-size:12px; font-weight:700; color:#e2e8f0; margin-bottom:10px;">Plantillas rápidas</div>
+            <div style="font-size:12px; font-weight:700; color:var(--t2); margin-bottom:10px;">Plantillas rápidas</div>
             <div style="display:flex; gap:8px; flex-wrap:wrap;">
               <button v-for="t in plantillas" :key="t.label" class="ad-tag-btn" @click="formConfig.systemPrompt = t.prompt">{{ t.label }}</button>
             </div>
@@ -167,28 +167,28 @@
         </div>
         <div style="max-width:620px;">
           <div class="ide-ia-card" style="margin-bottom:16px;">
-            <div style="font-size:13px; font-weight:700; color:#e2e8f0; margin-bottom:14px;">Umbrales de clasificación</div>
+            <div style="font-size:13px; font-weight:700; color:var(--t2); margin-bottom:14px;">Umbrales de clasificación</div>
             <div style="display:flex; flex-direction:column; gap:12px;">
               <div v-for="tier in tiers" :key="tier.id" class="ad-tier-row">
                 <div class="ad-tier-dot" :style="{ background: tier.color }"></div>
-                <span style="font-size:13px; color:#e2e8f0; flex:1;">{{ tier.label }}</span>
+                <span style="font-size:13px; color:var(--t2); flex:1;">{{ tier.label }}</span>
                 <div style="display:flex; align-items:center; gap:8px;">
                   <input type="number" v-model.number="tier.min" class="ide-input" style="width:64px; padding:4px 8px; text-align:center; font-size:12px;" :min="0" :max="100" />
-                  <span style="color:#475569; font-size:12px;">–</span>
+                  <span style="color:var(--t5); font-size:12px;">–</span>
                   <input type="number" v-model.number="tier.max" class="ide-input" style="width:64px; padding:4px 8px; text-align:center; font-size:12px;" :min="0" :max="100" />
-                  <span style="font-size:11px; color:#64748b;">pts</span>
+                  <span style="font-size:11px; color:var(--t4);">pts</span>
                 </div>
               </div>
             </div>
           </div>
 
           <div class="ide-ia-card" style="margin-bottom:16px;">
-            <div style="font-size:13px; font-weight:700; color:#e2e8f0; margin-bottom:14px;">Criterios de calificación</div>
+            <div style="font-size:13px; font-weight:700; color:var(--t2); margin-bottom:14px;">Criterios de calificación</div>
             <div style="display:flex; flex-direction:column; gap:10px;">
-              <div v-for="c in criterios" :key="c.id" style="display:flex; align-items:center; justify-content:space-between; padding:10px 12px; background:#0f172a; border-radius:8px; border:1px solid #1e3a5f33;">
+              <div v-for="c in criterios" :key="c.id" style="display:flex; align-items:center; justify-content:space-between; padding:10px 12px; background:var(--bg-e); border-radius:8px; border:1px solid var(--b2);">
                 <div>
-                  <div style="font-size:12px; font-weight:700; color:#e2e8f0;">{{ c.label }}</div>
-                  <div style="font-size:11px; color:#64748b; margin-top:2px;">{{ c.desc }}</div>
+                  <div style="font-size:12px; font-weight:700; color:var(--t2);">{{ c.label }}</div>
+                  <div style="font-size:11px; color:var(--t4); margin-top:2px;">{{ c.desc }}</div>
                 </div>
                 <div style="display:flex; align-items:center; gap:8px;">
                   <span style="font-size:11px; font-weight:700;" :style="{ color: c.color }">+{{ c.puntos }} pts</span>
@@ -212,12 +212,12 @@
         </div>
         <div style="max-width:620px;">
           <div class="ide-ia-card" style="margin-bottom:16px;">
-            <div style="font-size:13px; font-weight:700; color:#e2e8f0; margin-bottom:14px;">Reglas de escalado automático</div>
+            <div style="font-size:13px; font-weight:700; color:var(--t2); margin-bottom:14px;">Reglas de escalado automático</div>
             <div style="display:flex; flex-direction:column; gap:10px;">
-              <div v-for="r in reglas" :key="r.id" style="display:flex; align-items:flex-start; justify-content:space-between; padding:12px 14px; background:#0f172a; border-radius:8px; border:1px solid #1e3a5f33;">
+              <div v-for="r in reglas" :key="r.id" style="display:flex; align-items:flex-start; justify-content:space-between; padding:12px 14px; background:var(--bg-e); border-radius:8px; border:1px solid var(--b2);">
                 <div style="flex:1; padding-right:16px;">
-                  <div style="font-size:12px; font-weight:700; color:#e2e8f0;">{{ r.label }}</div>
-                  <div style="font-size:11px; color:#64748b; margin-top:2px; line-height:1.5;">{{ r.desc }}</div>
+                  <div style="font-size:12px; font-weight:700; color:var(--t2);">{{ r.label }}</div>
+                  <div style="font-size:11px; color:var(--t4); margin-top:2px; line-height:1.5;">{{ r.desc }}</div>
                 </div>
                 <div class="ide-toggle" :class="{ 'ide-toggle--on': r.activo }" @click="r.activo = !r.activo"><div></div></div>
               </div>
@@ -225,7 +225,7 @@
           </div>
 
           <div class="ide-ia-card" style="margin-bottom:16px;">
-            <div style="font-size:13px; font-weight:700; color:#e2e8f0; margin-bottom:10px;">Mensaje de transferencia</div>
+            <div style="font-size:13px; font-weight:700; color:var(--t2); margin-bottom:10px;">Mensaje de transferencia</div>
             <textarea v-model="mensajeEscalado" class="ide-textarea" rows="3"
               placeholder="Por favor espera un momento, te comunicaré con un agente especializado…"></textarea>
           </div>
@@ -364,7 +364,7 @@ export default {
 .ad-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .ad-form-full { grid-column: span 2; }
 
-.ad-tier-row { display: flex; align-items: center; gap: 12px; padding: 10px 12px; background: #0f172a; border-radius: 8px; border: 1px solid #1e3a5f33; }
+.ad-tier-row { display: flex; align-items: center; gap: 12px; padding: 10px 12px; background: var(--bg-e); border-radius: 8px; border: 1px solid var(--b2); }
 .ad-tier-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 
 .ad-tag-btn {

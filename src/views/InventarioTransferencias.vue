@@ -106,7 +106,7 @@ export default {
   },
   methods: {
     async cargarProductos() {
-      try { this.productos = await this.$service.list('productos') || [] } catch { this.productos = [] }
+      try { this.productos = await this.$service.list('productos?soloActivos=true') || [] } catch { this.productos = [] }
     },
     async cargarLotes() {
       this.form.loteId = ''; this.lotes = []
@@ -152,22 +152,22 @@ export default {
 <style scoped>
 .inv-root { height:100%; overflow:hidden; padding:24px; }
 .inv-two-col { display:flex; gap:16px; height:100%; }
-.inv-panel { background:#0d1526; border:1px solid #1e3a5f44; border-radius:12px; display:flex; flex-direction:column; overflow:hidden; flex:1; min-width:0; }
-.inv-panel-header { padding:14px 16px; border-bottom:1px solid #1e3a5f44; font-size:12px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:.4px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
-.inv-refresh-btn { background:none; border:none; cursor:pointer; color:#475569; padding:4px; border-radius:4px; display:flex; }
+.inv-panel { background:var(--bg-s); border:1px solid var(--b1); border-radius:12px; display:flex; flex-direction:column; overflow:hidden; flex:1; min-width:0; }
+.inv-panel-header { padding:14px 16px; border-bottom:1px solid var(--b1); font-size:12px; font-weight:700; color:var(--t3); text-transform:uppercase; letter-spacing:.4px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+.inv-refresh-btn { background:none; border:none; cursor:pointer; color:var(--t5); padding:4px; border-radius:4px; display:flex; }
 .inv-refresh-btn:hover { color:#818cf8; }
 .inv-hist-list { flex:1; overflow-y:auto; padding:8px; display:flex; flex-direction:column; gap:6px; }
-.inv-hist-item { background:#0f172a; border:1px solid #1e3a5f33; border-radius:8px; padding:10px 12px; display:flex; flex-direction:column; gap:4px; }
+.inv-hist-item { background:var(--bg-e); border:1px solid var(--b2); border-radius:8px; padding:10px 12px; display:flex; flex-direction:column; gap:4px; }
 .inv-hist-top { display:flex; justify-content:space-between; align-items:center; }
-.inv-hist-sub { display:flex; justify-content:space-between; font-size:11px; color:#64748b; }
-.inv-hist-motivo { font-size:11px; color:#475569; font-style:italic; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.inv-hist-sub { display:flex; justify-content:space-between; font-size:11px; color:var(--t4); }
+.inv-hist-motivo { font-size:11px; color:var(--t5); font-style:italic; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .inv-form { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:12px; }
 .inv-form-actions { display:flex; gap:10px; justify-content:flex-end; padding-top:4px; }
 .inv-loading { display:flex; justify-content:center; padding:40px; }
-.inv-empty { text-align:center; padding:40px; font-size:13px; color:#334155; font-style:italic; }
+.inv-empty { text-align:center; padding:40px; font-size:13px; color:var(--b3); font-style:italic; }
 .inv-mono { font-size:12px; font-weight:600; color:#818cf8; font-family:monospace; }
 .inv-tipo { font-size:9px; font-weight:700; padding:2px 7px; border-radius:4px; }
 .inv-tipo--transf { background:#6366f122; color:#818cf8; border:1px solid #6366f133; }
-.ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid #1e3a5f44; border-top-color:#6366f1; animation:spin .8s linear infinite; }
+.ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid var(--b1); border-top-color:#6366f1; animation:spin .8s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
 </style>

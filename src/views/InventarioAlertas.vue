@@ -45,7 +45,7 @@
         </thead>
         <tbody>
           <tr v-for="l in porVencer" :key="l.loteId" class="inv-tr">
-            <td style="font-weight:600;color:#e2e8f0;">{{ l.productoNombre }}</td>
+            <td style="font-weight:600;color:var(--t2);">{{ l.productoNombre }}</td>
             <td class="inv-mono">{{ l.nroLote || '—' }}</td>
             <td style="color:#fbbf24;font-weight:700;">{{ l.fechaVencimiento }}</td>
             <td style="text-align:center;">
@@ -53,7 +53,7 @@
                 {{ labelDias(l.diasRestantes) }}
               </span>
             </td>
-            <td style="text-align:right;font-weight:800;color:#e2e8f0;">{{ fmt(l.cantidadActual) }}</td>
+            <td style="text-align:right;font-weight:800;color:var(--t2);">{{ fmt(l.cantidadActual) }}</td>
           </tr>
         </tbody>
       </table>
@@ -75,9 +75,9 @@
         <tbody>
           <tr v-for="r in sinMovimiento" :key="r.productoId + r.sucursalId" class="inv-tr">
             <td class="inv-mono">{{ r.codigo || '—' }}</td>
-            <td style="font-weight:600;color:#e2e8f0;">{{ r.productoNombre }}</td>
-            <td style="text-align:right;color:#94a3b8;">{{ fmt(r.stockTotal) }}</td>
-            <td style="color:#64748b;font-size:11px;">{{ r.ultimoMovimiento ? formatFecha(r.ultimoMovimiento) : 'Nunca' }}</td>
+            <td style="font-weight:600;color:var(--t2);">{{ r.productoNombre }}</td>
+            <td style="text-align:right;color:var(--t3);">{{ fmt(r.stockTotal) }}</td>
+            <td style="color:var(--t4);font-size:11px;">{{ r.ultimoMovimiento ? formatFecha(r.ultimoMovimiento) : 'Nunca' }}</td>
           </tr>
         </tbody>
       </table>
@@ -86,9 +86,9 @@
     <!-- Stock mínimo -->
     <div v-if="tab === 'minimo'" class="inv-table-wrap">
       <div class="inv-minimo-header">
-        <span style="font-size:12px;color:#64748b;">Umbral de alerta:</span>
+        <span style="font-size:12px;color:var(--t4);">Umbral de alerta:</span>
         <input v-model.number="stockMinimo" type="number" min="0" class="ide-input" style="width:80px;padding:4px 8px;" @input="filtrarMinimo" />
-        <span style="font-size:11px;color:#64748b;">unidades</span>
+        <span style="font-size:11px;color:var(--t4);">unidades</span>
         <select v-model="filtroSucursal" class="ide-select" style="max-width:200px;" @change="filtrarMinimo">
           <option value="">Todas las sucursales</option>
           <option v-for="s in sucursales" :key="s.id" :value="s.id">{{ s.nombre }}</option>
@@ -108,9 +108,9 @@
         <tbody>
           <tr v-for="r in stockBajo" :key="r.productoId + r.sucursalId" class="inv-tr">
             <td class="inv-mono">{{ r.codigo || '—' }}</td>
-            <td style="font-weight:600;color:#e2e8f0;">{{ r.nombre }}</td>
+            <td style="font-weight:600;color:var(--t2);">{{ r.nombre }}</td>
             <td style="text-align:right;font-weight:800;color:#f87171;">{{ fmt(r.stockTotal) }}</td>
-            <td style="text-align:center;color:#94a3b8;">{{ r.nroLotes }}</td>
+            <td style="text-align:center;color:var(--t3);">{{ r.nroLotes }}</td>
           </tr>
         </tbody>
       </table>
@@ -196,28 +196,28 @@ export default {
 
 <style scoped>
 .inv-root { height:100%; overflow:hidden; padding:24px; display:flex; flex-direction:column; gap:12px; }
-.inv-tabs { display:flex; align-items:center; gap:6px; flex-shrink:0; background:#0d1526; border:1px solid #1e3a5f44; border-radius:12px; padding:8px 12px; }
-.inv-tab { background:none; border:none; cursor:pointer; font-size:12px; font-weight:600; color:#64748b; padding:6px 14px; border-radius:8px; display:flex; align-items:center; gap:6px; transition:all .15s; }
-.inv-tab:hover { color:#94a3b8; background:#1e293b44; }
+.inv-tabs { display:flex; align-items:center; gap:6px; flex-shrink:0; background:var(--bg-s); border:1px solid var(--b1); border-radius:12px; padding:8px 12px; }
+.inv-tab { background:none; border:none; cursor:pointer; font-size:12px; font-weight:600; color:var(--t4); padding:6px 14px; border-radius:8px; display:flex; align-items:center; gap:6px; transition:all .15s; }
+.inv-tab:hover { color:var(--t3); background:var(--b1); }
 .inv-tab--active { background:#6366f122; color:#818cf8; }
 .inv-tab-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
 .inv-tab-dot--warn { background:#fbbf24; }
 .inv-tab-dot--info { background:#38bdf8; }
 .inv-tab-dot--err  { background:#f87171; }
 .inv-tab-badge { background:#ef4444; color:#fff; font-size:9px; font-weight:700; padding:1px 5px; border-radius:999px; min-width:16px; text-align:center; }
-.inv-table-wrap { flex:1; background:#0d1526; border:1px solid #1e3a5f44; border-radius:12px; overflow:auto; }
+.inv-table-wrap { flex:1; background:var(--bg-s); border:1px solid var(--b1); border-radius:12px; overflow:auto; }
 .inv-loading { display:flex; justify-content:center; padding:40px; }
-.inv-empty { text-align:center; padding:40px; font-size:13px; color:#334155; font-style:italic; }
+.inv-empty { text-align:center; padding:40px; font-size:13px; color:var(--b3); font-style:italic; }
 .inv-table { width:100%; border-collapse:collapse; font-size:12px; }
-.inv-table th { background:#0f172a; color:#64748b; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; padding:10px 12px; text-align:left; white-space:nowrap; position:sticky; top:0; z-index:1; }
-.inv-table td { padding:10px 12px; border-top:1px solid #1e3a5f22; vertical-align:middle; }
-.inv-tr:hover { background:#1e293b; }
+.inv-table th { background:var(--bg-e); color:var(--t4); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; padding:10px 12px; text-align:left; white-space:nowrap; position:sticky; top:0; z-index:1; }
+.inv-table td { padding:10px 12px; border-top:1px solid var(--b2); vertical-align:middle; }
+.inv-tr:hover { background:var(--bg-c); }
 .inv-mono { font-family:monospace; font-size:11px; color:#818cf8; }
 .inv-dias { font-size:10px; font-weight:700; padding:2px 7px; border-radius:4px; }
 .inv-dias--warn { background:#f59e0b22; color:#fbbf24; border:1px solid #f59e0b33; }
 .inv-dias--crit { background:#ef444422; color:#f87171; border:1px solid #ef444433; }
 .inv-dias--venc { background:#ef444422; color:#f87171; border:1px solid #ef444433; }
-.inv-minimo-header { display:flex; align-items:center; gap:12px; padding:12px 16px; border-bottom:1px solid #1e3a5f22; flex-shrink:0; }
-.ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid #1e3a5f44; border-top-color:#6366f1; animation:spin .8s linear infinite; }
+.inv-minimo-header { display:flex; align-items:center; gap:12px; padding:12px 16px; border-bottom:1px solid var(--b2); flex-shrink:0; }
+.ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid var(--b1); border-top-color:#6366f1; animation:spin .8s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
 </style>

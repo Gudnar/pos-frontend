@@ -24,9 +24,9 @@
     <div class="ide-body">
 
       <!-- SUPER_ADMIN without a clienteId context -->
-      <div v-if="!clienteId" style="padding:40px 0; text-align:center; color:#475569;">
+      <div v-if="!clienteId" style="padding:40px 0; text-align:center; color:var(--t5);">
         <div style="font-size:32px; margin-bottom:12px;">🔐</div>
-        <div style="font-size:15px; font-weight:700; color:#64748b; margin-bottom:6px;">Selecciona un cliente</div>
+        <div style="font-size:15px; font-weight:700; color:var(--t4); margin-bottom:6px;">Selecciona un cliente</div>
         <div style="font-size:12px;">La configuración se gestiona por cliente. Accede desde la sección <strong style="color:#818cf8;">Clientes</strong>.</div>
       </div>
 
@@ -40,7 +40,7 @@
             <div style="font-size:12px; font-weight:700; color:#e8956d; margin-bottom:8px;">🔑 ¿Cómo obtener tu API Key?</div>
             <div v-for="(step, i) in pasos" :key="i" style="display:flex; gap:10px; margin-bottom:6px;">
               <div class="cfg-step-num">{{ i+1 }}</div>
-              <span style="font-size:12px; color:#94a3b8;"><strong style="color:#e2e8f0;">{{ step.bold }}:</strong> {{ step.text }}</span>
+              <span style="font-size:12px; color:var(--t3);"><strong style="color:var(--t2);">{{ step.bold }}:</strong> {{ step.text }}</span>
             </div>
             <a href="https://console.anthropic.com" target="_blank" style="display:inline-flex; align-items:center; gap:5px; margin-top:8px; font-size:11px; color:#e8956d; font-weight:600; text-decoration:none;">
               Ir a console.anthropic.com ↗
@@ -84,9 +84,9 @@
         <div style="max-width:520px;">
           <div class="ide-ia-card" style="margin-bottom:16px;">
             <div style="display:flex; flex-direction:column; gap:12px;">
-              <div v-for="canal in canales" :key="canal.id" style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:#0f172a; border-radius:8px; border:1px solid #1e3a5f33;">
+              <div v-for="canal in canales" :key="canal.id" style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:var(--bg-e); border-radius:8px; border:1px solid var(--b2);">
                 <div style="font-size:20px; flex-shrink:0;">{{ canal.emoji }}</div>
-                <span style="font-size:13px; color:#cbd5e1; flex:1;">{{ canal.label }}</span>
+                <span style="font-size:13px; color:var(--scroll); flex:1;">{{ canal.label }}</span>
                 <div style="display:flex; align-items:center; gap:8px;">
                   <span style="font-size:11px;" :style="{ color: canal.activo ? '#22c55e' : '#ef4444' }">{{ canal.activo ? 'Activo' : 'Inactivo' }}</span>
                   <div class="ide-toggle" :class="{ 'ide-toggle--on': canal.activo }" @click="canal.activo = !canal.activo"><div></div></div>
@@ -104,15 +104,15 @@
       <template v-else-if="seccion === 'modelos'">
         <div class="ide-sec-hd"><h2>Modelos disponibles</h2><p>Referencia de capacidades de cada modelo Claude</p></div>
         <div style="display:flex; flex-direction:column; gap:12px; max-width:620px;">
-          <div v-for="m in modelosInfo" :key="m.id" class="ide-ia-card" :style="{ border: modelo === m.id ? '1px solid #c9644244' : '1px solid #1e3a5f33' }">
+          <div v-for="m in modelosInfo" :key="m.id" class="ide-ia-card" :style="{ border: modelo === m.id ? '1px solid #c9644244' : '1px solid var(--b2)' }">
             <div style="display:flex; align-items:flex-start; gap:14px;">
               <div style="width:40px; height:40px; border-radius:10px; background:linear-gradient(135deg,#c96442,#e8956d); display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;">{{ m.emoji }}</div>
               <div style="flex:1;">
                 <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
-                  <span style="font-size:13px; font-weight:700; color:#e2e8f0;">{{ m.nombre }}</span>
+                  <span style="font-size:13px; font-weight:700; color:var(--t2);">{{ m.nombre }}</span>
                   <span v-if="m.recomendado" style="font-size:10px; font-weight:700; background:#22c55e22; color:#22c55e; padding:2px 7px; border-radius:999px;">Recomendado</span>
                 </div>
-                <div style="font-size:11px; color:#64748b; line-height:1.6; margin-bottom:10px;">{{ m.desc }}</div>
+                <div style="font-size:11px; color:var(--t4); line-height:1.6; margin-bottom:10px;">{{ m.desc }}</div>
                 <div style="display:flex; gap:8px; flex-wrap:wrap;">
                   <span v-for="tag in m.tags" :key="tag" style="font-size:10px; font-weight:600; background:#6366f122; color:#818cf8; padding:2px 8px; border-radius:999px;">{{ tag }}</span>
                 </div>
@@ -141,17 +141,17 @@
           <!-- Setup guide -->
           <div class="cfg-info-card" style="margin-bottom:20px;">
             <div style="font-size:12px; font-weight:700; color:#25D366; margin-bottom:10px;">📱 Configuración en Meta for Developers</div>
-            <div v-for="(step, i) in pasosWa" :key="i" style="display:flex; gap:10px; margin-bottom:8px; font-size:12px; color:#94a3b8;">
+            <div v-for="(step, i) in pasosWa" :key="i" style="display:flex; gap:10px; margin-bottom:8px; font-size:12px; color:var(--t3);">
               <div class="cfg-step-num" style="background:#25D36633; color:#25D366;">{{ i+1 }}</div>
-              <span><strong style="color:#e2e8f0;">{{ step.bold }}:</strong> {{ step.text }}</span>
+              <span><strong style="color:var(--t2);">{{ step.bold }}:</strong> {{ step.text }}</span>
             </div>
-            <div style="margin-top:12px; padding:10px 12px; background:#0f172a; border-radius:8px; border:1px solid #25D36622;">
-              <div style="font-size:11px; font-weight:700; color:#64748b; margin-bottom:6px;">URL del Webhook (copiar en Meta)</div>
+            <div style="margin-top:12px; padding:10px 12px; background:var(--bg-e); border-radius:8px; border:1px solid #25D36622;">
+              <div style="font-size:11px; font-weight:700; color:var(--t4); margin-bottom:6px;">URL del Webhook (copiar en Meta)</div>
               <div style="display:flex; align-items:center; gap:8px;">
                 <code style="font-size:11px; color:#25D366; flex:1; word-break:break-all;">{{ webhookUrl }}</code>
                 <button class="cfg-copy-btn" @click="copiar(webhookUrl)">Copiar</button>
               </div>
-              <div style="margin-top:8px; font-size:11px; font-weight:700; color:#64748b; margin-bottom:4px;">Token de verificación</div>
+              <div style="margin-top:8px; font-size:11px; font-weight:700; color:var(--t4); margin-bottom:4px;">Token de verificación</div>
               <div style="display:flex; align-items:center; gap:8px;">
                 <code style="font-size:11px; color:#818cf8;">{{ waForm.verifyToken || 'ide_ia_verify_token' }}</code>
                 <button class="cfg-copy-btn" @click="copiar(waForm.verifyToken || 'ide_ia_verify_token')">Copiar</button>
@@ -161,7 +161,7 @@
 
           <!-- Credentials form -->
           <div class="ide-ia-card" style="margin-bottom:16px;">
-            <div style="font-size:13px; font-weight:700; color:#e2e8f0; margin-bottom:14px;">Credenciales de la API</div>
+            <div style="font-size:13px; font-weight:700; color:var(--t2); margin-bottom:14px;">Credenciales de la API</div>
             <div style="display:flex; flex-direction:column; gap:12px;">
               <div class="ide-field">
                 <label>Access Token (token permanente o de sistema) *</label>
@@ -174,18 +174,18 @@
                 <div class="ide-field">
                   <label>Phone Number ID *</label>
                   <input v-model="waForm.phoneNumberId" class="ide-input" placeholder="123456789012345" />
-                  <div style="font-size:10px; color:#475569; margin-top:3px;">API → WhatsApp → Getting Started</div>
+                  <div style="font-size:10px; color:var(--t5); margin-top:3px;">API → WhatsApp → Getting Started</div>
                 </div>
                 <div class="ide-field">
                   <label>WhatsApp Business Account ID</label>
                   <input v-model="waForm.wabaId" class="ide-input" placeholder="987654321098765" />
-                  <div style="font-size:10px; color:#475569; margin-top:3px;">Business Manager → Configuración</div>
+                  <div style="font-size:10px; color:var(--t5); margin-top:3px;">Business Manager → Configuración</div>
                 </div>
               </div>
               <div class="ide-field">
                 <label>Token de verificación del webhook</label>
                 <input v-model="waForm.verifyToken" class="ide-input" placeholder="ide_ia_verify_token" />
-                <div style="font-size:10px; color:#475569; margin-top:3px;">Puedes usar cualquier cadena — debe coincidir con lo que ingresas en Meta</div>
+                <div style="font-size:10px; color:var(--t5); margin-top:3px;">Puedes usar cualquier cadena — debe coincidir con lo que ingresas en Meta</div>
               </div>
             </div>
           </div>
@@ -206,7 +206,7 @@
 
           <!-- Agent assignment + enable -->
           <div class="ide-ia-card" style="margin-bottom:16px;">
-            <div style="font-size:13px; font-weight:700; color:#e2e8f0; margin-bottom:14px;">Configuración del canal</div>
+            <div style="font-size:13px; font-weight:700; color:var(--t2); margin-bottom:14px;">Configuración del canal</div>
             <div style="display:flex; flex-direction:column; gap:14px;">
               <div class="ide-field">
                 <label>Agente IA asignado a WhatsApp</label>
@@ -214,12 +214,12 @@
                   <option value="">— Sin agente asignado —</option>
                   <option v-for="ag in agentes" :key="ag.id" :value="ag.id">{{ ag.nombre }} ({{ ag.modelo }})</option>
                 </select>
-                <div style="font-size:10px; color:#475569; margin-top:3px;">Este agente responderá automáticamente los mensajes de WhatsApp</div>
+                <div style="font-size:10px; color:var(--t5); margin-top:3px;">Este agente responderá automáticamente los mensajes de WhatsApp</div>
               </div>
-              <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 14px; background:#0f172a; border-radius:8px; border:1px solid #1e3a5f33;">
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 14px; background:var(--bg-e); border-radius:8px; border:1px solid var(--b2);">
                 <div>
-                  <div style="font-size:13px; font-weight:700; color:#e2e8f0;">Canal WhatsApp activo</div>
-                  <div style="font-size:11px; color:#64748b; margin-top:2px;">El agente responderá mensajes entrantes automáticamente</div>
+                  <div style="font-size:13px; font-weight:700; color:var(--t2);">Canal WhatsApp activo</div>
+                  <div style="font-size:11px; color:var(--t4); margin-top:2px;">El agente responderá mensajes entrantes automáticamente</div>
                 </div>
                 <div style="display:flex; align-items:center; gap:10px;">
                   <span style="font-size:12px; font-weight:600;" :style="{ color: waForm.enabled ? '#22c55e' : '#ef4444' }">{{ waForm.enabled ? 'Activo' : 'Inactivo' }}</span>
@@ -237,33 +237,33 @@
 
           <!-- Routing rules -->
           <div class="ide-ia-card" style="margin-bottom:16px;">
-            <div style="font-size:13px; font-weight:700; color:#e2e8f0; margin-bottom:4px;">Enrutamiento por palabras clave</div>
-            <div style="font-size:11px; color:#64748b; margin-bottom:14px;">Dirige mensajes al agente correcto según palabras clave. Si ya hay una conversación abierta con el contacto, se mantiene ese agente.</div>
+            <div style="font-size:13px; font-weight:700; color:var(--t2); margin-bottom:4px;">Enrutamiento por palabras clave</div>
+            <div style="font-size:11px; color:var(--t4); margin-bottom:14px;">Dirige mensajes al agente correcto según palabras clave. Si ya hay una conversación abierta con el contacto, se mantiene ese agente.</div>
 
             <!-- Existing rules -->
-            <div v-if="routingRules.length === 0" style="padding:12px; background:#0f172a; border-radius:8px; text-align:center; color:#475569; font-size:12px; margin-bottom:12px;">
+            <div v-if="routingRules.length === 0" style="padding:12px; background:var(--bg-e); border-radius:8px; text-align:center; color:var(--t5); font-size:12px; margin-bottom:12px;">
               Sin reglas — todos los mensajes irán al agente por defecto
             </div>
-            <div v-for="(regla, idx) in routingRules" :key="idx" style="display:flex; align-items:center; gap:10px; padding:10px 12px; background:#0f172a; border-radius:8px; margin-bottom:8px;">
+            <div v-for="(regla, idx) in routingRules" :key="idx" style="display:flex; align-items:center; gap:10px; padding:10px 12px; background:var(--bg-e); border-radius:8px; margin-bottom:8px;">
               <div style="flex:1; min-width:0;">
                 <div style="display:flex; flex-wrap:wrap; gap:5px; margin-bottom:5px;">
                   <span v-for="kw in regla.palabrasClave" :key="kw" style="padding:2px 8px; border-radius:12px; background:#6366f122; border:1px solid #6366f133; color:#818cf8; font-size:11px;">{{ kw }}</span>
                 </div>
-                <div style="font-size:11px; color:#94a3b8;">
-                  Agente: <strong style="color:#e2e8f0;">{{ nombreAgente(regla.agenteId) }}</strong>
+                <div style="font-size:11px; color:var(--t3);">
+                  Agente: <strong style="color:var(--t2);">{{ nombreAgente(regla.agenteId) }}</strong>
                 </div>
               </div>
               <button @click="eliminarRegla(idx)" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:16px; padding:4px; flex-shrink:0;" title="Eliminar regla">✕</button>
             </div>
 
             <!-- Add new rule -->
-            <div style="border-top:1px solid #1e293b; padding-top:14px; margin-top:4px;">
-              <div style="font-size:11px; font-weight:700; color:#94a3b8; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.05em;">Nueva regla</div>
+            <div style="border-top:1px solid var(--bg-c); padding-top:14px; margin-top:4px;">
+              <div style="font-size:11px; font-weight:700; color:var(--t3); margin-bottom:10px; text-transform:uppercase; letter-spacing:0.05em;">Nueva regla</div>
               <div style="display:flex; flex-direction:column; gap:10px;">
                 <div class="ide-field">
                   <label>Palabras clave (separadas por coma)</label>
                   <input v-model="routingNuevo.keywords" class="ide-input" placeholder="urgente, emergencia, dolor" @keydown.enter.prevent="agregarRegla" />
-                  <div style="font-size:10px; color:#475569; margin-top:3px;">El mensaje será enrutado si contiene alguna de estas palabras</div>
+                  <div style="font-size:10px; color:var(--t5); margin-top:3px;">El mensaje será enrutado si contiene alguna de estas palabras</div>
                 </div>
                 <div class="ide-field">
                   <label>Agente destino</label>
@@ -308,17 +308,17 @@
           <!-- Setup guide -->
           <div class="cfg-info-card" style="margin-bottom:20px; border-color:#1877f244;">
             <div style="font-size:12px; font-weight:700; color:#1877f2; margin-bottom:10px;">📘 Configuración en Meta for Developers</div>
-            <div v-for="(step, i) in pasosFb" :key="i" style="display:flex; gap:10px; margin-bottom:8px; font-size:12px; color:#94a3b8;">
+            <div v-for="(step, i) in pasosFb" :key="i" style="display:flex; gap:10px; margin-bottom:8px; font-size:12px; color:var(--t3);">
               <div class="cfg-step-num" style="background:#1877f233; color:#1877f2;">{{ i+1 }}</div>
-              <span><strong style="color:#e2e8f0;">{{ step.bold }}:</strong> {{ step.text }}</span>
+              <span><strong style="color:var(--t2);">{{ step.bold }}:</strong> {{ step.text }}</span>
             </div>
-            <div style="margin-top:12px; padding:10px 12px; background:#0f172a; border-radius:8px; border:1px solid #1877f222;">
-              <div style="font-size:11px; font-weight:700; color:#64748b; margin-bottom:6px;">URL del Webhook de Facebook (copiar en Meta)</div>
+            <div style="margin-top:12px; padding:10px 12px; background:var(--bg-e); border-radius:8px; border:1px solid #1877f222;">
+              <div style="font-size:11px; font-weight:700; color:var(--t4); margin-bottom:6px;">URL del Webhook de Facebook (copiar en Meta)</div>
               <div style="display:flex; align-items:center; gap:8px;">
                 <code style="font-size:11px; color:#1877f2; flex:1; word-break:break-all;">{{ fbWebhookUrl }}</code>
                 <button class="cfg-copy-btn" @click="copiar(fbWebhookUrl)">Copiar</button>
               </div>
-              <div style="margin-top:8px; font-size:11px; font-weight:700; color:#64748b; margin-bottom:4px;">Token de verificación</div>
+              <div style="margin-top:8px; font-size:11px; font-weight:700; color:var(--t4); margin-bottom:4px;">Token de verificación</div>
               <div style="display:flex; align-items:center; gap:8px;">
                 <code style="font-size:11px; color:#818cf8;">{{ fbForm.verifyToken || 'fb_verify_token' }}</code>
                 <button class="cfg-copy-btn" @click="copiar(fbForm.verifyToken || 'fb_verify_token')">Copiar</button>
@@ -328,7 +328,7 @@
 
           <!-- Credentials -->
           <div class="ide-ia-card" style="margin-bottom:16px;">
-            <div style="font-size:13px; font-weight:700; color:#e2e8f0; margin-bottom:14px;">Credenciales de la Página</div>
+            <div style="font-size:13px; font-weight:700; color:var(--t2); margin-bottom:14px;">Credenciales de la Página</div>
             <div style="display:flex; flex-direction:column; gap:12px;">
               <div class="ide-field">
                 <label>Page Access Token *</label>
@@ -336,13 +336,13 @@
                   <input v-model="fbForm.pageAccessToken" :type="showFbToken ? 'text' : 'password'" class="ide-input" placeholder="EAAMKqRkf07MBQ…" />
                   <button class="cfg-eye" @click="showFbToken = !showFbToken" type="button">{{ showFbToken ? '🙈' : '👁' }}</button>
                 </div>
-                <div style="font-size:10px; color:#475569; margin-top:3px;">Token de larga duración de la Página (no de usuario). Meta for Developers → Herramientas → Explorador de la API de Graph → generar token de página</div>
+                <div style="font-size:10px; color:var(--t5); margin-top:3px;">Token de larga duración de la Página (no de usuario). Meta for Developers → Herramientas → Explorador de la API de Graph → generar token de página</div>
               </div>
               <div class="cfg-form-row">
                 <div class="ide-field">
                   <label>Page ID *</label>
                   <input v-model="fbForm.pageId" class="ide-input" placeholder="123456789012345" />
-                  <div style="font-size:10px; color:#475569; margin-top:3px;">Información de tu Página → Acerca de → ID de página</div>
+                  <div style="font-size:10px; color:var(--t5); margin-top:3px;">Información de tu Página → Acerca de → ID de página</div>
                 </div>
                 <div class="ide-field">
                   <label>Token de verificación webhook</label>
@@ -367,7 +367,7 @@
 
           <!-- Agent config -->
           <div class="ide-ia-card" style="margin-bottom:16px;">
-            <div style="font-size:13px; font-weight:700; color:#e2e8f0; margin-bottom:14px;">Agentes y comportamiento</div>
+            <div style="font-size:13px; font-weight:700; color:var(--t2); margin-bottom:14px;">Agentes y comportamiento</div>
             <div style="display:flex; flex-direction:column; gap:14px;">
               <div class="cfg-form-row">
                 <div class="ide-field">
@@ -376,7 +376,7 @@
                     <option value="">— Sin agente —</option>
                     <option v-for="ag in agentes" :key="ag.id" :value="ag.id">{{ ag.nombre }}</option>
                   </select>
-                  <div style="font-size:10px; color:#475569; margin-top:3px;">Responde mensajes directos a la Página</div>
+                  <div style="font-size:10px; color:var(--t5); margin-top:3px;">Responde mensajes directos a la Página</div>
                 </div>
                 <div class="ide-field">
                   <label>Agente para comentarios</label>
@@ -384,20 +384,20 @@
                     <option value="">— Igual que Messenger —</option>
                     <option v-for="ag in agentes" :key="ag.id" :value="ag.id">{{ ag.nombre }}</option>
                   </select>
-                  <div style="font-size:10px; color:#475569; margin-top:3px;">Responde comentarios en publicaciones</div>
+                  <div style="font-size:10px; color:var(--t5); margin-top:3px;">Responde comentarios en publicaciones</div>
                 </div>
               </div>
-              <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:#0f172a; border-radius:8px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:var(--bg-e); border-radius:8px;">
                 <div>
-                  <div style="font-size:13px; font-weight:700; color:#e2e8f0;">Responder comentarios en publicaciones</div>
-                  <div style="font-size:11px; color:#64748b; margin-top:2px;">El agente comentará automáticamente en respuesta a cada nuevo comentario</div>
+                  <div style="font-size:13px; font-weight:700; color:var(--t2);">Responder comentarios en publicaciones</div>
+                  <div style="font-size:11px; color:var(--t4); margin-top:2px;">El agente comentará automáticamente en respuesta a cada nuevo comentario</div>
                 </div>
                 <div class="ide-toggle" :class="{ 'ide-toggle--on': fbForm.replyComments }" @click="fbForm.replyComments = !fbForm.replyComments"><div></div></div>
               </div>
-              <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:#0f172a; border-radius:8px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:var(--bg-e); border-radius:8px;">
                 <div>
-                  <div style="font-size:13px; font-weight:700; color:#e2e8f0;">Canal activo</div>
-                  <div style="font-size:11px; color:#64748b; margin-top:2px;">Activa o pausa toda la integración con Facebook</div>
+                  <div style="font-size:13px; font-weight:700; color:var(--t2);">Canal activo</div>
+                  <div style="font-size:11px; color:var(--t4); margin-top:2px;">Activa o pausa toda la integración con Facebook</div>
                 </div>
                 <div style="display:flex; align-items:center; gap:10px;">
                   <span style="font-size:12px; font-weight:600;" :style="{ color: fbForm.enabled ? '#22c55e' : '#ef4444' }">{{ fbForm.enabled ? 'Activo' : 'Inactivo' }}</span>
@@ -414,11 +414,11 @@
           </div>
 
           <!-- Publicaciones -->
-          <div style="border-top:1px solid #1e293b; padding-top:24px;">
+          <div style="border-top:1px solid var(--bg-c); padding-top:24px;">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
               <div>
-                <div style="font-size:14px; font-weight:700; color:#e2e8f0;">Publicaciones recientes</div>
-                <div style="font-size:11px; color:#64748b; margin-top:2px;">Asigna un agente específico a cada publicación para responder sus comentarios</div>
+                <div style="font-size:14px; font-weight:700; color:var(--t2);">Publicaciones recientes</div>
+                <div style="font-size:11px; color:var(--t4); margin-top:2px;">Asigna un agente específico a cada publicación para responder sus comentarios</div>
               </div>
               <v-btn depressed small :loading="fbPubsCargando" @click="cargarPublicaciones" style="font-size:12px; border-radius:8px;">
                 {{ fbPublicaciones.length ? 'Actualizar' : 'Cargar publicaciones' }}
@@ -429,35 +429,35 @@
             <div v-if="fbPubsError" class="cfg-result cfg-result--err" style="margin-bottom:12px;">{{ fbPubsError }}</div>
 
             <!-- Empty -->
-            <div v-if="!fbPubsCargando && !fbPublicaciones.length && !fbPubsError" style="padding:20px; text-align:center; background:#0f172a; border-radius:10px; color:#475569; font-size:12px;">
+            <div v-if="!fbPubsCargando && !fbPublicaciones.length && !fbPubsError" style="padding:20px; text-align:center; background:var(--bg-e); border-radius:10px; color:var(--t5); font-size:12px;">
               Haz clic en "Cargar publicaciones" para ver tus posts recientes
             </div>
 
             <!-- Post list -->
             <div style="display:flex; flex-direction:column; gap:10px;">
               <div v-for="pub in fbPublicaciones" :key="pub.id"
-                style="display:flex; gap:12px; padding:12px 14px; background:#0f172a; border-radius:10px; border:1px solid #1e293b; align-items:flex-start;">
+                style="display:flex; gap:12px; padding:12px 14px; background:var(--bg-e); border-radius:10px; border:1px solid var(--bg-c); align-items:flex-start;">
 
                 <!-- Thumbnail -->
-                <div style="flex-shrink:0; width:56px; height:56px; border-radius:8px; overflow:hidden; background:#1e293b; display:flex; align-items:center; justify-content:center;">
+                <div style="flex-shrink:0; width:56px; height:56px; border-radius:8px; overflow:hidden; background:var(--bg-c); display:flex; align-items:center; justify-content:center;">
                   <img v-if="pub.imagen" :src="pub.imagen" style="width:100%; height:100%; object-fit:cover;" />
                   <span v-else style="font-size:22px;">📄</span>
                 </div>
 
                 <!-- Content -->
                 <div style="flex:1; min-width:0;">
-                  <div style="font-size:12px; color:#e2e8f0; line-height:1.4; margin-bottom:6px; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">
+                  <div style="font-size:12px; color:var(--t2); line-height:1.4; margin-bottom:6px; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">
                     {{ pub.texto }}
                   </div>
                   <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                    <span style="font-size:10px; color:#475569;">{{ formatearFecha(pub.fechaPublicacion) }}</span>
+                    <span style="font-size:10px; color:var(--t5);">{{ formatearFecha(pub.fechaPublicacion) }}</span>
                     <a v-if="pub.enlace" :href="pub.enlace" target="_blank" style="font-size:10px; color:#1877f2; text-decoration:none;">Ver publicación ↗</a>
                   </div>
                 </div>
 
                 <!-- Agent selector -->
                 <div style="flex-shrink:0; min-width:170px;">
-                  <div style="font-size:10px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px;">Agente para comentarios</div>
+                  <div style="font-size:10px; font-weight:700; color:var(--t4); text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px;">Agente para comentarios</div>
                   <select :value="agenteDePub(pub.id)" @change="asignarAgentePub(pub, $event.target.value)" class="ide-select" style="font-size:12px; padding:6px 8px;">
                     <option value="">— Agente por defecto —</option>
                     <option v-for="ag in agentes" :key="ag.id" :value="ag.id">{{ ag.nombre }}</option>
@@ -480,23 +480,23 @@
 
           <div class="cfg-info-card" style="margin-bottom:20px;">
             <div style="font-size:12px; font-weight:700; color:#e8956d; margin-bottom:8px;">🤖 ¿Cómo funciona?</div>
-            <div style="font-size:12px; color:#94a3b8; line-height:1.6;">
+            <div style="font-size:12px; color:var(--t3); line-height:1.6;">
               Cuando el número registrado aquí envíe un mensaje por WhatsApp, el sistema activará un agente IA que consulta datos reales del negocio. Los clientes normales siguen siendo atendidos por sus agentes habituales.
             </div>
           </div>
 
           <div class="ide-ia-card" style="margin-bottom:16px;">
-            <div style="font-size:13px; font-weight:700; color:#e2e8f0; margin-bottom:14px;">Número del dueño</div>
+            <div style="font-size:13px; font-weight:700; color:var(--t2); margin-bottom:14px;">Número del dueño</div>
             <div class="ide-field">
               <label>Número de WhatsApp *</label>
               <input v-model="ownerForm.telefono" class="ide-input" placeholder="591XXXXXXXXX" />
-              <div style="font-size:10px; color:#475569; margin-top:3px;">Formato internacional sin + ni espacios: código de país + número (ej. 59170000000)</div>
+              <div style="font-size:10px; color:var(--t5); margin-top:3px;">Formato internacional sin + ni espacios: código de país + número (ej. 59170000000)</div>
             </div>
           </div>
 
           <div class="ide-ia-card" style="margin-bottom:16px;">
-            <div style="font-size:13px; font-weight:700; color:#e2e8f0; margin-bottom:4px;">Instrucciones del asistente</div>
-            <div style="font-size:11px; color:#64748b; margin-bottom:12px;">Personaliza el comportamiento del asistente. Si lo dejas vacío se aplica una instrucción predeterminada.</div>
+            <div style="font-size:13px; font-weight:700; color:var(--t2); margin-bottom:4px;">Instrucciones del asistente</div>
+            <div style="font-size:11px; color:var(--t4); margin-bottom:12px;">Personaliza el comportamiento del asistente. Si lo dejas vacío se aplica una instrucción predeterminada.</div>
             <div class="ide-field">
               <label>System prompt (opcional)</label>
               <textarea v-model="ownerForm.systemPrompt" class="ide-input" rows="5"
@@ -506,10 +506,10 @@
 
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
             <div v-for="cap in ownerCapacidades" :key="cap.titulo"
-              style="padding:12px 14px; background:#0f172a; border-radius:10px; border:1px solid #1e293b;">
+              style="padding:12px 14px; background:var(--bg-e); border-radius:10px; border:1px solid var(--bg-c);">
               <div style="font-size:18px; margin-bottom:6px;">{{ cap.emoji }}</div>
-              <div style="font-size:12px; font-weight:700; color:#e2e8f0; margin-bottom:3px;">{{ cap.titulo }}</div>
-              <div style="font-size:11px; color:#64748b; line-height:1.4;">{{ cap.desc }}</div>
+              <div style="font-size:12px; font-weight:700; color:var(--t2); margin-bottom:3px;">{{ cap.titulo }}</div>
+              <div style="font-size:11px; color:var(--t4); line-height:1.4;">{{ cap.desc }}</div>
             </div>
           </div>
 

@@ -79,9 +79,9 @@
               <div class="cal-dist-label">Cold Leads</div>
               <div class="cal-dist-range">Score 1–39</div>
             </div>
-            <div class="ide-ia-card cal-dist-card" style="border-color:#33415544;">
+            <div class="ide-ia-card cal-dist-card" style="border-color:var(--b1);">
               <div class="cal-dist-emoji">⬜</div>
-              <div class="cal-dist-val" style="color:#475569;">{{ (metricas.distribucion || {}).sinScore || 0 }}</div>
+              <div class="cal-dist-val" style="color:var(--t5);">{{ (metricas.distribucion || {}).sinScore || 0 }}</div>
               <div class="cal-dist-label">Sin calificar</div>
               <div class="cal-dist-range">Score = 0</div>
             </div>
@@ -90,28 +90,28 @@
           <!-- Intenciones + Sentimientos -->
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
             <div class="ide-ia-card">
-              <div style="font-size:12px; font-weight:700; color:#e2e8f0; margin-bottom:12px;">Intenciones detectadas</div>
-              <div v-if="!Object.keys(metricas.intenciones || {}).length" style="font-size:12px; color:#475569; padding:8px 0;">Sin datos aún</div>
+              <div style="font-size:12px; font-weight:700; color:var(--t2); margin-bottom:12px;">Intenciones detectadas</div>
+              <div v-if="!Object.keys(metricas.intenciones || {}).length" style="font-size:12px; color:var(--t5); padding:8px 0;">Sin datos aún</div>
               <div v-else style="display:flex; flex-direction:column; gap:10px;">
                 <div v-for="(count, key) in metricas.intenciones" :key="key" style="display:flex; align-items:center; gap:8px;">
                   <span class="cal-mini-badge" :style="intencionBadgeStyle(key)">{{ intencionLabel(key) }}</span>
-                  <div style="flex:1; height:4px; border-radius:2px; background:#1e293b; overflow:hidden;">
+                  <div style="flex:1; height:4px; border-radius:2px; background:var(--bg-c); overflow:hidden;">
                     <div :style="{ width: pct(count, metricas.total)+'%', height:'100%', background: intencionColor(key), borderRadius:'2px', transition:'width 0.4s' }"></div>
                   </div>
-                  <span style="font-size:11px; color:#94a3b8; min-width:22px; text-align:right; font-weight:700;">{{ count }}</span>
+                  <span style="font-size:11px; color:var(--t3); min-width:22px; text-align:right; font-weight:700;">{{ count }}</span>
                 </div>
               </div>
             </div>
             <div class="ide-ia-card">
-              <div style="font-size:12px; font-weight:700; color:#e2e8f0; margin-bottom:12px;">Sentimientos detectados</div>
-              <div v-if="!Object.keys(metricas.sentimientos || {}).length" style="font-size:12px; color:#475569; padding:8px 0;">Sin datos aún</div>
+              <div style="font-size:12px; font-weight:700; color:var(--t2); margin-bottom:12px;">Sentimientos detectados</div>
+              <div v-if="!Object.keys(metricas.sentimientos || {}).length" style="font-size:12px; color:var(--t5); padding:8px 0;">Sin datos aún</div>
               <div v-else style="display:flex; flex-direction:column; gap:10px;">
                 <div v-for="(count, key) in metricas.sentimientos" :key="key" style="display:flex; align-items:center; gap:8px;">
                   <span class="cal-mini-badge" :style="sentimientoBadgeStyle(key)">{{ sentimientoLabel(key) }}</span>
-                  <div style="flex:1; height:4px; border-radius:2px; background:#1e293b; overflow:hidden;">
+                  <div style="flex:1; height:4px; border-radius:2px; background:var(--bg-c); overflow:hidden;">
                     <div :style="{ width: pct(count, metricas.total)+'%', height:'100%', background: sentimientoColor(key), borderRadius:'2px', transition:'width 0.4s' }"></div>
                   </div>
-                  <span style="font-size:11px; color:#94a3b8; min-width:22px; text-align:right; font-weight:700;">{{ count }}</span>
+                  <span style="font-size:11px; color:var(--t3); min-width:22px; text-align:right; font-weight:700;">{{ count }}</span>
                 </div>
               </div>
             </div>
@@ -129,20 +129,20 @@
 
         <div style="max-width:680px;">
           <div class="ide-ia-card" style="margin-bottom:16px;">
-            <div style="font-size:13px; font-weight:700; color:#e2e8f0; margin-bottom:14px;">Criterios activos</div>
+            <div style="font-size:13px; font-weight:700; color:var(--t2); margin-bottom:14px;">Criterios activos</div>
             <div style="display:flex; flex-direction:column; gap:10px;">
               <div
                 v-for="c in criterios" :key="c.id"
-                style="display:flex; align-items:flex-start; gap:14px; padding:12px 14px; background:#0f172a; border-radius:8px; border:1px solid;"
-                :style="{ borderColor: c.activo ? c.color+'33' : '#1e3a5f22' }"
+                style="display:flex; align-items:flex-start; gap:14px; padding:12px 14px; background:var(--bg-e); border-radius:8px; border:1px solid;"
+                :style="{ borderColor: c.activo ? c.color+'33' : 'var(--b2)' }"
               >
                 <div class="cal-ico" :style="{ background: c.color+'22', color: c.color }">{{ c.emoji }}</div>
                 <div style="flex:1;">
                   <div style="display:flex; align-items:center; gap:8px; margin-bottom:3px;">
-                    <span style="font-size:13px; font-weight:700; color:#e2e8f0;">{{ c.label }}</span>
+                    <span style="font-size:13px; font-weight:700; color:var(--t2);">{{ c.label }}</span>
                     <span style="font-size:11px; font-weight:700; padding:1px 7px; border-radius:999px;" :style="{ background: c.color+'22', color: c.color }">+{{ c.puntos }} pts</span>
                   </div>
-                  <div style="font-size:11px; color:#64748b; line-height:1.5;">{{ c.desc }}</div>
+                  <div style="font-size:11px; color:var(--t4); line-height:1.5;">{{ c.desc }}</div>
                 </div>
                 <div class="ide-toggle" :class="{ 'ide-toggle--on': c.activo }" @click="c.activo = !c.activo"><div></div></div>
               </div>
@@ -169,25 +169,25 @@
               <div v-for="tier in tiers" :key="tier.id" class="cal-tier-row" :style="{ borderColor: tier.color+'33' }">
                 <div style="width:10px; height:10px; border-radius:50%; flex-shrink:0;" :style="{ background: tier.color }"></div>
                 <div style="flex:1;">
-                  <div style="font-size:13px; font-weight:700; color:#e2e8f0; margin-bottom:2px;">{{ tier.emoji }} {{ tier.label }}</div>
-                  <div style="font-size:11px; color:#64748b;">{{ tier.desc }}</div>
+                  <div style="font-size:13px; font-weight:700; color:var(--t2); margin-bottom:2px;">{{ tier.emoji }} {{ tier.label }}</div>
+                  <div style="font-size:11px; color:var(--t4);">{{ tier.desc }}</div>
                 </div>
                 <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
                   <input type="number" v-model.number="tier.min" class="ide-input" style="width:60px; padding:4px 8px; font-size:12px; text-align:center;" :min="0" :max="100" />
-                  <span style="color:#475569; font-size:12px;">–</span>
+                  <span style="color:var(--t5); font-size:12px;">–</span>
                   <input type="number" v-model.number="tier.max" class="ide-input" style="width:60px; padding:4px 8px; font-size:12px; text-align:center;" :min="0" :max="100" />
-                  <span style="font-size:11px; color:#64748b;">pts</span>
+                  <span style="font-size:11px; color:var(--t4);">pts</span>
                 </div>
               </div>
             </div>
           </div>
 
           <div class="ide-ia-card" style="margin-bottom:16px;">
-            <div style="font-size:12px; font-weight:700; color:#e2e8f0; margin-bottom:12px;">Vista previa del scoring</div>
+            <div style="font-size:12px; font-weight:700; color:var(--t2); margin-bottom:12px;">Vista previa del scoring</div>
             <div style="display:flex; height:24px; border-radius:8px; overflow:hidden;">
               <div v-for="tier in tiers" :key="tier.id" :style="{ flex: tier.max - tier.min, background: tier.color }" :title="tier.label"></div>
             </div>
-            <div style="display:flex; justify-content:space-between; margin-top:4px; font-size:10px; color:#64748b;">
+            <div style="display:flex; justify-content:space-between; margin-top:4px; font-size:10px; color:var(--t4);">
               <span>0</span><span>50</span><span>100</span>
             </div>
           </div>
@@ -213,22 +213,22 @@
             <div v-for="tier in leadTiers" :key="tier.label" class="ide-ia-card" :style="{ border: '1px solid '+tier.color+'44', textAlign:'center', padding:'24px' }">
               <div style="font-size:28px; margin-bottom:10px;">{{ tier.emoji }}</div>
               <div style="font-size:32px; font-weight:900;" :style="{ color: tier.color }">{{ tier.value }}</div>
-              <div style="font-size:13px; font-weight:700; color:#e2e8f0; margin:4px 0;">{{ tier.label }}</div>
-              <div style="font-size:11px; color:#64748b;">Score {{ tier.range }}</div>
+              <div style="font-size:13px; font-weight:700; color:var(--t2); margin:4px 0;">{{ tier.label }}</div>
+              <div style="font-size:11px; color:var(--t4);">Score {{ tier.range }}</div>
             </div>
           </div>
 
           <div class="ide-ia-card" style="margin-top:16px;">
-            <div style="font-size:13px; font-weight:700; color:#e2e8f0; margin-bottom:14px;">Últimas calificaciones</div>
-            <div v-if="ultimasConv.length === 0" style="text-align:center; color:#64748b; font-size:13px; padding:16px;">
+            <div style="font-size:13px; font-weight:700; color:var(--t2); margin-bottom:14px;">Últimas calificaciones</div>
+            <div v-if="ultimasConv.length === 0" style="text-align:center; color:var(--t4); font-size:13px; padding:16px;">
               No hay conversaciones calificadas aún
             </div>
             <div v-else style="display:flex; flex-direction:column; gap:0;">
-              <div v-for="conv in ultimasConv" :key="conv.id" style="display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid #1e3a5f22;">
+              <div v-for="conv in ultimasConv" :key="conv.id" style="display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--b2);">
                 <div class="cal-contact-av">{{ conv.contacto.slice(0,2).toUpperCase() }}</div>
                 <div style="flex:1; min-width:0;">
-                  <div style="font-size:13px; font-weight:600; color:#e2e8f0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ conv.contacto }}</div>
-                  <div style="font-size:11px; color:#64748b; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                  <div style="font-size:13px; font-weight:600; color:var(--t2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ conv.contacto }}</div>
+                  <div style="font-size:11px; color:var(--t4); display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
                     <span>{{ conv.canal }}</span>
                     <span>·</span>
                     <span>{{ formatDate(conv.fechaModificacion || conv.fechaCreacion) }}</span>
@@ -256,7 +256,7 @@
         <div style="max-width:680px;">
           <div class="ide-ia-card" style="margin-bottom:16px; background:#1a0f0a; border-color:#c9644244;">
             <div style="font-size:12px; font-weight:700; color:#e8956d; margin-bottom:8px;">💡 ¿Qué es el prompt de calificación?</div>
-            <p style="font-size:12px; color:#94a3b8; line-height:1.6; margin:0;">
+            <p style="font-size:12px; color:var(--t3); line-height:1.6; margin:0;">
               Claude analiza cada conversación y devuelve un JSON con score, intención, urgencia, sentimiento y datos del contacto.
               Puedes personalizar las instrucciones aquí. Si lo dejas vacío, se usa el prompt predeterminado para consultorios médicos.
             </p>
@@ -264,7 +264,7 @@
 
           <div class="ide-ia-card" style="margin-bottom:16px; border-color:#6366f133;">
             <div style="font-size:12px; font-weight:700; color:#818cf8; margin-bottom:10px;">Formato de respuesta esperado (no modificar)</div>
-            <pre style="font-size:11px; color:#64748b; background:#0f172a; padding:12px; border-radius:8px; overflow-x:auto; margin:0;">{{ jsonExample }}</pre>
+            <pre style="font-size:11px; color:var(--t4); background:var(--bg-e); padding:12px; border-radius:8px; overflow-x:auto; margin:0;">{{ jsonExample }}</pre>
           </div>
 
           <div class="ide-field" style="margin-bottom:16px;">
@@ -406,13 +406,13 @@ export default {
     },
 
     // ── Score/tier helpers ──
-    scoreColor(s) { return s >= 70 ? '#22c55e' : s >= 40 ? '#f59e0b' : s > 0 ? '#60a5fa' : '#475569'; },
+    scoreColor(s) { return s >= 70 ? '#22c55e' : s >= 40 ? '#f59e0b' : s > 0 ? '#60a5fa' : 'var(--t5)'; },
     tierLabel(s)  { return s >= 70 ? '🔥 Hot' : s >= 40 ? '🌡 Warm' : s > 0 ? '❄️ Cold' : '—'; },
     tierBadgeStyle(s) {
       if (s >= 70) return 'background:#22c55e22; color:#22c55e;';
       if (s >= 40) return 'background:#f59e0b22; color:#f59e0b;';
       if (s >  0) return 'background:#60a5fa22; color:#60a5fa;';
-      return 'background:#33415522; color:#475569;';
+      return 'background:var(--b2); color:var(--t5);';
     },
 
     // ── Intención helpers ──
@@ -420,7 +420,7 @@ export default {
       return { RESERVAR:'Reservar', INFORMAR:'Informar', CANCELAR:'Cancelar', QUEJAR:'Queja', OTRO:'Otro' }[v] || v;
     },
     intencionColor(v) {
-      return { RESERVAR:'#22c55e', INFORMAR:'#818cf8', CANCELAR:'#ef4444', QUEJAR:'#f97316', OTRO:'#64748b' }[v] || '#64748b';
+      return { RESERVAR:'#22c55e', INFORMAR:'#818cf8', CANCELAR:'#ef4444', QUEJAR:'#f97316', OTRO:'var(--t4)' }[v] || 'var(--t4)';
     },
     intencionBadgeStyle(v) {
       const c = this.intencionColor(v);
@@ -432,7 +432,7 @@ export default {
       return { POSITIVO:'Positivo', NEUTRAL:'Neutral', NEGATIVO:'Negativo', FRUSTRADO:'Frustrado' }[v] || v;
     },
     sentimientoColor(v) {
-      return { POSITIVO:'#22c55e', NEUTRAL:'#64748b', NEGATIVO:'#ef4444', FRUSTRADO:'#f97316' }[v] || '#64748b';
+      return { POSITIVO:'#22c55e', NEUTRAL:'var(--t4)', NEGATIVO:'#ef4444', FRUSTRADO:'#f97316' }[v] || 'var(--t4)';
     },
     sentimientoBadgeStyle(v) {
       const c = this.sentimientoColor(v);
@@ -454,25 +454,25 @@ export default {
 
 <style scoped>
 .cal-ico { width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
-.cal-tier-row { display:flex; align-items:center; gap:12px; padding:12px 14px; background:#0f172a; border-radius:8px; border:1px solid; }
+.cal-tier-row { display:flex; align-items:center; gap:12px; padding:12px 14px; background:var(--bg-e); border-radius:8px; border:1px solid; }
 .cal-lead-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
 .cal-dist-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
 .cal-dist-card { text-align:center; padding:20px; }
 .cal-dist-emoji { font-size:26px; margin-bottom:8px; }
 .cal-dist-val { font-size:30px; font-weight:900; }
-.cal-dist-label { font-size:12px; font-weight:700; color:#e2e8f0; margin:4px 0; }
-.cal-dist-range { font-size:11px; color:#64748b; }
+.cal-dist-label { font-size:12px; font-weight:700; color:var(--t2); margin:4px 0; }
+.cal-dist-range { font-size:11px; color:var(--t4); }
 .cal-contact-av { width:34px; height:34px; border-radius:9px; background:#6366f122; color:#818cf8; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0; }
 .cal-tier-badge { font-size:10px; font-weight:600; padding:2px 8px; border-radius:999px; }
 .cal-kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
-.cal-kpi-card { background:#1e293b; border:1px solid #1e3a5f33; border-radius:10px; padding:18px; text-align:center; }
+.cal-kpi-card { background:var(--bg-c); border:1px solid var(--b2); border-radius:10px; padding:18px; text-align:center; }
 .cal-kpi-val { font-size:28px; font-weight:900; margin-bottom:4px; }
-.cal-kpi-lbl { font-size:11px; color:#64748b; font-weight:600; }
+.cal-kpi-lbl { font-size:11px; color:var(--t4); font-weight:600; }
 .cal-mini-badge { font-size:10px; font-weight:700; padding:1px 7px; border-radius:999px; white-space:nowrap; flex-shrink:0; }
 .cal-btn-ghost {
-  padding:8px 14px; border-radius:8px; border:1px solid #334155;
-  background:none; color:#64748b; font-size:12px; font-weight:600;
+  padding:8px 14px; border-radius:8px; border:1px solid var(--b3);
+  background:none; color:var(--t4); font-size:12px; font-weight:600;
   cursor:pointer; font-family:inherit; transition:all 0.15s;
 }
-.cal-btn-ghost:hover { border-color:#6366f133; color:#94a3b8; }
+.cal-btn-ghost:hover { border-color:#6366f133; color:var(--t3); }
 </style>

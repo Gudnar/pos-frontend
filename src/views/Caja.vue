@@ -40,7 +40,7 @@
           <span class="cj-banner-sep">·</span>
           <span>Bs. <strong style="color:#818cf8;">{{ fmtMonto(sesionActiva.totalVentas) }}</strong></span>
         </div>
-        <button class="cj-btn-cerrar-activa" @click="iniciarCierre(sesionActivaEnTabla)">Cerrar mi sesión</button>
+        <button class="cj-btn-cerrar-activa" @click="iniciarCierrePropia">Cerrar mi sesión</button>
       </div>
 
       <!-- Tabla -->
@@ -72,12 +72,12 @@
               <td>
                 <strong>{{ s.nombreCaja }}</strong>
               </td>
-              <td style="color:#64748b;font-size:11px;">{{ sucursalNombre(s.sucursalId) }}</td>
+              <td style="color:var(--t4);font-size:11px;">{{ sucursalNombre(s.sucursalId) }}</td>
               <td style="font-size:11px;">{{ s.nombreUsuario || '—' }}</td>
-              <td style="font-size:11px;color:#94a3b8;">{{ formatFechaHora(s.fechaApertura) }}</td>
+              <td style="font-size:11px;color:var(--t3);">{{ formatFechaHora(s.fechaApertura) }}</td>
               <td style="text-align:right;font-weight:600;">{{ fmtMonto(s.montoInicial) }}</td>
               <td style="text-align:right;">
-                <div style="font-size:12px;color:#cbd5e1;">{{ s.nroVentas }}</div>
+                <div style="font-size:12px;color:var(--scroll);">{{ s.nroVentas }}</div>
                 <div style="font-size:10px;color:#6366f1;">Bs. {{ fmtMonto(s.totalVentas) }}</div>
               </td>
               <td>
@@ -87,7 +87,7 @@
               </td>
               <td style="text-align:right;">
                 <span v-if="s.montoFinal != null" style="font-weight:600;">{{ fmtMonto(s.montoFinal) }}</span>
-                <span v-else style="color:#334155;">—</span>
+                <span v-else style="color:var(--b3);">—</span>
               </td>
               <td style="text-align:right;">
                 <span
@@ -96,9 +96,9 @@
                 >
                   {{ Number(s.diferencia) >= 0 ? '+' : '' }}{{ fmtMonto(s.diferencia) }}
                 </span>
-                <span v-else style="color:#334155;">—</span>
+                <span v-else style="color:var(--b3);">—</span>
               </td>
-              <td style="font-size:10px;color:#475569;">
+              <td style="font-size:10px;color:var(--t5);">
                 <span v-if="s.fechaCierre">{{ formatHora(s.fechaCierre) }}</span>
                 <span v-else>—</span>
               </td>
@@ -113,14 +113,14 @@
           </tbody>
           <tfoot>
             <tr class="cj-tfoot">
-              <td colspan="4" style="text-align:right;font-size:11px;color:#475569;padding:10px 12px;">Totales del día</td>
-              <td style="text-align:right;font-weight:700;color:#e2e8f0;padding:10px 12px;">{{ fmtMonto(totalInicialDia) }}</td>
+              <td colspan="4" style="text-align:right;font-size:11px;color:var(--t5);padding:10px 12px;">Totales del día</td>
+              <td style="text-align:right;font-weight:700;color:var(--t2);padding:10px 12px;">{{ fmtMonto(totalInicialDia) }}</td>
               <td style="text-align:right;padding:10px 12px;">
-                <div style="font-size:12px;color:#cbd5e1;">{{ totalVentasNro }}</div>
+                <div style="font-size:12px;color:var(--scroll);">{{ totalVentasNro }}</div>
                 <div style="font-size:10px;color:#6366f1;">Bs. {{ fmtMonto(totalVentasMonto) }}</div>
               </td>
               <td></td>
-              <td style="text-align:right;font-weight:700;color:#e2e8f0;padding:10px 12px;">{{ fmtMonto(totalCierreDia) }}</td>
+              <td style="text-align:right;font-weight:700;color:var(--t2);padding:10px 12px;">{{ fmtMonto(totalCierreDia) }}</td>
               <td colspan="3"></td>
             </tr>
           </tfoot>
@@ -151,10 +151,10 @@
               :class="['cp-uni-row', editando && editando.id === c.id ? 'cp-uni-row--active' : '']"
               @click="abrirFormCaja(c)"
             >
-              <div class="cp-dot" :style="`background:${c.activo ? '#6366f1' : '#334155'};flex-shrink:0;`"></div>
+              <div class="cp-dot" :style="`background:${c.activo ? '#6366f1' : 'var(--b3)'};flex-shrink:0;`"></div>
               <div style="flex:1;min-width:0;">
                 <div class="cp-uni-name">{{ c.nombre }}</div>
-                <div style="font-size:10px;color:#475569;margin-top:1px;">{{ sucursalNombre(c.sucursalId) }}</div>
+                <div style="font-size:10px;color:var(--t5);margin-top:1px;">{{ sucursalNombre(c.sucursalId) }}</div>
               </div>
               <span :class="['ct-badge', !c.activo ? 'ct-badge--off' : 'ct-badge--on']" style="font-size:9px;flex-shrink:0;">
                 {{ c.activo ? 'Activa' : 'Inactiva' }}
@@ -252,7 +252,7 @@
           <div class="ct-modal-header">
             <div>
               <div>Cierre de Caja</div>
-              <div style="font-size:11px;color:#475569;font-weight:400;margin-top:2px;">{{ cierreSesion && cierreSesion.nombreCaja }}</div>
+              <div style="font-size:11px;color:var(--t5);font-weight:400;margin-top:2px;">{{ cierreSesion && cierreSesion.nombreCaja }}</div>
             </div>
             <button class="ct-modal-close" @click="cierreModal = false">✕</button>
           </div>
@@ -282,7 +282,7 @@
               </div>
               <div class="cj-resumen-fila cj-resumen-fila--total">
                 <span>Efectivo esperado</span>
-                <strong style="color:#e2e8f0;">Bs. {{ fmtMonto(montoEsperadoCierre) }}</strong>
+                <strong style="color:var(--t2);">Bs. {{ fmtMonto(montoEsperadoCierre) }}</strong>
               </div>
             </div>
 
@@ -465,6 +465,14 @@ export default {
         await Promise.all([this.cargarSesionesDia(), this.cargarSesionActiva()])
       } finally { this.savingSesion = false }
     },
+    iniciarCierrePropia() {
+      if (!this.sesionActiva) return
+      const caja = this.cajas.find(c => c.id === this.sesionActiva.cajaId)
+      this.iniciarCierre({
+        ...this.sesionActiva,
+        nombreCaja: caja ? caja.nombre : this.sesionActivaNombreCaja,
+      })
+    },
     iniciarCierre(s) {
       if (!s) return
       this.cierreSesion = s
@@ -477,6 +485,11 @@ export default {
       try {
         await this.$service.put(`caja/sesion/${this.cierreSesion.id}/cerrar`, this.cierreForm)
         this.$message.success('Sesión cerrada')
+        // Navigate to the session's date so the closed session is visible in the list
+        if (this.cierreSesion.fechaApertura) {
+          const sessionDate = new Date(this.cierreSesion.fechaApertura).toISOString().split('T')[0]
+          if (sessionDate !== this.fechaDia) this.fechaDia = sessionDate
+        }
         this.cierreModal = false
         this.cierreSesion = null
         await Promise.all([this.cargarSesionesDia(), this.cargarSesionActiva()])
@@ -532,16 +545,16 @@ export default {
 
 .cj-tabs {
   display: flex; gap: 4px; padding: 0 20px;
-  border-bottom: 1px solid #1e3a5f44; background: #0d1526; flex-shrink: 0;
+  border-bottom: 1px solid var(--b1); background: var(--bg-s); flex-shrink: 0;
 }
 .cj-tab {
   padding: 10px 18px; border: none; background: none; cursor: pointer;
-  font-size: 13px; color: #64748b; border-bottom: 2px solid transparent;
+  font-size: 13px; color: var(--t4); border-bottom: 2px solid transparent;
   transition: all .15s; display: flex; align-items: center; gap: 7px;
 }
 .cj-tab--active { color: #818cf8; border-bottom-color: #6366f1; font-weight: 600; }
 .cj-tab-count {
-  background: #1e3a5f44; color: #64748b; padding: 1px 6px;
+  background: var(--b1); color: var(--t4); padding: 1px 6px;
   border-radius: 999px; font-size: 11px; font-weight: 600;
 }
 .cj-tab-badge--open {
@@ -559,17 +572,17 @@ export default {
   gap: 12px; flex-wrap: wrap;
 }
 .cj-toolbar__left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.cj-fecha-label { font-size: 14px; font-weight: 700; color: #e2e8f0; text-transform: capitalize; }
+.cj-fecha-label { font-size: 14px; font-weight: 700; color: var(--t2); text-transform: capitalize; }
 .cj-fecha-input {
-  padding: 5px 9px; border-radius: 7px; border: 1px solid #1e3a5f55;
-  background: #0a0f1e; color: #94a3b8; font-size: 12px; outline: none;
+  padding: 5px 9px; border-radius: 7px; border: 1px solid var(--b1);
+  background: var(--bg); color: var(--t3); font-size: 12px; outline: none;
 }
 .cj-btn-icon {
-  padding: 5px 7px; border-radius: 7px; border: 1px solid #1e3a5f44;
-  background: #1e3a5f22; color: #475569; cursor: pointer; display: flex; align-items: center;
+  padding: 5px 7px; border-radius: 7px; border: 1px solid var(--b1);
+  background: var(--b2); color: var(--t5); cursor: pointer; display: flex; align-items: center;
   transition: all .15s;
 }
-.cj-btn-icon:hover { color: #94a3b8; border-color: #1e3a5f88; }
+.cj-btn-icon:hover { color: var(--t3); border-color: var(--b4); }
 .cj-btn-primary {
   padding: 7px 16px; border-radius: 8px; background: #6366f1; color: #fff;
   border: none; cursor: pointer; font-size: 12px; font-weight: 600; transition: background .15s;
@@ -587,9 +600,9 @@ export default {
   box-shadow: 0 0 6px #4ade80; flex-shrink: 0; animation: pulse 2s infinite;
 }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
-.cj-banner-info { display: flex; align-items: center; gap: 8px; flex: 1; flex-wrap: wrap; font-size: 12px; color: #94a3b8; }
+.cj-banner-info { display: flex; align-items: center; gap: 8px; flex: 1; flex-wrap: wrap; font-size: 12px; color: var(--t3); }
 .cj-banner-caja { font-weight: 700; color: #4ade80; }
-.cj-banner-sep { color: #1e3a5f; }
+.cj-banner-sep { color: var(--b0); }
 .cj-btn-cerrar-activa {
   padding: 5px 12px; border-radius: 7px; background: #ef444422; color: #f87171;
   border: 1px solid #ef444444; cursor: pointer; font-size: 11px; font-weight: 600;
@@ -598,24 +611,24 @@ export default {
 .cj-btn-cerrar-activa:hover { background: #ef444433; }
 
 /* ── Tabla de sesiones del día ────────────────────────────────────────── */
-.cj-table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid #1e3a5f44; }
+.cj-table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--b1); }
 .cj-table { width: 100%; border-collapse: collapse; font-size: 12px; }
 .cj-table th {
-  text-align: left; padding: 9px 12px; background: #111d35; color: #64748b;
-  font-weight: 700; border-bottom: 1px solid #1e3a5f44; white-space: nowrap;
+  text-align: left; padding: 9px 12px; background: var(--bg-n); color: var(--t4);
+  font-weight: 700; border-bottom: 1px solid var(--b1); white-space: nowrap;
   font-size: 10px; text-transform: uppercase; letter-spacing: .4px;
 }
-.cj-table td { padding: 10px 12px; border-bottom: 1px solid #1e3a5f22; color: #cbd5e1; vertical-align: middle; }
-.cj-table tr:hover td { background: #1e293b44; }
+.cj-table td { padding: 10px 12px; border-bottom: 1px solid var(--b2); color: var(--scroll); vertical-align: middle; }
+.cj-table tr:hover td { background: var(--b1); }
 .cj-row--mine td { background: #6366f108; }
-.cj-tfoot td { background: #111d35; color: #64748b; font-size: 11px; border-top: 2px solid #1e3a5f44; }
+.cj-tfoot td { background: var(--bg-n); color: var(--t4); font-size: 11px; border-top: 2px solid var(--b1); }
 
 .cj-badge {
   display: inline-block; padding: 2px 8px; border-radius: 5px; font-size: 10px;
   font-weight: 700; letter-spacing: .3px;
 }
 .cj-badge--open  { background: #22c55e22; color: #4ade80; border: 1px solid #22c55e33; }
-.cj-badge--closed{ background: #33415522; color: #64748b; border: 1px solid #33415544; }
+.cj-badge--closed{ background: var(--b2); color: var(--t4); border: 1px solid var(--b1); }
 
 .cj-btn-sm {
   padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;
@@ -625,24 +638,24 @@ export default {
 .cj-btn-danger:hover { background: #ef444422; }
 
 /* ── Estados vacíos y carga ───────────────────────────────────────────── */
-.cj-loading { display: flex; align-items: center; gap: 10px; padding: 40px; justify-content: center; color: #475569; font-size: 13px; }
-.cj-empty   { padding: 50px; text-align: center; color: #334155; font-size: 13px; font-style: italic; }
-.cj-spinner { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #1e3a5f; border-top-color: #6366f1; animation: spin .7s linear infinite; flex-shrink: 0; }
+.cj-loading { display: flex; align-items: center; gap: 10px; padding: 40px; justify-content: center; color: var(--t5); font-size: 13px; }
+.cj-empty   { padding: 50px; text-align: center; color: var(--b3); font-size: 13px; font-style: italic; }
+.cj-spinner { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--b0); border-top-color: #6366f1; animation: spin .7s linear infinite; flex-shrink: 0; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* ── Resumen cierre modal ─────────────────────────────────────────────── */
 .cj-resumen-cierre {
-  background: #111d35; border: 1px solid #1e3a5f44; border-radius: 10px; padding: 12px 14px;
+  background: var(--bg-n); border: 1px solid var(--b1); border-radius: 10px; padding: 12px 14px;
   display: flex; flex-direction: column; gap: 6px;
 }
 .cj-resumen-fila {
   display: flex; justify-content: space-between; align-items: center;
-  font-size: 12px; color: #64748b;
+  font-size: 12px; color: var(--t4);
 }
-.cj-resumen-fila strong { color: #cbd5e1; font-size: 12px; }
+.cj-resumen-fila strong { color: var(--scroll); font-size: 12px; }
 .cj-resumen-fila--total {
-  border-top: 1px solid #1e3a5f55; margin-top: 4px; padding-top: 8px;
-  font-weight: 700; color: #94a3b8;
+  border-top: 1px solid var(--b1); margin-top: 4px; padding-top: 8px;
+  font-weight: 700; color: var(--t3);
 }
 .cj-resumen-fila--total strong { font-size: 15px; }
 
@@ -659,51 +672,51 @@ export default {
 
 /* ── Gestión de cajas (reutiliza estilos heredados) ───────────────────── */
 .cp-uni-layout { display: flex; gap: 14px; height: 100%; }
-.cp-uni-list-col { width: 300px; flex-shrink: 0; background: #0d1526; border: 1px solid #1e3a5f44; border-radius: 14px; display: flex; flex-direction: column; overflow: hidden; }
-.cp-uni-form-col { flex: 1; background: #0d1526; border: 1px solid #1e3a5f44; border-radius: 14px; overflow-y: auto; }
-.cp-col-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: #111d35; border-bottom: 1px solid #1e3a5f44; }
-.cp-col-title  { font-size: 13px; font-weight: 700; color: #e2e8f0; }
-.cp-col-count  { font-size: 10px; color: #475569; margin-top: 1px; }
+.cp-uni-list-col { width: 300px; flex-shrink: 0; background: var(--bg-s); border: 1px solid var(--b1); border-radius: 14px; display: flex; flex-direction: column; overflow: hidden; }
+.cp-uni-form-col { flex: 1; background: var(--bg-s); border: 1px solid var(--b1); border-radius: 14px; overflow-y: auto; }
+.cp-col-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: var(--bg-n); border-bottom: 1px solid var(--b1); }
+.cp-col-title  { font-size: 13px; font-weight: 700; color: var(--t2); }
+.cp-col-count  { font-size: 10px; color: var(--t5); margin-top: 1px; }
 .cp-add-btn { font-size: 11px; font-weight: 600; padding: 5px 12px; border-radius: 8px; background: #6366f1; color: #fff; border: none; cursor: pointer; }
 .cp-add-btn:hover { background: #4f46e5; }
-.cp-search { width: 100%; padding: 8px 12px; font-size: 12px; background: #0a0f1e; border: none; border-bottom: 1px solid #1e3a5f44; color: #e2e8f0; outline: none; box-sizing: border-box; }
-.cp-search::placeholder { color: #334155; }
+.cp-search { width: 100%; padding: 8px 12px; font-size: 12px; background: var(--bg); border: none; border-bottom: 1px solid var(--b1); color: var(--t2); outline: none; box-sizing: border-box; }
+.cp-search::placeholder { color: var(--b3); }
 .cp-list { flex: 1; overflow-y: auto; }
 .cp-loading { display: flex; align-items: center; justify-content: center; padding: 30px; }
-.cp-empty { padding: 20px; text-align: center; color: #334155; font-size: 12px; }
+.cp-empty { padding: 20px; text-align: center; color: var(--b3); font-size: 12px; }
 .cp-uni-row { display: flex; align-items: center; gap: 8px; padding: 10px 12px; cursor: pointer; border-bottom: 1px solid #0d1a2d; transition: background .15s; }
-.cp-uni-row:hover { background: #111d35; }
-.cp-uni-row--active { background: #1e3a5f33; border-left: 2px solid #6366f1; }
-.cp-uni-name { font-size: 12px; font-weight: 600; color: #e2e8f0; }
+.cp-uni-row:hover { background: var(--bg-n); }
+.cp-uni-row--active { background: var(--b2); border-left: 2px solid #6366f1; }
+.cp-uni-name { font-size: 12px; font-weight: 600; color: var(--t2); }
 .cp-dot { width: 8px; height: 8px; border-radius: 50%; }
-.cp-icon-btn { padding: 5px; border-radius: 6px; background: #1e3a5f44; border: 1px solid #1e3a5f; color: #64748b; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
-.cp-icon-btn:hover { background: #1e3a5f88; color: #94a3b8; }
+.cp-icon-btn { padding: 5px; border-radius: 6px; background: var(--b1); border: 1px solid var(--b0); color: var(--t4); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.cp-icon-btn:hover { background: var(--b4); color: var(--t3); }
 .cp-icon-btn--danger:hover { background: #ef444422; color: #f87171; border-color: #ef444444; }
 .ct-badge { font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
 .ct-badge--on  { background: #22c55e22; color: #4ade80; border: 1px solid #22c55e44; }
-.ct-badge--off { background: #47556922; color: #64748b; border: 1px solid #47556944; }
+.ct-badge--off { background: var(--b2); color: var(--t4); border: 1px solid var(--b1); }
 
 /* ── Formulario inputs ────────────────────────────────────────────────── */
 .ide-field { display: flex; flex-direction: column; gap: 4px; }
-.ide-field label { font-size: 10px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: .4px; }
-.ide-input  { padding: 7px 10px; border-radius: 8px; border: 1px solid #1e3a5f; background: #0a0f1e; color: #e2e8f0; font-size: 12px; outline: none; transition: border-color .15s; width: 100%; box-sizing: border-box; }
+.ide-field label { font-size: 10px; color: var(--t4); font-weight: 600; text-transform: uppercase; letter-spacing: .4px; }
+.ide-input  { padding: 7px 10px; border-radius: 8px; border: 1px solid var(--b0); background: var(--bg); color: var(--t2); font-size: 12px; outline: none; transition: border-color .15s; width: 100%; box-sizing: border-box; }
 .ide-input:focus  { border-color: #6366f1; }
-.ide-select { padding: 7px 10px; border-radius: 8px; border: 1px solid #1e3a5f; background: #0a0f1e; color: #e2e8f0; font-size: 12px; outline: none; width: 100%; box-sizing: border-box; }
-.ide-textarea { padding: 7px 10px; border-radius: 8px; border: 1px solid #1e3a5f; background: #0a0f1e; color: #e2e8f0; font-size: 12px; outline: none; resize: vertical; width: 100%; box-sizing: border-box; }
+.ide-select { padding: 7px 10px; border-radius: 8px; border: 1px solid var(--b0); background: var(--bg); color: var(--t2); font-size: 12px; outline: none; width: 100%; box-sizing: border-box; }
+.ide-textarea { padding: 7px 10px; border-radius: 8px; border: 1px solid var(--b0); background: var(--bg); color: var(--t2); font-size: 12px; outline: none; resize: vertical; width: 100%; box-sizing: border-box; }
 
 /* ── Modal ────────────────────────────────────────────────────────────── */
 .ct-modal-backdrop { position: fixed; inset: 0; background: #00000099; display: flex; align-items: center; justify-content: center; z-index: 200; }
-.ct-modal { background: #0d1526; border: 1px solid #1e3a5f66; border-radius: 16px; width: 90%; max-height: 88vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px #00000088; }
-.ct-modal-header { display: flex; align-items: flex-start; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid #1e3a5f44; font-size: 14px; font-weight: 700; color: #e2e8f0; }
-.ct-modal-close  { background: none; border: none; color: #475569; cursor: pointer; font-size: 14px; }
-.ct-modal-close:hover { color: #e2e8f0; }
+.ct-modal { background: var(--bg-s); border: 1px solid var(--b4); border-radius: 16px; width: 90%; max-height: 88vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px #00000088; }
+.ct-modal-header { display: flex; align-items: flex-start; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--b1); font-size: 14px; font-weight: 700; color: var(--t2); }
+.ct-modal-close  { background: none; border: none; color: var(--t5); cursor: pointer; font-size: 14px; }
+.ct-modal-close:hover { color: var(--t2); }
 .ct-modal-body   { flex: 1; overflow-y: auto; padding: 14px 16px; }
-.ct-modal-footer { display: flex; gap: 8px; justify-content: flex-end; padding: 12px 16px; border-top: 1px solid #1e3a5f44; }
-.ct-btn-cancel { padding: 8px 16px; border-radius: 8px; background: #1e3a5f44; color: #64748b; border: 1px solid #1e3a5f; cursor: pointer; font-size: 12px; }
+.ct-modal-footer { display: flex; gap: 8px; justify-content: flex-end; padding: 12px 16px; border-top: 1px solid var(--b1); }
+.ct-btn-cancel { padding: 8px 16px; border-radius: 8px; background: var(--b1); color: var(--t4); border: 1px solid var(--b0); cursor: pointer; font-size: 12px; }
 .ct-btn-ok     { padding: 8px 18px; border-radius: 8px; background: #6366f1; color: #fff; border: none; cursor: pointer; font-size: 12px; font-weight: 600; }
 .ct-btn-ok:disabled { opacity: .5; cursor: not-allowed; }
 .ct-btn-ok:hover:not(:disabled) { filter: brightness(1.1); }
-.ct-spinner { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #1e3a5f; border-top-color: #6366f1; animation: spin .7s linear infinite; }
+.ct-spinner { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--b0); border-top-color: #6366f1; animation: spin .7s linear infinite; }
 
 .modal-fade-enter-active, .modal-fade-leave-active { transition: opacity .2s; }
 .modal-fade-enter, .modal-fade-leave-to { opacity: 0; }

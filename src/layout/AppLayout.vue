@@ -6,14 +6,13 @@
 
       <!-- Logo -->
       <div class="ide-sidebar__header" :class="{ 'ide-sidebar__header--collapsed': collapsed }">
-        <div class="ide-logo">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v11m0 0H5a2 2 0 00-2 2v4a2 2 0 002 2h4m0-6h6m0 0h4a2 2 0 002-2V9a2 2 0 00-2-2h-4m0 6v6m0 0H9"/>
-          </svg>
+        <div class="ide-logo" :class="{ 'ide-logo--img': clienteLogo }">
+          <img v-if="clienteLogo" :src="clienteLogo" class="ide-logo-img" :alt="clienteNombreSidebar" />
+          <span v-else class="ide-logo-fallback">{{ clienteLogoFallback }}</span>
         </div>
         <div v-if="!collapsed" class="ide-logo-text">
-          <div class="ide-logo-name">IDE-IA</div>
-          <div class="ide-logo-sub">Anthropic Claude</div>
+          <div class="ide-logo-name">{{ clienteNombreSidebar }}</div>
+          <div class="ide-logo-sub">POS-IA</div>
         </div>
       </div>
 
@@ -66,6 +65,12 @@
             <svg v-if="collapsed" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
             <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
             <span v-if="!collapsed" class="ide-collapse-label">Colapsar</span>
+          </button>
+          <button class="ide-theme-btn" @click="toggleTheme" :title="isLight ? 'Modo oscuro' : 'Modo claro'">
+            <!-- Sun -->
+            <svg v-if="isLight" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            <!-- Moon -->
+            <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
           </button>
           <button class="ide-logout-btn" title="Cerrar sesión" @click="handleLogout">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
@@ -277,6 +282,7 @@ export default {
       collapsed: false,
       time: new Date(),
       expandedGroups: [],
+      isLight: false,
     };
   },
   computed: {
@@ -333,6 +339,16 @@ export default {
     clienteNombre() {
       return this.$store.getters.clienteInfo?.nombre || null;
     },
+    clienteLogo() {
+      return this.$store.getters.clienteInfo?.logoUrl || null;
+    },
+    clienteNombreSidebar() {
+      return this.$store.getters.clienteInfo?.nombre || 'POS-IA';
+    },
+    clienteLogoFallback() {
+      const name = this.$store.getters.clienteInfo?.nombre || 'P';
+      return name.charAt(0).toUpperCase();
+    },
     timeStr() {
       return this.time.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
     },
@@ -353,6 +369,14 @@ export default {
     this._restoreAuth();
     this._timer = setInterval(() => { this.time = new Date(); }, 60000);
     this._cargarSucursales();
+    this._cargarClienteInfo();
+    const uid = this.$storage.get('user')?.id;
+    const userKey = uid ? `ide-theme-${uid}` : null;
+    const saved = (userKey && localStorage.getItem(userKey)) || localStorage.getItem('ide-theme');
+    this.isLight = saved === 'light';
+    document.body.classList.toggle('theme-light', this.isLight);
+    this.$vuetify.theme.dark = !this.isLight;
+    localStorage.setItem('ide-theme', this.isLight ? 'light' : 'dark');
   },
   beforeDestroy() {
     clearInterval(this._timer);
@@ -408,6 +432,14 @@ export default {
         this.$router.push({ name: child.route });
       }
     },
+    async _cargarClienteInfo() {
+      if (this.userRol === 'SUPER_ADMIN') return;
+      if (this.$store.getters.clienteInfo) return;
+      try {
+        const data = await this.$service.get('mi-cuenta');
+        if (data) this.$store.commit('setClienteInfo', data);
+      } catch { /* ignore */ }
+    },
     async _cargarSucursales() {
       if (!this.$store.getters.isAuth) return;
       try {
@@ -434,6 +466,15 @@ export default {
         if (s) this.$storage.set('sucursalActual', s);
       }
     },
+    toggleTheme() {
+      this.isLight = !this.isLight;
+      document.body.classList.toggle('theme-light', this.isLight);
+      const val = this.isLight ? 'light' : 'dark';
+      const uid = this.$storage.get('user')?.id;
+      if (uid) localStorage.setItem(`ide-theme-${uid}`, val);
+      localStorage.setItem('ide-theme', val);
+      this.$vuetify.theme.dark = !this.isLight;
+    },
     handleLogout() {
       this.$confirm('¿Deseas cerrar sesión?', () => {
         this.$storage.removeAll();
@@ -451,18 +492,19 @@ export default {
   display: flex;
   height: 100vh;
   overflow: hidden;
-  background: #0a0f1e;
+  background: var(--bg);
+  transition: background 0.25s;
 }
 
 /* ── Sidebar ── */
 .ide-sidebar {
   width: 200px;
   flex-shrink: 0;
-  background: #0d1526;
-  border-right: 1px solid #1e3a5f44;
+  background: var(--bg-sidebar, var(--bg-s));
+  border-right: 1px solid var(--sidebar-bd, var(--b1));
   display: flex;
   flex-direction: column;
-  transition: width 0.25s cubic-bezier(.4,0,.2,1);
+  transition: width 0.25s cubic-bezier(.4,0,.2,1), background 0.25s, border-color 0.25s;
   overflow: hidden;
   z-index: 10;
 }
@@ -471,10 +513,11 @@ export default {
 /* Logo */
 .ide-sidebar__header {
   padding: 18px 16px;
-  border-bottom: 1px solid #1e3a5f44;
+  border-bottom: 1px solid var(--sidebar-bd, var(--b1));
   display: flex;
   align-items: center;
   gap: 10px;
+  transition: border-color 0.25s;
 }
 .ide-sidebar__header--collapsed {
   padding: 18px 0;
@@ -486,12 +529,18 @@ export default {
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
+  overflow: hidden;
 }
+.ide-logo--img { background: transparent; }
+.ide-logo-img { width: 32px; height: 32px; border-radius: 9px; object-fit: contain; display: block; }
+.ide-logo-fallback { font-size: 15px; font-weight: 800; color: #fff; line-height: 1; }
 .ide-logo-name {
-  font-size: 14px; font-weight: 800; color: #f1f5f9; letter-spacing: -0.3px;
+  font-size: 13px; font-weight: 800;
+  color: var(--sidebar-t, var(--t1)); letter-spacing: -0.3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px;
 }
 .ide-logo-sub {
-  font-size: 9px; color: #475569; font-weight: 600;
+  font-size: 9px; color: var(--sidebar-t3, var(--t5)); font-weight: 600;
   text-transform: uppercase; letter-spacing: 1px;
 }
 
@@ -499,7 +548,7 @@ export default {
 .ide-cliente-badge {
   display: flex; align-items: center; gap: 6px;
   padding: 5px 14px;
-  font-size: 10px; font-weight: 700; color: #c96442;
+  font-size: 10px; font-weight: 700; color: #e8956d;
   letter-spacing: 0.5px; text-transform: uppercase;
   white-space: nowrap; overflow: hidden;
 }
@@ -509,14 +558,15 @@ export default {
 }
 .ide-cliente-name { overflow: hidden; text-overflow: ellipsis; }
 
-/* Logout */
-.ide-logout-btn {
+/* Logout & theme */
+.ide-logout-btn, .ide-theme-btn {
   background: none; border: none; cursor: pointer;
-  color: #475569; padding: 5px; border-radius: 6px;
+  color: var(--sidebar-t3, var(--t5)); padding: 5px; border-radius: 6px;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0; transition: color 0.15s;
 }
 .ide-logout-btn:hover { color: #ef4444; }
+.ide-theme-btn:hover  { color: var(--sidebar-t2, var(--t3)); }
 
 /* Nav */
 .ide-nav {
@@ -530,16 +580,16 @@ export default {
   padding: 10px 12px;
   border-radius: 9px; border: none; cursor: pointer;
   background: transparent;
-  color: #64748b;
+  color: var(--nav-t);
   font-size: 13px; font-weight: 500;
-  transition: all 0.15s;
+  transition: background 0.15s, color 0.15s;
   width: 100%; text-align: left;
   position: relative;
 }
-.ide-nav__item:hover { background: #1e293b44; color: #94a3b8; }
+.ide-nav__item:hover { background: var(--nav-h); color: var(--nav-ht); }
 .ide-nav__item--active {
-  background: #6366f122 !important;
-  color: #818cf8 !important;
+  background: var(--nav-a) !important;
+  color: var(--nav-at) !important;
   font-weight: 700;
 }
 .ide-nav__indicator {
@@ -566,39 +616,41 @@ export default {
 .ide-nav__dot--new { background: #c96442; }
 .ide-nav__item--child {
   margin-left: 8px;
-  border-left: 2px solid #1e3a5f66;
+  border-left: 2px solid var(--nav-cb);
   border-radius: 0 9px 9px 0;
   font-size: 12px;
 }
 .ide-nav__chevron {
   margin-left: auto;
   display: flex;
-  color: #475569;
+  color: var(--sidebar-t3, var(--t5));
   transition: transform 0.2s ease;
 }
 .ide-nav__chevron--open { transform: rotate(90deg); }
 
 /* Footer */
 .ide-sidebar__footer {
-  border-top: 1px solid #1e3a5f44;
+  border-top: 1px solid var(--sidebar-bd, var(--b1));
   padding: 12px 8px;
   display: flex; flex-direction: column; gap: 8px;
+  transition: border-color 0.25s;
 }
 .ide-user {
   display: flex; align-items: center; gap: 8px;
   padding: 6px 8px; border-radius: 8px;
-  background: #161d2f;
+  background: var(--sidebar-ui, var(--bg-n));
+  transition: background 0.25s;
 }
 .ide-user-info { flex: 1; min-width: 0; }
-.ide-user-name { font-size: 11px; font-weight: 700; color: #e2e8f0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ide-user-name { font-size: 11px; font-weight: 700; color: var(--sidebar-t, var(--t2)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ide-user-online { font-size: 9px; color: #22c55e; font-weight: 600; }
 .ide-collapse-btn {
   display: flex; align-items: center; gap: 6px;
   background: none; border: none; cursor: pointer;
-  padding: 4px 8px; color: #475569;
-  width: 100%;
+  padding: 4px 8px; color: var(--sidebar-t3, var(--t5));
+  width: 100%; transition: color 0.15s;
 }
-.ide-collapse-btn:hover { color: #94a3b8; }
+.ide-collapse-btn:hover { color: var(--sidebar-t2, var(--t3)); }
 .ide-collapse-label { font-size: 10px; font-weight: 600; margin-left: auto; }
 
 /* Avatar */
@@ -620,16 +672,17 @@ export default {
 .ide-topbar {
   height: 52px;
   flex-shrink: 0;
-  background: #0d1526;
-  border-bottom: 1px solid #1e3a5f44;
+  background: var(--bg-s);
+  border-bottom: 1px solid rgba(99,149,199,.25);
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 20px;
+  transition: background 0.25s, border-color 0.25s;
 }
 .ide-topbar__left {
   display: flex; align-items: center; gap: 10px;
 }
 .ide-topbar__title {
-  font-size: 16px; font-weight: 800; color: #f1f5f9; letter-spacing: -0.3px;
+  font-size: 16px; font-weight: 800; color: var(--t1); letter-spacing: -0.3px;
 }
 .ide-topbar__badges { display: flex; gap: 6px; }
 .ide-badge {
@@ -647,11 +700,11 @@ export default {
 .ide-topbar__actions { display: flex; gap: 8px; }
 .ide-icon-btn {
   background: none; border: none; cursor: pointer;
-  color: #64748b; padding: 4px; position: relative;
+  color: var(--t4); padding: 4px; position: relative;
   border-radius: 6px; transition: color 0.15s;
   display: flex; align-items: center; justify-content: center;
 }
-.ide-icon-btn:hover { color: #94a3b8; }
+.ide-icon-btn:hover { color: var(--t3); }
 .ide-icon-btn__dot {
   position: absolute; top: 2px; right: 2px;
   width: 7px; height: 7px; border-radius: 50%;
@@ -659,7 +712,7 @@ export default {
 }
 .ide-topbar__user {
   display: flex; align-items: center; gap: 8px;
-  padding-left: 10px; border-left: 1px solid #1e3a5f44;
+  padding-left: 10px; border-left: 1px solid rgba(99,149,199,.25);
 }
 
 /* Module */
@@ -671,13 +724,14 @@ export default {
 /* Sucursal selector */
 .ide-sucursal-selector {
   display: flex; align-items: center; gap: 6px;
-  background: #1e293b; border: 1px solid #1e3a5f44;
+  background: rgba(255,255,255,.55); border: 1px solid rgba(99,149,199,.25);
   border-radius: 8px; padding: 4px 10px; margin-left: 12px;
+  transition: background 0.25s;
 }
 .ide-sucursal-select {
   background: transparent; border: none; outline: none;
-  color: #94a3b8; font-size: 11px; font-weight: 600;
+  color: var(--t3); font-size: 11px; font-weight: 600;
   cursor: pointer; max-width: 180px;
 }
-.ide-sucursal-select option { background: #1e293b; color: #e2e8f0; }
+.ide-sucursal-select option { background: var(--bg-c); color: var(--t2); }
 </style>

@@ -25,7 +25,7 @@
           </div>
           <div style="flex:1;min-width:0;">
             <div class="cp-uni-name">{{ u.nombres }} {{ u.apellidos || '' }}</div>
-            <div style="font-size:10px;color:#475569;margin-top:1px;">@{{ u.usuario }}</div>
+            <div style="font-size:10px;color:var(--t5);margin-top:1px;">@{{ u.usuario }}<span v-if="u.telefono" style="margin-left:6px;color:var(--t4);">· {{ u.telefono }}</span></div>
           </div>
           <span class="cp-rol-badge" :style="`background:${rolColor(u.rol)}22;color:${rolColor(u.rol)};border-color:${rolColor(u.rol)}44;`">
             {{ u.rol }}
@@ -71,6 +71,13 @@
                 <input v-model="form.correoElectronico" class="ide-input" type="email" placeholder="correo@empresa.com" />
               </div>
               <div class="ide-field">
+                <label>Teléfono WhatsApp</label>
+                <div class="cp-tel-wrap">
+                  <span class="cp-tel-prefix">591</span>
+                  <input :value="form.telefono" class="ide-input cp-tel-input" type="tel" placeholder="75012345" maxlength="9" @input="form.telefono = $event.target.value.replace(/\D/g, '').replace(/^591/, '')" />
+                </div>
+              </div>
+              <div class="ide-field">
                 <label>Rol *</label>
                 <select v-model="form.rol" class="ide-select">
                   <option value="ADMIN_CLIENTE">Administrador</option>
@@ -91,10 +98,10 @@
 
             <!-- Sucursales asignadas -->
             <div style="margin-top:16px;">
-              <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">
+              <div style="font-size:11px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">
                 Sucursales asignadas
               </div>
-              <div v-if="!sucursales.length" style="font-size:12px;color:#334155;font-style:italic;">
+              <div v-if="!sucursales.length" style="font-size:12px;color:var(--b3);font-style:italic;">
                 No hay sucursales creadas aún.
                 <router-link :to="{name:'sucursales'}" style="color:#818cf8;">Crear sucursal →</router-link>
               </div>
@@ -104,7 +111,7 @@
                   :class="['cp-suc-chip', form.sucursales.includes(s.id) ? 'cp-suc-chip--on' : '']"
                   @click="toggleSucursal(s.id)"
                 >
-                  <span class="cp-dot" :style="`background:${s.esPrincipal?'#6366f1':'#334155'};`"></span>
+                  <span class="cp-dot" :style="`background:${s.esPrincipal?'#6366f1':'var(--b3)'};`"></span>
                   {{ s.nombre }}
                 </label>
               </div>
@@ -124,7 +131,7 @@
 </template>
 
 <script>
-const emptyForm = () => ({ nombres: '', apellidos: '', usuario: '', contrasena: '', correoElectronico: '', rol: 'VENDEDOR', sucursales: [], estado: 'activo' })
+const emptyForm = () => ({ nombres: '', apellidos: '', usuario: '', contrasena: '', correoElectronico: '', telefono: '', rol: 'VENDEDOR', sucursales: [], estado: 'activo' })
 
 const ROL_COLORS = { ENCARGADO: '#f59e0b', CAJERO: '#3b82f6', VENDEDOR: '#22c55e', COLABORADOR: '#8b5cf6', ADMIN_CLIENTE: '#6366f1' }
 
@@ -159,14 +166,14 @@ export default {
       try { this.sucursales = await this.$service.list('sucursales') || [] }
       catch { this.sucursales = [] }
     },
-    rolColor(rol) { return ROL_COLORS[rol] || '#64748b' },
+    rolColor(rol) { return ROL_COLORS[rol] || 'var(--t4)' },
     iniciales(u) {
       return ((u.nombres?.[0] || '') + (u.apellidos?.[0] || u.nombres?.[1] || '')).toUpperCase()
     },
     abrirForm(u = null) {
       this.editando = u
       this.form = u
-        ? { nombres: u.nombres, apellidos: u.apellidos || '', usuario: u.usuario, contrasena: '', correoElectronico: u.correoElectronico || '', rol: u.rol, sucursales: (u.sucursales || []).map(s => s.id), estado: u.activo === false ? 'inactivo' : 'activo' }
+        ? { nombres: u.nombres, apellidos: u.apellidos || '', usuario: u.usuario, contrasena: '', correoElectronico: u.correoElectronico || '', telefono: u.telefono ? u.telefono.replace(/^591/, '') : '', rol: u.rol, sucursales: (u.sucursales || []).map(s => s.id), estado: u.activo === false ? 'inactivo' : 'activo' }
         : emptyForm()
       this.dialog = true
     },
@@ -181,8 +188,10 @@ export default {
       if (!this.editando && !this.form.contrasena) return this.$message.error('La contraseña es obligatoria')
       this.saving = true
       try {
+        const tel = (this.form.telefono || '').trim()
+        const telefonoFull = tel ? '591' + tel : null
         if (this.editando) {
-          const payload = { ...this.form }
+          const payload = { ...this.form, telefono: telefonoFull }
           if (!payload.contrasena) delete payload.contrasena
           else payload.nuevaContrasena = payload.contrasena
           delete payload.contrasena
@@ -190,7 +199,7 @@ export default {
           await this.$service.put(`usuarios-sistema/${this.editando.id}`, payload)
           this.$message.success('Usuario actualizado')
         } else {
-          await this.$service.post('usuarios-sistema', this.form)
+          await this.$service.post('usuarios-sistema', { ...this.form, telefono: telefonoFull })
           this.$message.success('Usuario creado')
         }
         this.dialog = false
@@ -212,28 +221,31 @@ export default {
 
 <style scoped>
 .cp-root { height:100%; overflow:hidden; padding:24px; display:flex; flex-direction:column; }
-.cp-panel { flex:1; background:#0d1526; border:1px solid #1e3a5f44; border-radius:14px; display:flex; flex-direction:column; overflow:hidden; max-width:600px; }
-.cp-col-header { display:flex; align-items:center; justify-content:space-between; padding:14px 14px 8px; border-bottom:1px solid #1e3a5f33; flex-shrink:0; }
-.cp-col-title { font-size:13px; font-weight:800; color:#f1f5f9; }
-.cp-col-count { font-size:10px; color:#475569; margin-top:1px; }
+.cp-panel { flex:1; background:var(--bg-s); border:1px solid var(--b1); border-radius:14px; display:flex; flex-direction:column; overflow:hidden; max-width:600px; }
+.cp-col-header { display:flex; align-items:center; justify-content:space-between; padding:14px 14px 8px; border-bottom:1px solid var(--b2); flex-shrink:0; }
+.cp-col-title { font-size:13px; font-weight:800; color:var(--t1); }
+.cp-col-count { font-size:10px; color:var(--t5); margin-top:1px; }
 .cp-add-btn { background:#6366f122; border:1px solid #6366f133; color:#818cf8; border-radius:7px; padding:3px 9px; font-size:16px; cursor:pointer; font-weight:700; }
 .cp-add-btn:hover { background:#6366f133; }
-.cp-search { margin:8px 10px 4px; background:#0f172a; border:1px solid #1e3a5f44; border-radius:7px; color:#94a3b8; font-size:11px; padding:6px 10px; outline:none; flex-shrink:0; }
+.cp-search { margin:8px 10px 4px; background:var(--bg-e); border:1px solid var(--b1); border-radius:7px; color:var(--t3); font-size:11px; padding:6px 10px; outline:none; flex-shrink:0; }
 .cp-list { flex:1; overflow-y:auto; padding:4px 8px 12px; }
 .cp-loading { display:flex; justify-content:center; padding:24px; }
-.cp-empty { text-align:center; padding:20px 10px; font-size:12px; color:#334155; font-style:italic; }
+.cp-empty { text-align:center; padding:20px 10px; font-size:12px; color:var(--b3); font-style:italic; }
 .cp-dot { width:8px; height:8px; border-radius:50%; display:inline-block; }
 .cp-uni-row { display:flex; align-items:center; gap:8px; padding:9px 8px; border-radius:8px; cursor:pointer; margin-bottom:2px; transition:background 0.15s; }
-.cp-uni-row:hover { background:#1e293b; }
-.cp-uni-name { font-size:12px; color:#cbd5e1; font-weight:600; }
+.cp-uni-row:hover { background:var(--bg-c); }
+.cp-uni-name { font-size:12px; color:var(--scroll); font-weight:600; }
 .cp-avatar-mini { width:28px; height:28px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; flex-shrink:0; }
 .cp-rol-badge { font-size:9px; font-weight:700; padding:1px 6px; border-radius:4px; border:1px solid; white-space:nowrap; flex-shrink:0; }
-.cp-icon-btn { background:#0f172a; border:1px solid #1e3a5f44; border-radius:6px; padding:5px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#64748b; transition:all 0.15s; }
+.cp-icon-btn { background:var(--bg-e); border:1px solid var(--b1); border-radius:6px; padding:5px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--t4); transition:all 0.15s; }
 .cp-icon-btn:hover { border-color:#6366f1; color:#818cf8; }
 .cp-icon-btn--danger:hover { border-color:#ef4444; color:#f87171; }
-.cp-suc-chip { display:flex; align-items:center; gap:6px; padding:5px 10px; border-radius:8px; border:1px solid #1e3a5f44; background:#0f172a; color:#64748b; font-size:11px; font-weight:600; cursor:pointer; transition:all 0.15s; user-select:none; }
-.cp-suc-chip:hover { border-color:#6366f133; color:#94a3b8; }
+.cp-suc-chip { display:flex; align-items:center; gap:6px; padding:5px 10px; border-radius:8px; border:1px solid var(--b1); background:var(--bg-e); color:var(--t4); font-size:11px; font-weight:600; cursor:pointer; transition:all 0.15s; user-select:none; }
+.cp-suc-chip:hover { border-color:#6366f133; color:var(--t3); }
 .cp-suc-chip--on { background:#6366f114; border-color:#6366f144; color:#818cf8; }
-.ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid #1e3a5f44; border-top-color:#6366f1; animation:spin 0.8s linear infinite; }
+.ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid var(--b1); border-top-color:#6366f1; animation:spin 0.8s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
+.cp-tel-wrap { display:flex; align-items:stretch; background:var(--bg-e); border:1px solid var(--b1); border-radius:7px; overflow:hidden; }
+.cp-tel-prefix { padding:0 10px; font-size:12px; font-weight:700; color:var(--t3); border-right:1px solid var(--b1); background:var(--bg-c); display:flex; align-items:center; flex-shrink:0; letter-spacing:.5px; }
+.cp-tel-wrap .cp-tel-input { border:none !important; border-radius:0 !important; background:transparent !important; flex:1; min-width:0; }
 </style>

@@ -277,8 +277,8 @@ export default {
   display:flex; align-items:flex-start; justify-content:space-between;
   padding:16px 20px 10px;
 }
-.fin-title { font-size:18px; font-weight:800; color:#f1f5f9; }
-.fin-subtitle { font-size:12px; color:#475569; margin-top:2px; }
+.fin-title { font-size:18px; font-weight:800; color:var(--t1); }
+.fin-subtitle { font-size:12px; color:var(--t5); margin-top:2px; }
 
 .fin-btn-primary {
   padding:7px 16px; border-radius:8px; background:#ef4444; border:none;
@@ -288,38 +288,38 @@ export default {
 .fin-btn-primary:disabled { opacity:.5; cursor:not-allowed; }
 .fin-btn-ghost {
   padding:7px 16px; border-radius:8px; background:transparent;
-  border:1px solid #1e3a5f; color:#94a3b8; font-size:12px; font-weight:600; cursor:pointer;
+  border:1px solid var(--b0); color:var(--t3); font-size:12px; font-weight:600; cursor:pointer;
 }
 .fin-btn-ghost:hover { border-color:#6366f1; color:#818cf8; }
 
 .fin-filters {
   display:flex; flex-direction:column; gap:6px;
   margin:0 16px 10px; padding:10px 14px;
-  background:#0d1526; border:1px solid #1e3a5f33; border-radius:10px;
+  background:var(--bg-s); border:1px solid var(--b2); border-radius:10px;
 }
 .fin-filter-group { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
-.fin-filter-label { font-size:10px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:.4px; min-width:60px; }
+.fin-filter-label { font-size:10px; font-weight:700; color:var(--t4); text-transform:uppercase; letter-spacing:.4px; min-width:60px; }
 .fin-chip {
-  padding:3px 10px; border-radius:999px; border:1px solid #1e3a5f55;
-  background:transparent; color:#64748b; font-size:11px; font-weight:600; cursor:pointer; transition:all .15s;
+  padding:3px 10px; border-radius:999px; border:1px solid var(--b1);
+  background:transparent; color:var(--t4); font-size:11px; font-weight:600; cursor:pointer; transition:all .15s;
 }
 .fin-chip:hover { border-color:#6366f1; color:#818cf8; }
 .fin-chip--active { background:#6366f122; border-color:#6366f1; color:#818cf8; }
 
 .fin-table-wrap {
-  margin:0 16px; background:#0d1526; border:1px solid #1e3a5f33; border-radius:10px; overflow:auto;
+  margin:0 16px; background:var(--bg-s); border:1px solid var(--b2); border-radius:10px; overflow:auto;
 }
-.fin-empty { padding:40px; text-align:center; color:#475569; font-size:13px; }
+.fin-empty { padding:40px; text-align:center; color:var(--t5); font-size:13px; }
 .fin-table { width:100%; border-collapse:collapse; font-size:12px; }
 .fin-table thead th {
   padding:9px 12px; text-align:left; font-size:10px; font-weight:700;
-  color:#64748b; text-transform:uppercase; letter-spacing:.4px;
-  border-bottom:1px solid #1e3a5f33; white-space:nowrap;
+  color:var(--t4); text-transform:uppercase; letter-spacing:.4px;
+  border-bottom:1px solid var(--b2); white-space:nowrap;
 }
 .fin-th-right { text-align:right !important; }
-.fin-table tbody tr { border-bottom:1px solid #1e3a5f22; transition:background .1s; }
-.fin-table tbody tr:hover { background:#1e293b55; }
-.fin-table td { padding:9px 12px; color:#cbd5e1; vertical-align:middle; }
+.fin-table tbody tr { border-bottom:1px solid var(--b2); transition:background .1s; }
+.fin-table tbody tr:hover { background:var(--b1); }
+.fin-table td { padding:9px 12px; color:var(--scroll); vertical-align:middle; }
 .fin-td-mono { font-family:monospace; font-size:11px; }
 .fin-td-right { text-align:right; }
 .fin-td-money { font-weight:600; font-family:monospace; }
@@ -334,7 +334,7 @@ export default {
 .fin-badge--trans   { background:#f59e0b22; color:#fbbf24; }
 .fin-badge--serv    { background:#0ea5e922; color:#38bdf8; }
 .fin-badge--mant    { background:#8b5cf622; color:#a78bfa; }
-.fin-badge--otros   { background:#64748b22; color:#94a3b8; }
+.fin-badge--otros   { background:var(--b2); color:var(--t3); }
 .fin-badge--personal { background:#ec489922; color:#f472b6; }
 .fin-badge--trabajo  { background:#22c55e22; color:#4ade80; }
 
@@ -352,35 +352,35 @@ export default {
   display:flex; align-items:center; justify-content:center;
 }
 .fin-dialog {
-  width:100%; max-width:480px; background:#0d1526;
-  border:1px solid #1e3a5f55; border-radius:14px; overflow:hidden;
+  width:100%; max-width:480px; background:var(--bg-s);
+  border:1px solid var(--b1); border-radius:14px; overflow:hidden;
   display:flex; flex-direction:column; max-height:90vh;
 }
 .fin-dialog-head {
   display:flex; align-items:center; justify-content:space-between;
-  padding:16px 20px; border-bottom:1px solid #1e3a5f33;
-  font-size:15px; font-weight:700; color:#f1f5f9;
+  padding:16px 20px; border-bottom:1px solid var(--b2);
+  font-size:15px; font-weight:700; color:var(--t1);
 }
 .fin-dialog-close {
-  background:none; border:none; color:#475569; font-size:16px; cursor:pointer; padding:2px 6px;
+  background:none; border:none; color:var(--t5); font-size:16px; cursor:pointer; padding:2px 6px;
 }
 .fin-dialog-close:hover { color:#ef4444; }
 .fin-dialog-body { padding:20px; overflow-y:auto; }
 .fin-dialog-foot {
   display:flex; justify-content:flex-end; gap:8px;
-  padding:14px 20px; border-top:1px solid #1e3a5f33;
+  padding:14px 20px; border-top:1px solid var(--b2);
 }
 
 .fin-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 .fin-field { display:flex; flex-direction:column; gap:4px; }
 .fin-field--full { grid-column:1 / -1; }
-.fin-field label { font-size:10px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:.4px; }
+.fin-field label { font-size:10px; font-weight:700; color:var(--t4); text-transform:uppercase; letter-spacing:.4px; }
 .fin-input {
-  padding:7px 10px; border-radius:7px; border:1px solid #1e3a5f55;
-  background:#0a0f1e; color:#e2e8f0; font-size:13px; outline:none; transition:border-color .15s;
+  padding:7px 10px; border-radius:7px; border:1px solid var(--b1);
+  background:var(--bg); color:var(--t2); font-size:13px; outline:none; transition:border-color .15s;
   width:100%; box-sizing:border-box;
 }
 .fin-input:focus { border-color:#6366f1; }
-.fin-select { padding:7px 10px; border-radius:7px; border:1px solid #1e3a5f55; background:#0a0f1e; color:#e2e8f0; font-size:13px; outline:none; width:100%; }
+.fin-select { padding:7px 10px; border-radius:7px; border:1px solid var(--b1); background:var(--bg); color:var(--t2); font-size:13px; outline:none; width:100%; }
 .fin-textarea { resize:vertical; min-height:56px; font-family:inherit; }
 </style>

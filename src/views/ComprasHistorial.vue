@@ -77,7 +77,7 @@
             <td class="cp-mono">{{ c.nroFactura || '—' }}</td>
             <td style="text-align:right;font-weight:700;">Bs {{ formatMonto(c.total) }}</td>
             <td style="text-align:right;color:#4ade80;">Bs {{ formatMonto(c.montoPagado) }}</td>
-            <td style="text-align:right;" :style="saldo(c) > 0 ? 'color:#f87171;' : 'color:#64748b;'">
+            <td style="text-align:right;" :style="saldo(c) > 0 ? 'color:#f87171;' : 'color:var(--t4);'">
               Bs {{ formatMonto(saldo(c)) }}
             </td>
             <td><span :class="['ct-badge', estadoBadge(c.estadoCompra)]">{{ labelEstado(c.estadoCompra) }}</span></td>
@@ -91,8 +91,8 @@
         </tbody>
         <tfoot>
           <tr>
-            <td colspan="5" style="text-align:right;font-size:11px;font-weight:700;color:#64748b;padding:10px 12px;">Totales:</td>
-            <td style="text-align:right;font-weight:800;color:#f1f5f9;padding:10px 12px;">Bs {{ formatMonto(totales.total) }}</td>
+            <td colspan="5" style="text-align:right;font-size:11px;font-weight:700;color:var(--t4);padding:10px 12px;">Totales:</td>
+            <td style="text-align:right;font-weight:800;color:var(--t1);padding:10px 12px;">Bs {{ formatMonto(totales.total) }}</td>
             <td style="text-align:right;color:#4ade80;padding:10px 12px;">Bs {{ formatMonto(totales.pagado) }}</td>
             <td style="text-align:right;color:#f87171;padding:10px 12px;">Bs {{ formatMonto(totales.saldo) }}</td>
             <td colspan="3"></td>
@@ -114,7 +114,7 @@
               <div class="cp-info-item"><span>Fecha</span><strong>{{ detalleActual.fecha }}</strong></div>
               <div class="cp-info-item"><span>Proveedor</span><strong>{{ nombreProveedor(detalleActual.proveedorId) }}</strong></div>
               <div class="cp-info-item"><span>Factura</span><strong>{{ detalleActual.nroFactura || '—' }}</strong></div>
-              <div class="cp-info-item"><span>Total</span><strong style="color:#f1f5f9;">Bs {{ formatMonto(detalleActual.total) }}</strong></div>
+              <div class="cp-info-item"><span>Total</span><strong style="color:var(--t1);">Bs {{ formatMonto(detalleActual.total) }}</strong></div>
               <div class="cp-info-item"><span>Pagado</span><strong style="color:#4ade80;">Bs {{ formatMonto(detalleActual.montoPagado) }}</strong></div>
               <div class="cp-info-item"><span>Saldo</span><strong style="color:#f87171;">Bs {{ formatMonto(saldo(detalleActual)) }}</strong></div>
               <div class="cp-info-item"><span>Estado</span><span :class="['ct-badge', estadoBadge(detalleActual.estadoCompra)]">{{ labelEstado(detalleActual.estadoCompra) }}</span></div>
@@ -141,7 +141,7 @@
               </div>
             </div>
 
-            <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Productos</div>
+            <div style="font-size:11px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Productos</div>
             <table class="cp-table" style="margin-bottom:20px;">
               <thead><tr><th>Producto</th><th>Cant.</th><th>Precio</th><th>Desc.</th><th>Subtotal</th><th>Lote</th></tr></thead>
               <tbody>
@@ -156,8 +156,8 @@
               </tbody>
             </table>
 
-            <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Pagos Registrados</div>
-            <div v-if="!(detalleActual.pagos && detalleActual.pagos.length)" style="font-size:12px;color:#334155;font-style:italic;padding:8px 0;">Sin pagos registrados.</div>
+            <div style="font-size:11px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Pagos Registrados</div>
+            <div v-if="!(detalleActual.pagos && detalleActual.pagos.length)" style="font-size:12px;color:var(--b3);font-style:italic;padding:8px 0;">Sin pagos registrados.</div>
             <table v-else class="cp-table">
               <thead><tr><th>Fecha</th><th>Método</th><th>Referencia</th><th style="text-align:right;">Monto</th></tr></thead>
               <tbody>
@@ -210,7 +210,7 @@ export default {
     async cargarCatalogos() {
       const [pr, p] = await Promise.all([
         this.$service.list('proveedores').catch(() => []),
-        this.$service.list('productos').catch(() => []),
+        this.$service.list('productos?soloActivos=true').catch(() => []),
       ])
       this.proveedores = pr || []
       this.productos = p || []
@@ -258,32 +258,32 @@ export default {
 
 <style scoped>
 .cp-root { height:100%; overflow:hidden; padding:24px; display:flex; flex-direction:column; gap:14px; }
-.cp-filters { display:flex; gap:12px; flex-wrap:wrap; flex-shrink:0; background:#0d1526; border:1px solid #1e3a5f44; border-radius:12px; padding:14px 16px; align-items:flex-end; }
-.cp-table-container { flex:1; background:#0d1526; border:1px solid #1e3a5f44; border-radius:12px; overflow:auto; }
+.cp-filters { display:flex; gap:12px; flex-wrap:wrap; flex-shrink:0; background:var(--bg-s); border:1px solid var(--b1); border-radius:12px; padding:14px 16px; align-items:flex-end; }
+.cp-table-container { flex:1; background:var(--bg-s); border:1px solid var(--b1); border-radius:12px; overflow:auto; }
 .cp-loading { display:flex; justify-content:center; padding:40px; }
-.cp-empty { text-align:center; padding:40px; font-size:13px; color:#334155; font-style:italic; }
+.cp-empty { text-align:center; padding:40px; font-size:13px; color:var(--b3); font-style:italic; }
 .cp-table { width:100%; border-collapse:collapse; font-size:12px; }
-.cp-table th { background:#0f172a; color:#64748b; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; padding:10px 12px; text-align:left; white-space:nowrap; position:sticky; top:0; z-index:1; }
-.cp-table td { padding:10px 12px; border-top:1px solid #1e3a5f22; vertical-align:middle; }
-.cp-table tfoot td { background:#0f172a44; border-top:2px solid #1e3a5f44; }
+.cp-table th { background:var(--bg-e); color:var(--t4); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; padding:10px 12px; text-align:left; white-space:nowrap; position:sticky; top:0; z-index:1; }
+.cp-table td { padding:10px 12px; border-top:1px solid var(--b2); vertical-align:middle; }
+.cp-table tfoot td { background:var(--b1); border-top:2px solid var(--b1); }
 .cp-tr { cursor:pointer; transition:background 0.15s; }
-.cp-tr:hover { background:#1e293b; }
+.cp-tr:hover { background:var(--bg-c); }
 .cp-mono { font-family:monospace; font-size:11px; color:#818cf8; }
 .cp-tipo { font-size:9px; font-weight:700; padding:2px 7px; border-radius:4px; }
 .cp-tipo--ini { background:#f59e0b22; color:#fbbf24; border:1px solid #f59e0b33; }
 .cp-tipo--com { background:#6366f122; color:#818cf8; border:1px solid #6366f133; }
-.cp-icon-btn { background:#0f172a; border:1px solid #1e3a5f44; border-radius:6px; padding:5px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#64748b; }
+.cp-icon-btn { background:var(--bg-e); border:1px solid var(--b1); border-radius:6px; padding:5px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--t4); }
 .cp-icon-btn:hover { border-color:#6366f1; color:#818cf8; }
 .cp-info-item { display:flex; flex-direction:column; gap:3px; }
-.cp-info-item span { font-size:10px; color:#64748b; text-transform:uppercase; letter-spacing:.4px; }
-.cp-info-item strong { font-size:13px; color:#e2e8f0; }
+.cp-info-item span { font-size:10px; color:var(--t4); text-transform:uppercase; letter-spacing:.4px; }
+.cp-info-item strong { font-size:13px; color:var(--t2); }
 .ct-badge--warn { background:#f59e0b22; color:#fbbf24; border-color:#f59e0b44; }
 .ct-badge--transit { background:#3b82f622; color:#60a5fa; border-color:#3b82f644; }
 .cp-excel-btn { background:#16a34a22; border:1px solid #16a34a44; color:#4ade80; border-radius:7px; padding:4px 12px; font-size:11px; font-weight:700; cursor:pointer; }
 .cp-excel-btn:hover { background:#16a34a33; }
-.cp-traza-block { background:#0f172a; border:1px solid #1e3a5f44; border-radius:8px; padding:12px 14px; margin-bottom:16px; display:flex; flex-direction:column; gap:10px; }
+.cp-traza-block { background:var(--bg-e); border:1px solid var(--b1); border-radius:8px; padding:12px 14px; margin-bottom:16px; display:flex; flex-direction:column; gap:10px; }
 .cp-traza-section { display:flex; flex-direction:column; gap:6px; }
 .cp-traza-label { font-size:10px; font-weight:700; color:#6366f1; text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px; }
-.ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid #1e3a5f44; border-top-color:#6366f1; animation:spin 0.8s linear infinite; }
+.ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid var(--b1); border-top-color:#6366f1; animation:spin 0.8s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
 </style>

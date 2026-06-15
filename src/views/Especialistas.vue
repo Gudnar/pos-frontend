@@ -20,9 +20,9 @@
 
     <!-- Vacío -->
     <div v-else-if="especialistas.length === 0" class="ide-ia-card" style="text-align:center;padding:64px;">
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="1.25" style="margin-bottom:16px;"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-      <div style="color:#e2e8f0;font-size:15px;font-weight:700;margin-bottom:6px;">Aún no hay especialistas</div>
-      <div style="color:#64748b;font-size:13px;margin-bottom:22px;">Agrega el equipo médico para que el agente pueda informar y agendar consultas</div>
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--b3)" stroke-width="1.25" style="margin-bottom:16px;"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      <div style="color:var(--t2);font-size:15px;font-weight:700;margin-bottom:6px;">Aún no hay especialistas</div>
+      <div style="color:var(--t4);font-size:13px;margin-bottom:22px;">Agrega el equipo médico para que el agente pueda informar y agendar consultas</div>
       <button class="esp-new-btn" style="margin:0 auto;" @click="abrirDialog()">+ Nuevo Especialista</button>
     </div>
 
@@ -55,7 +55,7 @@
               </span>
             </div>
           </div>
-          <div v-else style="color:#475569;font-size:12px;">Sin horarios definidos</div>
+          <div v-else style="color:var(--t5);font-size:12px;">Sin horarios definidos</div>
         </div>
 
         <!-- Estado y acciones -->
@@ -169,8 +169,8 @@
           </button>
         </div>
         <div class="esp-modal__body" style="padding:24px 28px;">
-          <p style="color:#cbd5e1;font-size:14px;margin:0 0 6px;">¿Eliminar a <strong>{{ confirmDelete.nombre }}</strong>?</p>
-          <p style="color:#64748b;font-size:13px;margin:0;">Esta acción no se puede deshacer.</p>
+          <p style="color:var(--scroll);font-size:14px;margin:0 0 6px;">¿Eliminar a <strong>{{ confirmDelete.nombre }}</strong>?</p>
+          <p style="color:var(--t4);font-size:13px;margin:0;">Esta acción no se puede deshacer.</p>
         </div>
         <div class="esp-modal__footer">
           <button class="esp-btn-cancel" @click="confirmDelete = null">Cancelar</button>
@@ -397,7 +397,7 @@ export default {
 .esp-avatar {
   width: 48px;
   height: 48px;
-  background: #1e293b;
+  background: var(--bg-c);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -405,7 +405,7 @@ export default {
   flex-shrink: 0;
 }
 
-.esp-nombre { font-size: 15px; font-weight: 700; color: #f1f5f9; margin-bottom: 6px; }
+.esp-nombre { font-size: 15px; font-weight: 700; color: var(--t1); margin-bottom: 6px; }
 
 .esp-tags { display: flex; flex-wrap: wrap; gap: 5px; }
 .esp-tag {
@@ -416,17 +416,17 @@ export default {
   font-size: 11px;
   font-weight: 600;
 }
-.esp-tag--empty { background: #1e293b; color: #475569; }
+.esp-tag--empty { background: var(--bg-c); color: var(--t5); }
 
-.esp-desc { font-size: 12px; color: #64748b; margin-top: 6px; }
+.esp-desc { font-size: 12px; color: var(--t4); margin-top: 6px; }
 
 .esp-horarios-resumen { display: flex; flex-direction: column; gap: 4px; }
 .esp-horario-row { display: flex; align-items: center; gap: 8px; font-size: 12px; }
-.esp-dia { color: #94a3b8; min-width: 80px; text-transform: capitalize; }
+.esp-dia { color: var(--t3); min-width: 80px; text-transform: capitalize; }
 .esp-franjas { display: flex; gap: 6px; flex-wrap: wrap; }
 .esp-franja {
-  background: #0f172a;
-  color: #64748b;
+  background: var(--bg-e);
+  color: var(--t4);
   border-radius: 4px;
   padding: 1px 7px;
   font-size: 11px;
@@ -441,18 +441,18 @@ export default {
   margin-right: auto;
 }
 .esp-estado--activo { background: #052e16; color: #22c55e; }
-.esp-estado--inactivo { background: #1e293b; color: #475569; }
+.esp-estado--inactivo { background: var(--bg-c); color: var(--t5); }
 
 .esp-action-btn {
-  background: #1e293b;
+  background: var(--bg-c);
   border: none;
   border-radius: 6px;
   padding: 6px 8px;
-  color: #94a3b8;
+  color: var(--t3);
   cursor: pointer;
   transition: background .15s, color .15s;
 }
-.esp-action-btn:hover { background: #334155; color: #e2e8f0; }
+.esp-action-btn:hover { background: var(--b3); color: var(--t2); }
 .esp-action-btn--del:hover { background: #450a0a; color: #f87171; }
 
 /* Modal */
@@ -467,8 +467,8 @@ export default {
   padding: 24px;
 }
 .esp-modal {
-  background: #0f172a;
-  border: 1px solid #1e293b;
+  background: var(--bg-e);
+  border: 1px solid var(--bg-c);
   border-radius: 14px;
   width: 100%;
   max-width: 560px;
@@ -484,21 +484,21 @@ export default {
   align-items: center;
   justify-content: space-between;
   padding: 18px 24px;
-  border-bottom: 1px solid #1e293b;
+  border-bottom: 1px solid var(--bg-c);
   font-size: 15px;
   font-weight: 700;
-  color: #f1f5f9;
+  color: var(--t1);
 }
 .esp-close-btn {
   background: transparent;
   border: none;
-  color: #64748b;
+  color: var(--t4);
   cursor: pointer;
   padding: 4px;
   border-radius: 4px;
   line-height: 1;
 }
-.esp-close-btn:hover { color: #e2e8f0; }
+.esp-close-btn:hover { color: var(--t2); }
 
 .esp-modal__body {
   padding: 20px 24px;
@@ -510,7 +510,7 @@ export default {
 
 .esp-modal__footer {
   padding: 14px 24px;
-  border-top: 1px solid #1e293b;
+  border-top: 1px solid var(--bg-c);
   display: flex;
   justify-content: flex-end;
   gap: 10px;
@@ -518,14 +518,14 @@ export default {
 
 .esp-field { display: flex; flex-direction: column; gap: 6px; }
 .esp-field--inline { flex-direction: row; align-items: center; }
-.esp-label { font-size: 12px; font-weight: 600; color: #94a3b8; }
+.esp-label { font-size: 12px; font-weight: 600; color: var(--t3); }
 
 .esp-input, .esp-textarea {
-  background: #1e293b;
-  border: 1px solid #334155;
+  background: var(--bg-c);
+  border: 1px solid var(--b3);
   border-radius: 8px;
   padding: 9px 12px;
-  color: #f1f5f9;
+  color: var(--t1);
   font-size: 13px;
   outline: none;
   transition: border-color .15s;
@@ -537,8 +537,8 @@ export default {
 
 /* Tags input */
 .esp-tags-input {
-  background: #1e293b;
-  border: 1px solid #334155;
+  background: var(--bg-c);
+  border: 1px solid var(--b3);
   border-radius: 8px;
   padding: 7px 10px;
   display: flex;
@@ -571,7 +571,7 @@ export default {
   background: transparent;
   border: none;
   outline: none;
-  color: #f1f5f9;
+  color: var(--t1);
   font-size: 13px;
   min-width: 160px;
   flex: 1;
@@ -583,7 +583,7 @@ export default {
 .esp-toggle__slider {
   width: 36px;
   height: 20px;
-  background: #334155;
+  background: var(--b3);
   border-radius: 20px;
   position: relative;
   transition: background .2s;
@@ -595,34 +595,34 @@ export default {
   top: 3px;
   width: 14px;
   height: 14px;
-  background: #64748b;
+  background: var(--t4);
   border-radius: 50%;
   transition: left .2s, background .2s;
 }
 .esp-toggle input:checked + .esp-toggle__slider { background: #4f46e5; }
 .esp-toggle input:checked + .esp-toggle__slider::after { left: 19px; background: #fff; }
-.esp-toggle__label { font-size: 13px; color: #94a3b8; }
+.esp-toggle__label { font-size: 13px; color: var(--t3); }
 
 /* Horarios editor */
 .esp-horarios-editor { display: flex; flex-direction: column; gap: 8px; }
 .esp-dia-row { display: flex; flex-direction: column; gap: 6px; }
 .esp-dia-check { display: flex; align-items: center; gap: 8px; }
 .esp-dia-check input[type=checkbox] { accent-color: #6366f1; width: 14px; height: 14px; cursor: pointer; }
-.esp-dia-label { font-size: 13px; color: #cbd5e1; cursor: pointer; text-transform: capitalize; }
+.esp-dia-label { font-size: 13px; color: var(--scroll); cursor: pointer; text-transform: capitalize; }
 .esp-franjas-editor { margin-left: 22px; display: flex; flex-direction: column; gap: 6px; }
 .esp-franja-row { display: flex; align-items: center; gap: 8px; }
 .esp-time-input {
-  background: #1e293b;
-  border: 1px solid #334155;
+  background: var(--bg-c);
+  border: 1px solid var(--b3);
   border-radius: 6px;
   padding: 5px 8px;
-  color: #f1f5f9;
+  color: var(--t1);
   font-size: 12px;
   outline: none;
   width: 100px;
 }
 .esp-time-input:focus { border-color: #6366f1; }
-.esp-franja-sep { color: #475569; }
+.esp-franja-sep { color: var(--t5); }
 .esp-franja-del {
   background: transparent;
   border: none;
@@ -634,7 +634,7 @@ export default {
 }
 .esp-add-franja {
   background: transparent;
-  border: 1px dashed #334155;
+  border: 1px dashed var(--b3);
   border-radius: 6px;
   color: #6366f1;
   font-size: 12px;
@@ -648,14 +648,14 @@ export default {
 /* Buttons footer */
 .esp-btn-cancel {
   background: transparent;
-  border: 1px solid #334155;
+  border: 1px solid var(--b3);
   border-radius: 8px;
   padding: 8px 18px;
-  color: #94a3b8;
+  color: var(--t3);
   font-size: 13px;
   cursor: pointer;
 }
-.esp-btn-cancel:hover { border-color: #475569; color: #e2e8f0; }
+.esp-btn-cancel:hover { border-color: var(--t5); color: var(--t2); }
 
 .esp-btn-save {
   background: #6366f1;
@@ -688,7 +688,7 @@ export default {
 .esp-spinner {
   width: 32px;
   height: 32px;
-  border: 3px solid #1e293b;
+  border: 3px solid var(--bg-c);
   border-top-color: #6366f1;
   border-radius: 50%;
   animation: esp-spin .7s linear infinite;

@@ -22,8 +22,8 @@
     <!-- Empty state -->
     <div v-if="!cargando && campanas.length === 0" class="ide-empty">
       <div style="font-size:36px; margin-bottom:12px;">📢</div>
-      <div style="font-size:15px; font-weight:700; color:#e2e8f0; margin-bottom:6px;">Sin campañas configuradas</div>
-      <div style="font-size:13px; color:#64748b; max-width:380px;">Crea una campaña para asignar un agente específico a un canal o a una publicación de redes sociales</div>
+      <div style="font-size:15px; font-weight:700; color:var(--t2); margin-bottom:6px;">Sin campañas configuradas</div>
+      <div style="font-size:13px; color:var(--t4); max-width:380px;">Crea una campaña para asignar un agente específico a un canal o a una publicación de redes sociales</div>
     </div>
 
     <!-- Campaigns grid -->
@@ -34,8 +34,8 @@
             <span v-html="canalIcon(camp.canal)" style="display:flex;"></span>
           </div>
           <div style="flex:1; min-width:0;">
-            <div style="font-size:14px; font-weight:700; color:#e2e8f0; margin-bottom:2px;">{{ camp.nombre }}</div>
-            <div style="font-size:11px; color:#64748b;">{{ canalLabel(camp.canal) }}</div>
+            <div style="font-size:14px; font-weight:700; color:var(--t2); margin-bottom:2px;">{{ camp.nombre }}</div>
+            <div style="font-size:11px; color:var(--t4);">{{ canalLabel(camp.canal) }}</div>
           </div>
           <div style="display:flex; gap:6px; flex-shrink:0;">
             <div class="ide-toggle" :class="{ 'ide-toggle--on': camp.activa }" @click="toggleActiva(camp)" style="cursor:pointer;"><div></div></div>
@@ -44,15 +44,15 @@
 
         <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:14px;">
           <div v-if="camp.origen" style="display:flex; gap:8px; align-items:center;">
-            <span style="font-size:10px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.05em; white-space:nowrap;">Origen</span>
+            <span style="font-size:10px; font-weight:700; color:var(--t4); text-transform:uppercase; letter-spacing:0.05em; white-space:nowrap;">Origen</span>
             <code style="font-size:10px; color:#818cf8; background:#6366f118; padding:2px 6px; border-radius:4px; word-break:break-all;">{{ camp.origen }}</code>
           </div>
-          <div v-else style="font-size:11px; color:#475569; font-style:italic;">Sin origen específico — aplica a todo el canal</div>
+          <div v-else style="font-size:11px; color:var(--t5); font-style:italic;">Sin origen específico — aplica a todo el canal</div>
           <div style="display:flex; gap:8px; align-items:center;">
-            <span style="font-size:10px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.05em;">Agente</span>
-            <span style="font-size:12px; color:#e2e8f0; font-weight:600;">{{ nombreAgente(camp.agenteId) }}</span>
+            <span style="font-size:10px; font-weight:700; color:var(--t4); text-transform:uppercase; letter-spacing:0.05em;">Agente</span>
+            <span style="font-size:12px; color:var(--t2); font-weight:600;">{{ nombreAgente(camp.agenteId) }}</span>
           </div>
-          <div v-if="camp.descripcion" style="font-size:11px; color:#94a3b8; margin-top:2px;">{{ camp.descripcion }}</div>
+          <div v-if="camp.descripcion" style="font-size:11px; color:var(--t3); margin-top:2px;">{{ camp.descripcion }}</div>
         </div>
 
         <div style="display:flex; gap:8px;">
@@ -68,7 +68,7 @@
     <div v-if="dialog" class="ag-modal-backdrop" @mousedown.self="dialog = false">
       <div class="ag-modal" style="max-width:520px;">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
-          <h3 style="font-size:15px; font-weight:700; color:#e2e8f0;">{{ editando ? 'Editar campaña' : 'Nueva campaña' }}</h3>
+          <h3 style="font-size:15px; font-weight:700; color:var(--t2);">{{ editando ? 'Editar campaña' : 'Nueva campaña' }}</h3>
           <button class="ag-modal-close" @click="dialog = false">✕</button>
         </div>
 
@@ -96,18 +96,18 @@
           </div>
 
           <div class="ide-field">
-            <label>Identificador de origen <span style="color:#64748b;">(opcional)</span></label>
+            <label>Identificador de origen <span style="color:var(--t4);">(opcional)</span></label>
             <input v-model="form.origen" class="ide-input" :placeholder="origenPlaceholder" />
-            <div style="font-size:10px; color:#475569; margin-top:3px;">{{ origenHint }}</div>
+            <div style="font-size:10px; color:var(--t5); margin-top:3px;">{{ origenHint }}</div>
           </div>
 
           <div class="ide-field">
-            <label>Descripción <span style="color:#64748b;">(opcional)</span></label>
+            <label>Descripción <span style="color:var(--t4);">(opcional)</span></label>
             <input v-model="form.descripcion" class="ide-input" placeholder="Describe el objetivo de esta campaña" />
           </div>
 
-          <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:#0f172a; border-radius:8px;">
-            <div style="font-size:13px; font-weight:600; color:#e2e8f0;">Campaña activa</div>
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:var(--bg-e); border-radius:8px;">
+            <div style="font-size:13px; font-weight:600; color:var(--t2);">Campaña activa</div>
             <div class="ide-toggle" :class="{ 'ide-toggle--on': form.activa }" @click="form.activa = !form.activa"><div></div></div>
           </div>
         </div>
@@ -124,8 +124,8 @@
     <!-- Delete confirmation -->
     <div v-if="confirmando" class="ag-modal-backdrop" @mousedown.self="confirmando = null">
       <div class="ag-modal" style="max-width:380px;">
-        <div style="font-size:15px; font-weight:700; color:#e2e8f0; margin-bottom:8px;">¿Eliminar campaña?</div>
-        <div style="font-size:13px; color:#94a3b8; margin-bottom:20px;">Se eliminará <strong style="color:#e2e8f0;">{{ confirmando.nombre }}</strong>. Esta acción no se puede deshacer.</div>
+        <div style="font-size:15px; font-weight:700; color:var(--t2); margin-bottom:8px;">¿Eliminar campaña?</div>
+        <div style="font-size:13px; color:var(--t3); margin-bottom:20px;">Se eliminará <strong style="color:var(--t2);">{{ confirmando.nombre }}</strong>. Esta acción no se puede deshacer.</div>
         <div style="display:flex; justify-content:flex-end; gap:8px;">
           <button class="ag-btn-cancel" @click="confirmando = null">Cancelar</button>
           <v-btn depressed color="error" :loading="eliminando" @click="eliminar" style="border-radius:8px; font-size:13px;">Eliminar</v-btn>
@@ -141,7 +141,7 @@ const CANALES = [
   { id: 'instagram', label: 'Instagram',           color: '#E1306C', icon: '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>' },
   { id: 'messenger', label: 'Facebook Messenger',  color: '#0084ff', icon: '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.3 2.246.464 3.443.464 6.627 0 12-4.975 12-11.111S18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26L10.732 8l3.131 3.26L19.752 8l-6.561 6.963z"/></svg>' },
   { id: 'chatweb',   label: 'Chat Web',            color: '#6366f1', icon: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>' },
-  { id: 'otro',      label: 'Otro canal',          color: '#64748b', icon: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>' },
+  { id: 'otro',      label: 'Otro canal',          color: 'var(--t4)', icon: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>' },
 ]
 
 const ORIGEN_HINTS = {
@@ -258,7 +258,7 @@ export default {
 <style scoped>
 .camp-canal-badge { width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .camp-status-dot  { position:absolute; top:14px; right:14px; width:7px; height:7px; border-radius:50%; }
-.ide-btn-ghost    { padding:5px 12px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; background:#1e293b; border:1px solid #334155; color:#94a3b8; font-family:inherit; }
-.ide-btn-ghost:hover { background:#334155; color:#e2e8f0; }
+.ide-btn-ghost    { padding:5px 12px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; background:var(--bg-c); border:1px solid var(--b3); color:var(--t3); font-family:inherit; }
+.ide-btn-ghost:hover { background:var(--b3); color:var(--t2); }
 .ide-btn-ghost--danger:hover { background:#ef444422; border-color:#ef444444; color:#ef4444; }
 </style>

@@ -11,8 +11,8 @@
           </svg>
         </div>
         <div>
-          <h1 style="font-size:18px; font-weight:800; color:#f1f5f9; margin:0;">Clientes</h1>
-          <p style="font-size:12px; color:#475569; margin:0;">{{ clientes.length }} cliente{{ clientes.length !== 1 ? 's' : '' }} registrado{{ clientes.length !== 1 ? 's' : '' }}</p>
+          <h1 style="font-size:18px; font-weight:800; color:var(--t1); margin:0;">Clientes</h1>
+          <p style="font-size:12px; color:var(--t5); margin:0;">{{ clientes.length }} cliente{{ clientes.length !== 1 ? 's' : '' }} registrado{{ clientes.length !== 1 ? 's' : '' }}</p>
         </div>
       </div>
       <v-btn depressed color="primary" @click="abrirCrear" style="font-size:12px; border-radius:8px; font-weight:700;">
@@ -78,8 +78,8 @@
       <!-- Empty state -->
       <div v-if="!clientes.length" class="ide-cl-empty">
         <div style="font-size:36px; margin-bottom:12px;">🏢</div>
-        <div style="font-size:14px; font-weight:700; color:#e2e8f0; margin-bottom:6px;">Sin clientes registrados</div>
-        <div style="font-size:12px; color:#475569;">Crea el primer cliente para comenzar</div>
+        <div style="font-size:14px; font-weight:700; color:var(--t2); margin-bottom:6px;">Sin clientes registrados</div>
+        <div style="font-size:12px; color:var(--t5);">Crea el primer cliente para comenzar</div>
       </div>
     </div>
 
@@ -91,7 +91,7 @@
     <v-dialog v-model="dialog" max-width="620" persistent>
       <div class="ide-cl-dialog">
         <div class="ide-cl-dialog-hd">
-          <span style="font-size:15px; font-weight:800; color:#f1f5f9;">{{ editando ? 'Editar cliente' : 'Nuevo cliente' }}</span>
+          <span style="font-size:15px; font-weight:800; color:var(--t1);">{{ editando ? 'Editar cliente' : 'Nuevo cliente' }}</span>
           <button class="ide-cl-dialog-close" @click="cerrarDialog">✕</button>
         </div>
 
@@ -105,7 +105,7 @@
             <div class="ide-field">
               <label>Slug (URL) *</label>
               <input v-model="form.slug" class="ide-input" placeholder="midoc" />
-              <div style="font-size:10px; color:#475569; margin-top:3px;">Solo letras minúsculas, números y guiones</div>
+              <div style="font-size:10px; color:var(--t5); margin-top:3px;">Solo letras minúsculas, números y guiones</div>
             </div>
           </div>
 
@@ -179,7 +179,7 @@
           <!-- Activo (solo al editar) -->
           <div v-if="editando" style="display:flex; align-items:center; gap:10px; margin-top:4px;">
             <div class="ide-toggle" :class="{ 'ide-toggle--on': form.activo }" @click="form.activo = !form.activo"><div></div></div>
-            <span style="font-size:13px; color:#cbd5e1;">{{ form.activo ? 'Cliente activo' : 'Cliente inactivo' }}</span>
+            <span style="font-size:13px; color:var(--scroll);">{{ form.activo ? 'Cliente activo' : 'Cliente inactivo' }}</span>
           </div>
         </div>
 
@@ -354,7 +354,7 @@ export default {
   align-items: center;
   justify-content: space-between;
   padding: 20px 24px 16px;
-  border-bottom: 1px solid #1e3a5f33;
+  border-bottom: 1px solid var(--b2);
 }
 
 .ide-cl-ico {
@@ -373,8 +373,8 @@ export default {
 }
 
 .ide-cl-card {
-  background: #1e293b;
-  border: 1px solid #1e3a5f33;
+  background: var(--bg-c);
+  border: 1px solid var(--b2);
   border-radius: 12px;
   padding: 16px;
   transition: border-color 0.15s;
@@ -392,16 +392,16 @@ export default {
   width: 38px; height: 38px;
   border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 16px; font-weight: 800; color: #e2e8f0;
+  font-size: 16px; font-weight: 800; color: var(--t2);
   flex-shrink: 0;
 }
 
 .ide-cl-nombre {
-  font-size: 14px; font-weight: 700; color: #e2e8f0;
+  font-size: 14px; font-weight: 700; color: var(--t2);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .ide-cl-slug {
-  font-size: 11px; color: #475569; font-family: monospace;
+  font-size: 11px; color: var(--t5); font-family: monospace;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
@@ -413,27 +413,27 @@ export default {
 .ide-cl-plan--profesional { background: #f59e0b22; color: #f59e0b; }
 .ide-cl-plan--enterprise  { background: #22c55e22; color: #22c55e; }
 
-.ide-cl-meta { border-top: 1px solid #1e3a5f33; padding-top: 10px; margin-bottom: 10px; }
+.ide-cl-meta { border-top: 1px solid var(--b2); padding-top: 10px; margin-bottom: 10px; }
 .ide-cl-meta-row {
   display: flex; align-items: center; gap: 6px;
-  font-size: 11px; color: #64748b; margin-bottom: 4px;
+  font-size: 11px; color: var(--t4); margin-bottom: 4px;
   min-width: 0;
 }
 .ide-cl-meta-txt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 
 .ide-cl-tag {
   font-size: 10px; font-weight: 600;
-  background: #0f172a; color: #64748b;
-  border: 1px solid #1e3a5f44;
+  background: var(--bg-e); color: var(--t4);
+  border: 1px solid var(--b1);
   padding: 2px 7px; border-radius: 999px;
 }
-.ide-cl-tag--more { color: #475569; }
+.ide-cl-tag--more { color: var(--t5); }
 .ide-cl-tag--editable { cursor: pointer; color: #818cf8; background: #6366f122; border-color: #6366f133; }
 .ide-cl-tag--editable:hover { background: #6366f144; }
 
 .ide-cl-actions {
   display: flex; align-items: center; justify-content: space-between;
-  border-top: 1px solid #1e3a5f33; padding-top: 10px;
+  border-top: 1px solid var(--b2); padding-top: 10px;
 }
 
 .ide-cl-status {
@@ -444,35 +444,35 @@ export default {
 
 .ide-cl-btn {
   width: 28px; height: 28px; border-radius: 6px;
-  background: #0f172a; border: 1px solid #1e3a5f44;
-  color: #64748b; cursor: pointer;
+  background: var(--bg-e); border: 1px solid var(--b1);
+  color: var(--t4); cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   transition: all 0.15s;
 }
-.ide-cl-btn:hover { background: #1e293b; color: #94a3b8; }
+.ide-cl-btn:hover { background: var(--bg-c); color: var(--t3); }
 .ide-cl-btn--danger:hover { background: #ef444411; border-color: #ef444433; color: #ef4444; }
 
 .ide-cl-empty {
   grid-column: 1/-1;
   text-align: center;
   padding: 60px 20px;
-  color: #475569;
+  color: var(--t5);
 }
 
 /* Dialog */
 .ide-cl-dialog {
-  background: #1e293b;
-  border: 1px solid #334155;
+  background: var(--bg-c);
+  border: 1px solid var(--b3);
   border-radius: 14px;
   overflow: hidden;
 }
 .ide-cl-dialog-hd {
   display: flex; align-items: center; justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid #1e3a5f33;
+  border-bottom: 1px solid var(--b2);
 }
 .ide-cl-dialog-close {
-  background: none; border: none; color: #475569;
+  background: none; border: none; color: var(--t5);
   cursor: pointer; font-size: 14px; padding: 4px 6px;
   border-radius: 4px;
 }
@@ -481,21 +481,21 @@ export default {
 .ide-cl-dialog-ft {
   display: flex; justify-content: flex-end; gap: 8px;
   padding: 14px 20px;
-  border-top: 1px solid #1e3a5f33;
+  border-top: 1px solid var(--b2);
 }
 
 .ide-cl-btn-sec {
   padding: 7px 16px; border-radius: 8px;
-  background: none; border: 1px solid #334155;
-  color: #64748b; font-size: 12px; font-weight: 600;
+  background: none; border: 1px solid var(--b3);
+  color: var(--t4); font-size: 12px; font-weight: 600;
   cursor: pointer; font-family: inherit;
 }
-.ide-cl-btn-sec:hover { border-color: #475569; color: #94a3b8; }
+.ide-cl-btn-sec:hover { border-color: var(--t5); color: var(--t3); }
 
 .ide-cl-dia {
   padding: 4px 10px; border-radius: 6px;
-  background: #0f172a; border: 1px solid #1e3a5f44;
-  font-size: 11px; font-weight: 600; color: #64748b;
+  background: var(--bg-e); border: 1px solid var(--b1);
+  font-size: 11px; font-weight: 600; color: var(--t4);
   cursor: pointer; user-select: none; transition: all 0.12s;
 }
 .ide-cl-dia--on { background: #6366f122; border-color: #6366f144; color: #818cf8; }

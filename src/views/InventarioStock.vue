@@ -53,14 +53,14 @@
         <tbody>
           <tr v-for="r in filasFiltradas" :key="r.productoId + r.sucursalId" class="inv-tr">
             <td class="inv-mono">{{ r.codigo || '—' }}</td>
-            <td style="font-weight:600;color:#e2e8f0;">{{ r.nombre }}</td>
+            <td style="font-weight:600;color:var(--t2);">{{ r.nombre }}</td>
             <td style="text-align:right;font-weight:800;color:#4ade80;">{{ fmt(r.stockTotal) }}</td>
-            <td style="text-align:center;color:#94a3b8;">{{ r.nroLotes }}</td>
+            <td style="text-align:center;color:var(--t3);">{{ r.nroLotes }}</td>
             <td>
               <span v-if="r.proximoVencimiento" :class="['inv-venc', diasParaVencer(r.proximoVencimiento) <= 30 ? 'inv-venc--warn' : '']">
                 {{ r.proximoVencimiento }} ({{ diasParaVencer(r.proximoVencimiento) }}d)
               </span>
-              <span v-else style="color:#334155;">—</span>
+              <span v-else style="color:var(--b3);">—</span>
             </td>
             <td><span class="inv-badge">{{ r.metodoPicking || 'FEFO' }}</span></td>
           </tr>
@@ -119,22 +119,22 @@ export default {
 
 <style scoped>
 .inv-root { height:100%; overflow:hidden; padding:24px; display:flex; flex-direction:column; gap:12px; }
-.inv-filters { display:flex; gap:12px; flex-wrap:wrap; flex-shrink:0; background:#0d1526; border:1px solid #1e3a5f44; border-radius:12px; padding:14px 16px; align-items:flex-end; }
-.inv-summary-bar { display:flex; gap:20px; flex-wrap:wrap; flex-shrink:0; background:#0d1526; border:1px solid #1e3a5f44; border-radius:12px; padding:12px 20px; }
+.inv-filters { display:flex; gap:12px; flex-wrap:wrap; flex-shrink:0; background:var(--bg-s); border:1px solid var(--b1); border-radius:12px; padding:14px 16px; align-items:flex-end; }
+.inv-summary-bar { display:flex; gap:20px; flex-wrap:wrap; flex-shrink:0; background:var(--bg-s); border:1px solid var(--b1); border-radius:12px; padding:12px 20px; }
 .inv-summary-item { display:flex; flex-direction:column; gap:2px; }
-.inv-summary-item span { font-size:10px; color:#64748b; text-transform:uppercase; letter-spacing:.4px; }
-.inv-summary-item strong { font-size:15px; color:#f1f5f9; }
-.inv-table-wrap { flex:1; background:#0d1526; border:1px solid #1e3a5f44; border-radius:12px; overflow:auto; }
+.inv-summary-item span { font-size:10px; color:var(--t4); text-transform:uppercase; letter-spacing:.4px; }
+.inv-summary-item strong { font-size:15px; color:var(--t1); }
+.inv-table-wrap { flex:1; background:var(--bg-s); border:1px solid var(--b1); border-radius:12px; overflow:auto; }
 .inv-loading { display:flex; justify-content:center; padding:40px; }
-.inv-empty { text-align:center; padding:40px; font-size:13px; color:#334155; font-style:italic; }
+.inv-empty { text-align:center; padding:40px; font-size:13px; color:var(--b3); font-style:italic; }
 .inv-table { width:100%; border-collapse:collapse; font-size:12px; }
-.inv-table th { background:#0f172a; color:#64748b; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; padding:10px 12px; text-align:left; white-space:nowrap; position:sticky; top:0; z-index:1; }
-.inv-table td { padding:10px 12px; border-top:1px solid #1e3a5f22; vertical-align:middle; }
-.inv-tr:hover { background:#1e293b; }
+.inv-table th { background:var(--bg-e); color:var(--t4); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; padding:10px 12px; text-align:left; white-space:nowrap; position:sticky; top:0; z-index:1; }
+.inv-table td { padding:10px 12px; border-top:1px solid var(--b2); vertical-align:middle; }
+.inv-tr:hover { background:var(--bg-c); }
 .inv-mono { font-family:monospace; font-size:11px; color:#818cf8; }
-.inv-badge { font-size:9px; font-weight:700; background:#1e293b; color:#94a3b8; padding:2px 7px; border-radius:4px; border:1px solid #1e3a5f44; }
-.inv-venc { font-size:11px; color:#e2e8f0; }
+.inv-badge { font-size:9px; font-weight:700; background:var(--bg-c); color:var(--t3); padding:2px 7px; border-radius:4px; border:1px solid var(--b1); }
+.inv-venc { font-size:11px; color:var(--t2); }
 .inv-venc--warn { color:#fbbf24; font-weight:700; }
-.ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid #1e3a5f44; border-top-color:#6366f1; animation:spin .8s linear infinite; }
+.ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid var(--b1); border-top-color:#6366f1; animation:spin .8s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
 </style>

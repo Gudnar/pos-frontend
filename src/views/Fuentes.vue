@@ -63,7 +63,7 @@
         <div class="mov-toolbar">
           <div class="mov-toolbar__filters">
             <input v-model="filtroDesde" class="ide-input mov-filter-date" type="date" @change="cargarMovimientos" />
-            <span style="color:#334155;font-size:12px;">—</span>
+            <span style="color:var(--b3);font-size:12px;">—</span>
             <input v-model="filtroHasta" class="ide-input mov-filter-date" type="date" @change="cargarMovimientos" />
             <select v-model="filtroTipo" class="ide-input mov-filter-select" @change="cargarMovimientos">
               <option value="">Todos los tipos</option>
@@ -112,19 +112,19 @@
               <tr v-for="m in movimientos" :key="m.id">
                 <td style="white-space:nowrap;">{{ m.fecha }}</td>
                 <td><span class="ide-chip" :class="chipTipoMov(m.tipo)" style="font-size:10px;">{{ labelTipoMov(m.tipo) }}</span></td>
-                <td><span v-if="m.categoria" style="font-size:11px;color:#64748b;">{{ labelCategoria(m.categoria) }}</span><span v-else style="color:#334155;">—</span></td>
+                <td><span v-if="m.categoria" style="font-size:11px;color:var(--t4);">{{ labelCategoria(m.categoria) }}</span><span v-else style="color:var(--b3);">—</span></td>
                 <td style="max-width:220px;">
                   <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ m.concepto }}</div>
-                  <div v-if="m.origenTipo" style="font-size:10px;color:#475569;">{{ m.origenTipo }} {{ m.origenId ? '→ vinculado' : '' }}</div>
+                  <div v-if="m.origenTipo" style="font-size:10px;color:var(--t5);">{{ m.origenTipo }} {{ m.origenId ? '→ vinculado' : '' }}</div>
                 </td>
-                <td style="color:#64748b;font-size:12px;">{{ m.referencia || '—' }}</td>
+                <td style="color:var(--t4);font-size:12px;">{{ m.referencia || '—' }}</td>
                 <td style="text-align:right;">
                   <span :class="esIngreso(m.tipo) ? 'mov-monto--ing' : 'mov-monto--egr'">
                     {{ esIngreso(m.tipo) ? '+' : '−' }}{{ fmtNum(m.monto) }}
                   </span>
-                  <div v-if="m.monedaId" style="font-size:10px;color:#475569;">{{ monedaCodigo(m.monedaId) }}</div>
+                  <div v-if="m.monedaId" style="font-size:10px;color:var(--t5);">{{ monedaCodigo(m.monedaId) }}</div>
                 </td>
-                <td style="text-align:right;color:#64748b;font-size:12px;">{{ Number(m.tipoCambio) !== 1 ? fmtNum6(m.tipoCambio) : '—' }}</td>
+                <td style="text-align:right;color:var(--t4);font-size:12px;">{{ Number(m.tipoCambio) !== 1 ? fmtNum6(m.tipoCambio) : '—' }}</td>
                 <td style="text-align:right;font-weight:700;" :class="esIngreso(m.tipo) ? 'mov-monto--ing' : 'mov-monto--egr'">
                   {{ esIngreso(m.tipo) ? '+' : '−' }}{{ fmtNum(m.montoNativo) }}
                 </td>
@@ -136,7 +136,7 @@
             </tbody>
             <tfoot>
               <tr>
-                <td colspan="7" style="text-align:right;font-size:11px;color:#64748b;padding:8px 12px;">
+                <td colspan="7" style="text-align:right;font-size:11px;color:var(--t4);padding:8px 12px;">
                   Flujo neto del período:
                 </td>
                 <td style="text-align:right;font-weight:700;padding:8px 12px;" :class="flujoNeto >= 0 ? 'mov-monto--ing' : 'mov-monto--egr'">
@@ -590,29 +590,29 @@ export default {
 
 .fuentes-sidebar {
   width: 280px; flex-shrink: 0;
-  border-right: 1px solid #1e3a5f44;
+  border-right: 1px solid var(--b1);
   display: flex; flex-direction: column; overflow: hidden;
 }
 .fuentes-sidebar__header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 16px; border-bottom: 1px solid #1e3a5f33; flex-shrink: 0;
+  padding: 16px; border-bottom: 1px solid var(--b2); flex-shrink: 0;
 }
-.fuentes-sidebar__title { font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .5px; }
+.fuentes-sidebar__title { font-size: 12px; font-weight: 700; color: var(--t4); text-transform: uppercase; letter-spacing: .5px; }
 .fuentes-list { flex: 1; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
 
 .fuente-card {
   padding: 12px 14px; border-radius: 10px; cursor: pointer;
-  border: 1px solid #1e3a5f44; background: #111d35;
+  border: 1px solid var(--b1); background: var(--bg-n);
   transition: all .15s;
 }
-.fuente-card:hover { border-color: #6366f155; background: #1e293b; }
+.fuente-card:hover { border-color: #6366f155; background: var(--bg-c); }
 .fuente-card--active { border-color: #6366f1; background: #6366f110; }
 .fuente-card__top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
-.fuente-card__nombre { font-size: 13px; font-weight: 700; color: #e2e8f0; }
-.fuente-card__banco { font-size: 11px; color: #475569; margin-bottom: 2px; }
-.fuente-card__titular { font-size: 11px; color: #334155; margin-bottom: 6px; }
-.fuente-card__saldo { display: flex; align-items: baseline; gap: 6px; margin-top: 6px; border-top: 1px solid #1e3a5f33; padding-top: 6px; }
-.fuente-card__moneda { font-size: 10px; color: #475569; font-weight: 700; }
+.fuente-card__nombre { font-size: 13px; font-weight: 700; color: var(--t2); }
+.fuente-card__banco { font-size: 11px; color: var(--t5); margin-bottom: 2px; }
+.fuente-card__titular { font-size: 11px; color: var(--b3); margin-bottom: 6px; }
+.fuente-card__saldo { display: flex; align-items: baseline; gap: 6px; margin-top: 6px; border-top: 1px solid var(--b2); padding-top: 6px; }
+.fuente-card__moneda { font-size: 10px; color: var(--t5); font-weight: 700; }
 
 .saldo--pos { color: #4ade80; }
 .saldo--neg { color: #f87171; }
@@ -620,18 +620,18 @@ export default {
 /* ── Panel principal ─────────────────────────────────────────────────── */
 .fuentes-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
-.mov-header { display: flex; align-items: center; gap: 16px; padding: 16px 24px; border-bottom: 1px solid #1e3a5f44; flex-wrap: wrap; flex-shrink: 0; }
+.mov-header { display: flex; align-items: center; gap: 16px; padding: 16px 24px; border-bottom: 1px solid var(--b1); flex-wrap: wrap; flex-shrink: 0; }
 .mov-header__info { flex: 1; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.mov-header__info h2 { font-size: 16px; font-weight: 700; margin: 0; color: #f1f5f9; }
-.det-meta { font-size: 12px; color: #475569; }
+.mov-header__info h2 { font-size: 16px; font-weight: 700; margin: 0; color: var(--t1); }
+.det-meta { font-size: 12px; color: var(--t5); }
 .mov-header__saldo { text-align: right; }
-.saldo-kpi__label { font-size: 10px; color: #475569; text-transform: uppercase; letter-spacing: .4px; }
+.saldo-kpi__label { font-size: 10px; color: var(--t5); text-transform: uppercase; letter-spacing: .4px; }
 .saldo-kpi__val { font-size: 20px; font-weight: 800; }
 .mov-header__actions { display: flex; gap: 6px; }
 
 .mov-toolbar {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 24px; border-bottom: 1px solid #1e3a5f33; gap: 12px; flex-wrap: wrap; flex-shrink: 0;
+  padding: 10px 24px; border-bottom: 1px solid var(--b2); gap: 12px; flex-wrap: wrap; flex-shrink: 0;
 }
 .mov-toolbar__filters { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .mov-toolbar__btns { display: flex; gap: 6px; flex-shrink: 0; }
@@ -649,28 +649,28 @@ export default {
 
 /* ── Tabla ───────────────────────────────────────────────────────────── */
 .ide-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.ide-table th { text-align: left; padding: 8px 12px; background: #111d35; color: #64748b; font-weight: 700; border-bottom: 1px solid #1e3a5f44; white-space: nowrap; font-size: 11px; text-transform: uppercase; letter-spacing: .4px; }
-.ide-table td { padding: 10px 12px; border-bottom: 1px solid #1e3a5f22; vertical-align: middle; color: #cbd5e1; }
-.ide-table tr:hover td { background: #1e293b55; }
-.ide-table tfoot td { background: #111d35; }
+.ide-table th { text-align: left; padding: 8px 12px; background: var(--bg-n); color: var(--t4); font-weight: 700; border-bottom: 1px solid var(--b1); white-space: nowrap; font-size: 11px; text-transform: uppercase; letter-spacing: .4px; }
+.ide-table td { padding: 10px 12px; border-bottom: 1px solid var(--b2); vertical-align: middle; color: var(--scroll); }
+.ide-table tr:hover td { background: var(--b1); }
+.ide-table tfoot td { background: var(--bg-n); }
 .ide-actions { display: flex; gap: 6px; white-space: nowrap; }
 
 /* ── Estados ─────────────────────────────────────────────────────────── */
-.ide-loading { color: #475569; font-size: 13px; padding: 48px 0; text-align: center; }
-.ide-empty { color: #334155; font-size: 13px; padding: 48px 0; text-align: center; font-style: italic; }
+.ide-loading { color: var(--t5); font-size: 13px; padding: 48px 0; text-align: center; }
+.ide-empty { color: var(--b3); font-size: 13px; padding: 48px 0; text-align: center; font-style: italic; }
 
 /* ── Chips ───────────────────────────────────────────────────────────── */
 .ide-chip { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; border: 1px solid; }
-.ide-chip--grey   { background: #33415522; color: #94a3b8; border-color: #33415544; }
+.ide-chip--grey   { background: var(--b2); color: var(--t3); border-color: var(--b1); }
 .ide-chip--blue   { background: #3b82f622; color: #60a5fa; border-color: #3b82f644; }
 .ide-chip--orange { background: #f9731622; color: #fb923c; border-color: #f9731644; }
 .ide-chip--purple { background: #a855f722; color: #c084fc; border-color: #a855f744; }
 .ide-chip--success{ background: #22c55e22; color: #4ade80; border-color: #22c55e44; }
 
 /* ── Botones ─────────────────────────────────────────────────────────── */
-.ide-btn { padding: 6px 14px; border-radius: 6px; border: 1px solid #1e3a5f; background: #1e3a5f33; color: #94a3b8; cursor: pointer; font-size: 12px; font-weight: 600; transition: all .15s; }
+.ide-btn { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--b0); background: var(--b2); color: var(--t3); cursor: pointer; font-size: 12px; font-weight: 600; transition: all .15s; }
 .ide-btn:disabled { opacity: .4; cursor: not-allowed; }
-.ide-btn:hover:not(:disabled) { border-color: #6366f155; color: #cbd5e1; }
+.ide-btn:hover:not(:disabled) { border-color: #6366f155; color: var(--scroll); }
 .ide-btn--primary { background: #6366f1; color: #fff; border-color: #6366f1; }
 .ide-btn--primary:hover:not(:disabled) { background: #4f46e5; border-color: #4f46e5; }
 .ide-btn--danger { color: #f87171; border-color: #ef444444; background: #ef444411; }
@@ -680,34 +680,34 @@ export default {
 .ide-btn--sm { padding: 4px 10px; font-size: 11px; }
 
 /* ── Inputs ──────────────────────────────────────────────────────────── */
-.ide-input { width: 100%; padding: 8px 12px; border: 1px solid #1e3a5f55; border-radius: 8px; background: #0a0f1e; color: #e2e8f0; font-size: 13px; outline: none; box-sizing: border-box; transition: border-color .15s; }
+.ide-input { width: 100%; padding: 8px 12px; border: 1px solid var(--b1); border-radius: 8px; background: var(--bg); color: var(--t2); font-size: 13px; outline: none; box-sizing: border-box; transition: border-color .15s; }
 .ide-input:focus { border-color: #6366f1; box-shadow: 0 0 0 2px #6366f120; }
-.ide-input::placeholder { color: #334155; }
+.ide-input::placeholder { color: var(--b3); }
 .ide-input--readonly { opacity: .7; cursor: default; border-style: dashed; }
 
 /* ── Modal ───────────────────────────────────────────────────────────── */
 .ide-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-.ide-modal { background: #0d1526; border: 1px solid #1e3a5f66; border-radius: 14px; width: 600px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.6); }
+.ide-modal { background: var(--bg-s); border: 1px solid var(--b4); border-radius: 14px; width: 600px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.6); }
 .ide-modal--sm { width: 460px; }
-.ide-modal__header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 16px; border-bottom: 1px solid #1e3a5f44; }
-.ide-modal__header h3 { font-size: 15px; font-weight: 700; margin: 0; color: #f1f5f9; }
-.ide-modal__close { background: none; border: none; font-size: 16px; cursor: pointer; color: #475569; padding: 4px; transition: color .15s; }
-.ide-modal__close:hover { color: #e2e8f0; }
+.ide-modal__header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 16px; border-bottom: 1px solid var(--b1); }
+.ide-modal__header h3 { font-size: 15px; font-weight: 700; margin: 0; color: var(--t1); }
+.ide-modal__close { background: none; border: none; font-size: 16px; cursor: pointer; color: var(--t5); padding: 4px; transition: color .15s; }
+.ide-modal__close:hover { color: var(--t2); }
 .ide-modal__body { padding: 20px 24px; }
-.ide-modal__footer { display: flex; justify-content: flex-end; gap: 8px; padding: 16px 24px 20px; border-top: 1px solid #1e3a5f44; }
+.ide-modal__footer { display: flex; justify-content: flex-end; gap: 8px; padding: 16px 24px 20px; border-top: 1px solid var(--b1); }
 .ide-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .ide-field { display: flex; flex-direction: column; gap: 4px; }
 .ide-field--full { grid-column: 1 / -1; }
-.ide-field label { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .4px; }
-.ide-preview-calc { background: #111d35; border: 1px solid #1e3a5f44; border-radius: 6px; padding: 8px 12px; font-size: 12px; color: #64748b; }
+.ide-field label { font-size: 11px; font-weight: 700; color: var(--t4); text-transform: uppercase; letter-spacing: .4px; }
+.ide-preview-calc { background: var(--bg-n); border: 1px solid var(--b1); border-radius: 6px; padding: 8px 12px; font-size: 12px; color: var(--t4); }
 
 /* ── TC cadena ───────────────────────────────────────────────────────── */
-.tc-cadena-toggle { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 8px; cursor: pointer; border: 1px dashed #1e3a5f; background: transparent; font-size: 12px; color: #475569; transition: all .15s; user-select: none; }
-.tc-cadena-toggle:hover { border-color: #6366f155; color: #94a3b8; }
+.tc-cadena-toggle { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 8px; cursor: pointer; border: 1px dashed var(--b0); background: transparent; font-size: 12px; color: var(--t5); transition: all .15s; user-select: none; }
+.tc-cadena-toggle:hover { border-color: #6366f155; color: var(--t3); }
 .tc-cadena-toggle--on { border-color: #6366f1; background: #6366f110; color: #818cf8; }
 .tc-cadena-toggle__icon { font-size: 15px; }
-.tc-cadena-badge { margin-left: 4px; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: #1e3a5f44; color: #64748b; }
+.tc-cadena-badge { margin-left: 4px; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: var(--b1); color: var(--t4); }
 .tc-cadena-toggle--on .tc-cadena-badge { background: #6366f133; color: #818cf8; }
-.tc-cadena-result { display: flex; align-items: center; justify-content: space-between; background: #6366f110; border: 1px solid #6366f133; border-radius: 8px; padding: 8px 14px; font-size: 12px; color: #94a3b8; }
+.tc-cadena-result { display: flex; align-items: center; justify-content: space-between; background: #6366f110; border: 1px solid #6366f133; border-radius: 8px; padding: 8px 14px; font-size: 12px; color: var(--t3); }
 .tc-cadena-result strong { font-size: 14px; color: #818cf8; }
 </style>

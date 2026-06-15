@@ -65,7 +65,7 @@
 
               <!-- Tabla de productos -->
               <div style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
-                <span style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;">Productos</span>
+                <span style="font-size:11px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;">Productos</span>
                 <button class="cp-add-row-btn" @click="agregarFila()">+ Agregar producto</button>
               </div>
               <div class="cp-table-wrap">
@@ -83,7 +83,7 @@
                   </thead>
                   <tbody>
                     <tr v-if="!form.detalles.length">
-                      <td colspan="7" style="text-align:center;color:#334155;font-style:italic;padding:16px;">
+                      <td colspan="7" style="text-align:center;color:var(--b3);font-style:italic;padding:16px;">
                         Agrega productos usando el botón de arriba
                       </td>
                     </tr>
@@ -99,9 +99,8 @@
                           @focus="d._showDrop = !!d._busqueda"
                           @blur="ocultarDrop(d)"
                         />
-                        <div v-if="d.productoId && d._subcategoriaNombre" class="cp-sel-cats">
-                          <span class="cp-drop-cat-chip" :style="{ borderColor: d._categoriaColor + '66', color: d._categoriaColor }">{{ d._categoriaNombre }}</span>
-                          <span class="cp-drop-subcat">{{ d._subcategoriaNombre }}</span>
+                        <div v-if="d.productoId && (d._categoriaNombre || d._subcategoriaNombre)" class="cp-sel-cats">
+                          <span class="cp-sel-breadcrumb">{{ [d._categoriaNombre, d._subcategoriaNombre].filter(Boolean).join(' ') }}</span>
                         </div>
                         <div v-if="d._showDrop" class="cp-prod-drop">
                           <div v-if="!filtrarProductos(d._busqueda, d).length" class="cp-drop-empty">Sin resultados</div>
@@ -112,11 +111,7 @@
                             @mousedown.prevent="seleccionarProducto(d, p)"
                           >
                             <div style="flex:1;min-width:0;">
-                              <div class="cp-drop-nombre">{{ p.nombre }}</div>
-                              <div v-if="p.subcategoriaNombre" class="cp-drop-cats">
-                                <span class="cp-drop-cat-chip" :style="{ borderColor: p.categoriaColor + '66', color: p.categoriaColor }">{{ p.categoriaNombre }}</span>
-                                <span class="cp-drop-subcat">{{ p.subcategoriaNombre }}</span>
-                              </div>
+                              <div class="cp-drop-nombre">{{ [p.categoriaNombre, p.subcategoriaNombre, p.nombre].filter(Boolean).join(' ') }}</div>
                             </div>
                             <span v-if="p.codigoBarras || p.codigoTienda" class="cp-drop-code">{{ p.codigoBarras || p.codigoTienda }}</span>
                           </div>
@@ -139,8 +134,8 @@
                   </tbody>
                   <tfoot v-if="form.detalles.length">
                     <tr>
-                      <td colspan="3" style="text-align:right;font-size:12px;font-weight:700;color:#94a3b8;padding:8px 12px;">Total:</td>
-                      <td style="font-size:13px;font-weight:800;color:#f1f5f9;padding:8px 12px;">Bs {{ formatMonto(totalForm) }}</td>
+                      <td colspan="3" style="text-align:right;font-size:12px;font-weight:700;color:var(--t3);padding:8px 12px;">Total:</td>
+                      <td style="font-size:13px;font-weight:800;color:var(--t1);padding:8px 12px;">Bs {{ formatMonto(totalForm) }}</td>
                       <td colspan="3"></td>
                     </tr>
                   </tfoot>
@@ -171,7 +166,7 @@
                 <div class="cp-info-item"><span>Total</span><strong>Bs {{ formatMonto(detalleActual.total) }}</strong></div>
                 <div class="cp-info-item ct-form-full"><span>Observaciones</span><strong>{{ detalleActual.observaciones || '—' }}</strong></div>
               </div>
-              <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Productos</div>
+              <div style="font-size:11px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Productos</div>
               <div v-if="loadingDetalle" class="cp-loading"><div class="ct-spinner"></div></div>
               <table v-else class="cp-table">
                 <thead><tr><th>Producto</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th><th>Lote</th></tr></thead>
@@ -232,10 +227,10 @@ export default {
     async cargarCatalogos() {
       const [s, p, u, subs, cats] = await Promise.all([
         this.$service.list('sucursales').catch(() => []),
-        this.$service.list('productos').catch(() => []),
+        this.$service.list('productos?soloActivos=true').catch(() => []),
         this.$service.list('unidades-medida').catch(() => []),
-        this.$service.list('subcategorias-producto').catch(() => []),
-        this.$service.list('categorias-producto').catch(() => []),
+        this.$service.list('subcategorias-producto?soloActivos=true').catch(() => []),
+        this.$service.list('categorias-producto?soloActivos=true').catch(() => []),
       ])
       this.sucursales = s || []
       this.subcategorias = subs || []
@@ -377,48 +372,46 @@ export default {
 <style scoped>
 .cp-root { height:100%; overflow:hidden; padding:24px; display:flex; flex-direction:column; }
 .cp-layout { flex:1; overflow:hidden; display:flex; gap:12px; }
-.cp-panel { width:380px; flex-shrink:0; background:#0d1526; border:1px solid #1e3a5f44; border-radius:14px; display:flex; flex-direction:column; overflow:hidden; }
-.cp-col-header { display:flex; align-items:center; justify-content:space-between; padding:14px 14px 8px; border-bottom:1px solid #1e3a5f33; flex-shrink:0; }
-.cp-col-title { font-size:13px; font-weight:800; color:#f1f5f9; }
-.cp-col-count { font-size:10px; color:#475569; margin-top:1px; }
+.cp-panel { width:380px; flex-shrink:0; background:var(--bg-s); border:1px solid var(--b1); border-radius:14px; display:flex; flex-direction:column; overflow:hidden; }
+.cp-col-header { display:flex; align-items:center; justify-content:space-between; padding:14px 14px 8px; border-bottom:1px solid var(--b2); flex-shrink:0; }
+.cp-col-title { font-size:13px; font-weight:800; color:var(--t1); }
+.cp-col-count { font-size:10px; color:var(--t5); margin-top:1px; }
 .cp-add-btn { background:#6366f122; border:1px solid #6366f133; color:#818cf8; border-radius:7px; padding:3px 9px; font-size:16px; cursor:pointer; font-weight:700; }
 .cp-add-btn:hover { background:#6366f133; }
-.cp-search { margin:8px 10px 4px; background:#0f172a; border:1px solid #1e3a5f44; border-radius:7px; color:#94a3b8; font-size:11px; padding:6px 10px; outline:none; flex-shrink:0; }
+.cp-search { margin:8px 10px 4px; background:var(--bg-e); border:1px solid var(--b1); border-radius:7px; color:var(--t3); font-size:11px; padding:6px 10px; outline:none; flex-shrink:0; }
 .cp-list { flex:1; overflow-y:auto; padding:4px 8px 12px; }
 .cp-loading { display:flex; justify-content:center; padding:24px; }
-.cp-empty { text-align:center; padding:20px; font-size:12px; color:#334155; font-style:italic; }
+.cp-empty { text-align:center; padding:20px; font-size:12px; color:var(--b3); font-style:italic; }
 .cp-row { display:flex; align-items:center; gap:10px; padding:10px 8px; border-radius:8px; cursor:pointer; margin-bottom:3px; transition:background 0.15s; border:1px solid transparent; }
-.cp-row:hover { background:#1e293b; border-color:#1e3a5f44; }
-.cp-row-title { font-size:12px; font-weight:700; color:#e2e8f0; }
-.cp-row-sub { font-size:10px; color:#475569; margin-top:2px; }
-.cp-row-monto { font-size:12px; font-weight:800; color:#f1f5f9; }
+.cp-row:hover { background:var(--bg-c); border-color:var(--b1); }
+.cp-row-title { font-size:12px; font-weight:700; color:var(--t2); }
+.cp-row-sub { font-size:10px; color:var(--t5); margin-top:2px; }
+.cp-row-monto { font-size:12px; font-weight:800; color:var(--t1); }
 .cp-add-row-btn { background:#6366f122; border:1px solid #6366f133; color:#818cf8; border-radius:6px; padding:4px 10px; font-size:11px; font-weight:700; cursor:pointer; }
 .cp-add-row-btn:hover { background:#6366f133; }
-.cp-del-row-btn { background:none; border:none; color:#64748b; cursor:pointer; font-size:13px; padding:2px 4px; border-radius:4px; }
+.cp-del-row-btn { background:none; border:none; color:var(--t4); cursor:pointer; font-size:13px; padding:2px 4px; border-radius:4px; }
 .cp-del-row-btn:hover { color:#f87171; }
-.cp-edit-btn { background:#1e293b; border:1px solid #1e3a5f44; color:#64748b; cursor:pointer; border-radius:5px; padding:3px 5px; display:flex; align-items:center; justify-content:center; }
+.cp-edit-btn { background:var(--bg-c); border:1px solid var(--b1); color:var(--t4); cursor:pointer; border-radius:5px; padding:3px 5px; display:flex; align-items:center; justify-content:center; }
 .cp-edit-btn:hover { border-color:#6366f1; color:#818cf8; }
-.cp-del-btn { background:#1e293b; border:1px solid #1e3a5f44; color:#64748b; cursor:pointer; border-radius:5px; padding:3px 5px; display:flex; align-items:center; justify-content:center; }
+.cp-del-btn { background:var(--bg-c); border:1px solid var(--b1); color:var(--t4); cursor:pointer; border-radius:5px; padding:3px 5px; display:flex; align-items:center; justify-content:center; }
 .cp-del-btn:hover { border-color:#ef4444; color:#f87171; }
-.cp-table-wrap { overflow-x:auto; border-radius:8px; border:1px solid #1e3a5f44; }
+.cp-table-wrap { overflow-x:auto; border-radius:8px; border:1px solid var(--b1); }
 .cp-table { width:100%; border-collapse:collapse; font-size:12px; }
-.cp-table th { background:#0f172a; color:#64748b; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; padding:8px 12px; text-align:left; white-space:nowrap; }
-.cp-table td { padding:6px 8px; border-top:1px solid #1e3a5f33; vertical-align:middle; }
-.cp-table tfoot td { background:#0f172a44; }
+.cp-table th { background:var(--bg-e); color:var(--t4); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; padding:8px 12px; text-align:left; white-space:nowrap; }
+.cp-table td { padding:6px 8px; border-top:1px solid var(--b2); vertical-align:middle; }
+.cp-table tfoot td { background:var(--b1); }
 .cp-info-item { display:flex; flex-direction:column; gap:3px; }
-.cp-info-item span { font-size:10px; color:#64748b; text-transform:uppercase; letter-spacing:.4px; }
-.cp-info-item strong { font-size:13px; color:#e2e8f0; }
-.ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid #1e3a5f44; border-top-color:#6366f1; animation:spin 0.8s linear infinite; }
+.cp-info-item span { font-size:10px; color:var(--t4); text-transform:uppercase; letter-spacing:.4px; }
+.cp-info-item strong { font-size:13px; color:var(--t2); }
+.ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid var(--b1); border-top-color:#6366f1; animation:spin 0.8s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
 .cp-prod-ok { border-color:#6366f144 !important; }
-.cp-sel-cats { display:flex; align-items:center; gap:5px; margin-top:3px; padding:0 2px; }
-.cp-prod-drop { position:absolute; top:100%; left:0; right:0; z-index:200; background:#0f172a; border:1px solid #1e3a5f66; border-radius:8px; max-height:260px; overflow-y:auto; box-shadow:0 8px 24px #00000066; margin-top:2px; }
-.cp-drop-item { display:flex; align-items:flex-start; gap:8px; padding:7px 10px; cursor:pointer; }
-.cp-drop-item:hover { background:#1e293b; }
-.cp-drop-nombre { font-size:12px; color:#e2e8f0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.cp-drop-cats { display:flex; align-items:center; gap:5px; margin-top:2px; }
-.cp-drop-cat-chip { font-size:9px; font-weight:700; padding:1px 5px; border-radius:3px; border:1px solid; }
-.cp-drop-subcat { font-size:10px; color:#475569; }
-.cp-drop-code { font-size:10px; color:#475569; font-family:monospace; flex-shrink:0; padding-top:1px; }
-.cp-drop-empty { padding:10px; font-size:11px; color:#334155; font-style:italic; text-align:center; }
+.cp-sel-cats { margin-top:3px; padding:0 2px; }
+.cp-sel-breadcrumb { font-size:10px; color:var(--t5); }
+.cp-prod-drop { position:absolute; top:100%; left:0; right:0; z-index:200; background:var(--bg-e); border:1px solid var(--b4); border-radius:8px; max-height:260px; overflow-y:auto; box-shadow:0 8px 24px #00000066; margin-top:2px; }
+.cp-drop-item { display:flex; align-items:center; gap:8px; padding:7px 10px; cursor:pointer; }
+.cp-drop-item:hover { background:var(--bg-c); }
+.cp-drop-nombre { font-size:12px; font-weight:600; color:var(--t2); overflow:hidden; text-overflow:ellipsis; }
+.cp-drop-code { font-size:10px; color:var(--t5); font-family:monospace; flex-shrink:0; padding-top:1px; }
+.cp-drop-empty { padding:10px; font-size:11px; color:var(--b3); font-style:italic; text-align:center; }
 </style>

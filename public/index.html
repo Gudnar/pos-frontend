@@ -8,15 +8,27 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900&display=swap" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet" />
-    <title>IDE-IA — Gestión de Agentes Inteligentes</title>
+    <title>POS-IA — Sistema de Ventas</title>
     <style>
-      body { background: #0f172a; margin: 0; font-family: 'Inter', sans-serif; }
+      body { background: #0a0f1e; margin: 0; font-family: 'Inter', sans-serif; }
+      body.theme-light { background: #f0f4f8; }
       #app { min-height: 100vh; }
     </style>
   </head>
   <body>
+    <script>
+      (function() {
+        try {
+          var uid = null;
+          var stored = localStorage.getItem('ide_ia_user');
+          if (stored) { var u = JSON.parse(stored); uid = u && u.id; }
+          var theme = (uid && localStorage.getItem('ide-theme-' + uid)) || localStorage.getItem('ide-theme');
+          if (theme === 'light') document.body.classList.add('theme-light');
+        } catch(e) {}
+      })();
+    </script>
     <noscript>
-      <strong>IDE-IA requiere JavaScript habilitado para funcionar.</strong>
+      <strong>POS-IA requiere JavaScript habilitado para funcionar.</strong>
     </noscript>
     <div id="app"></div>
   </body>

@@ -20,10 +20,10 @@
           class="cp-uni-row"
           @click="abrirForm(s)"
         >
-          <div class="cp-dot" :style="`background:${s.esPrincipal ? '#6366f1' : '#334155'};flex-shrink:0;`"></div>
+          <div class="cp-dot" :style="`background:${s.esPrincipal ? '#6366f1' : 'var(--b3)'};flex-shrink:0;`"></div>
           <div style="flex:1;min-width:0;">
             <div class="cp-uni-name">{{ s.nombre }}</div>
-            <div style="font-size:10px;color:#475569;margin-top:1px;">
+            <div style="font-size:10px;color:var(--t5);margin-top:1px;">
               {{ s.ciudad || '' }}{{ s.ciudad && s.codigo ? ' · ' : '' }}{{ s.codigo ? 'Cód: '+s.codigo : '' }}
             </div>
           </div>
@@ -81,7 +81,7 @@
               </div>
               <div class="ide-field" style="flex-direction:row;align-items:center;gap:10px;padding-top:4px;">
                 <input id="chk-principal" v-model="form.esPrincipal" type="checkbox" style="width:15px;height:15px;cursor:pointer;" />
-                <label for="chk-principal" style="cursor:pointer;font-size:12px;font-weight:600;color:#94a3b8;margin:0;">Sucursal principal</label>
+                <label for="chk-principal" style="cursor:pointer;font-size:12px;font-weight:600;color:var(--t3);margin:0;">Sucursal principal</label>
               </div>
             </div>
           </div>
@@ -160,23 +160,23 @@ export default {
 
 <style scoped>
 .cp-root { height:100%; overflow:hidden; padding:24px; display:flex; flex-direction:column; }
-.cp-panel { flex:1; background:#0d1526; border:1px solid #1e3a5f44; border-radius:14px; display:flex; flex-direction:column; overflow:hidden; max-width:560px; }
-.cp-col-header { display:flex; align-items:center; justify-content:space-between; padding:14px 14px 8px; border-bottom:1px solid #1e3a5f33; flex-shrink:0; }
-.cp-col-title { font-size:13px; font-weight:800; color:#f1f5f9; }
-.cp-col-count { font-size:10px; color:#475569; margin-top:1px; }
+.cp-panel { flex:1; background:var(--bg-s); border:1px solid var(--b1); border-radius:14px; display:flex; flex-direction:column; overflow:hidden; max-width:560px; }
+.cp-col-header { display:flex; align-items:center; justify-content:space-between; padding:14px 14px 8px; border-bottom:1px solid var(--b2); flex-shrink:0; }
+.cp-col-title { font-size:13px; font-weight:800; color:var(--t1); }
+.cp-col-count { font-size:10px; color:var(--t5); margin-top:1px; }
 .cp-add-btn { background:#6366f122; border:1px solid #6366f133; color:#818cf8; border-radius:7px; padding:3px 9px; font-size:16px; cursor:pointer; font-weight:700; }
 .cp-add-btn:hover { background:#6366f133; }
-.cp-search { margin:8px 10px 4px; background:#0f172a; border:1px solid #1e3a5f44; border-radius:7px; color:#94a3b8; font-size:11px; padding:6px 10px; outline:none; flex-shrink:0; }
+.cp-search { margin:8px 10px 4px; background:var(--bg-e); border:1px solid var(--b1); border-radius:7px; color:var(--t3); font-size:11px; padding:6px 10px; outline:none; flex-shrink:0; }
 .cp-list { flex:1; overflow-y:auto; padding:4px 8px 12px; }
 .cp-loading { display:flex; justify-content:center; padding:24px; }
-.cp-empty { text-align:center; padding:20px 10px; font-size:12px; color:#334155; font-style:italic; }
+.cp-empty { text-align:center; padding:20px 10px; font-size:12px; color:var(--b3); font-style:italic; }
 .cp-dot { width:8px; height:8px; border-radius:50%; }
 .cp-uni-row { display:flex; align-items:center; gap:8px; padding:9px 8px; border-radius:8px; cursor:pointer; margin-bottom:2px; transition:background 0.15s; }
-.cp-uni-row:hover { background:#1e293b; }
-.cp-uni-name { font-size:12px; color:#cbd5e1; font-weight:600; }
-.cp-icon-btn { background:#0f172a; border:1px solid #1e3a5f44; border-radius:6px; padding:5px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#64748b; transition:all 0.15s; }
+.cp-uni-row:hover { background:var(--bg-c); }
+.cp-uni-name { font-size:12px; color:var(--scroll); font-weight:600; }
+.cp-icon-btn { background:var(--bg-e); border:1px solid var(--b1); border-radius:6px; padding:5px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--t4); transition:all 0.15s; }
 .cp-icon-btn:hover { border-color:#6366f1; color:#818cf8; }
 .cp-icon-btn--danger:hover { border-color:#ef4444; color:#f87171; }
-.ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid #1e3a5f44; border-top-color:#6366f1; animation:spin 0.8s linear infinite; }
+.ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid var(--b1); border-top-color:#6366f1; animation:spin 0.8s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
 </style>

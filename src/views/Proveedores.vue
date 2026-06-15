@@ -13,8 +13,8 @@
     <!-- Sin contexto de cliente (SUPER_ADMIN sin cliente seleccionado) -->
     <div v-if="!clienteId" class="ide-ia-card" style="text-align:center;padding:48px 24px;">
       <div style="font-size:40px;margin-bottom:12px;">🔐</div>
-      <div style="font-size:15px;font-weight:700;color:#64748b;margin-bottom:6px;">Selecciona un cliente</div>
-      <div style="font-size:12px;color:#475569;">Los proveedores se gestionan por empresa. Accede desde la sección <strong style="color:#818cf8;">Empresas</strong> para seleccionar el contexto de trabajo.</div>
+      <div style="font-size:15px;font-weight:700;color:var(--t4);margin-bottom:6px;">Selecciona un cliente</div>
+      <div style="font-size:12px;color:var(--t5);">Los proveedores se gestionan por empresa. Accede desde la sección <strong style="color:#818cf8;">Empresas</strong> para seleccionar el contexto de trabajo.</div>
     </div>
 
     <template v-else>
@@ -27,8 +27,8 @@
     <!-- Empty -->
     <div v-else-if="items.length === 0" class="ide-ia-card" style="text-align:center;padding:48px 24px;">
       <div style="font-size:48px;margin-bottom:12px;">🏭</div>
-      <div style="font-size:16px;font-weight:700;color:#e2e8f0;margin-bottom:8px;">Sin proveedores aún</div>
-      <p style="color:#64748b;margin-bottom:20px;font-size:13px;">Agrega tus proveedores para gestionar tus contactos comerciales</p>
+      <div style="font-size:16px;font-weight:700;color:var(--t2);margin-bottom:8px;">Sin proveedores aún</div>
+      <p style="color:var(--t4);margin-bottom:20px;font-size:13px;">Agrega tus proveedores para gestionar tus contactos comerciales</p>
       <button class="ct-new-btn" @click="abrirDialog()">+ Nuevo Proveedor</button>
     </div>
 
@@ -41,8 +41,8 @@
               {{ ((item.empresa || item.nombre) || '?')[0].toUpperCase() }}
             </div>
             <div>
-              <div style="font-size:14px;font-weight:700;color:#e2e8f0;">{{ item.empresa || item.nombre }}</div>
-              <div style="font-size:11px;color:#64748b;">{{ item.categoria || 'Sin categoría' }}</div>
+              <div style="font-size:14px;font-weight:700;color:var(--t2);">{{ item.empresa || item.nombre }}</div>
+              <div style="font-size:11px;color:var(--t4);">{{ item.categoria || 'Sin categoría' }}</div>
             </div>
           </div>
           <div style="display:flex;gap:4px;">
@@ -68,8 +68,8 @@
           <div class="ct-rep-divider"></div>
           <div class="ct-info-row ct-info-row--rep">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            <span style="font-weight:600;color:#cbd5e1;">{{ item.representanteActual.nombre }}</span>
-            <span v-if="item.representanteActual.cargo" style="color:#475569;">— {{ item.representanteActual.cargo }}</span>
+            <span style="font-weight:600;color:var(--scroll);">{{ item.representanteActual.nombre }}</span>
+            <span v-if="item.representanteActual.cargo" style="color:var(--t5);">— {{ item.representanteActual.cargo }}</span>
           </div>
           <div v-if="item.representanteActual.telefono" class="ct-info-row">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 014.52 6.73a19.79 19.79 0 01-3.07-8.67A2 2 0 013.44 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L7.91 7.91a16 16 0 006.97 6.97l.79-.79a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
@@ -80,7 +80,7 @@
             <span>{{ item.representanteActual.email }}</span>
           </div>
         </template>
-        <div v-else class="ct-info-row" style="color:#334155;font-style:italic;font-size:11px;">
+        <div v-else class="ct-info-row" style="color:var(--b3);font-style:italic;font-size:11px;">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           Sin representante asignado
         </div>
@@ -254,8 +254,8 @@ export default {
 </script>
 
 <style scoped>
-.section-title { font-size: 22px; font-weight: 800; color: #f1f5f9; margin-bottom: 4px; }
-.section-subtitle { font-size: 13px; color: #64748b; margin: 0; }
+.section-title { font-size: 22px; font-weight: 800; color: var(--t1); margin-bottom: 4px; }
+.section-subtitle { font-size: 13px; color: var(--t4); margin: 0; }
 
 .ct-new-btn {
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
@@ -267,7 +267,7 @@ export default {
 
 .ct-spinner {
   width: 32px; height: 32px; border-radius: 50%;
-  border: 3px solid #1e3a5f44;
+  border: 3px solid var(--b1);
   border-top-color: #6366f1;
   animation: spin 0.8s linear infinite;
 }
@@ -287,12 +287,12 @@ export default {
 
 .ct-info-row {
   display: flex; align-items: center; gap: 6px;
-  font-size: 12px; color: #94a3b8; margin-top: 5px;
+  font-size: 12px; color: var(--t3); margin-top: 5px;
 }
-.ct-info-row svg { flex-shrink: 0; color: #475569; }
+.ct-info-row svg { flex-shrink: 0; color: var(--t5); }
 .ct-info-row--rep svg { color: #6366f1; }
 .ct-rep-divider {
-  border-top: 1px dashed #1e3a5f66;
+  border-top: 1px dashed var(--b4);
   margin: 8px 0 4px;
 }
 
@@ -304,8 +304,8 @@ export default {
 .ct-badge--off { background: #ef444422; color: #f87171; border: 1px solid #ef444444; }
 
 .ct-action-btn {
-  background: #1e293b; border: 1px solid #334155;
-  border-radius: 7px; color: #64748b;
+  background: var(--bg-c); border: 1px solid var(--b3);
+  border-radius: 7px; color: var(--t4);
   padding: 5px; cursor: pointer; display: flex;
   align-items: center; justify-content: center;
   transition: all 0.15s;
@@ -322,25 +322,25 @@ export default {
   padding: 20px;
 }
 .ct-modal {
-  background: #0d1526; border: 1px solid #1e3a5f66;
+  background: var(--bg-s); border: 1px solid var(--b4);
   border-radius: 14px; width: 100%; max-width: 580px;
   max-height: 90vh; display: flex; flex-direction: column;
   overflow: hidden;
 }
 .ct-modal-header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 20px; border-bottom: 1px solid #1e3a5f44;
-  font-size: 15px; font-weight: 800; color: #f1f5f9;
+  padding: 16px 20px; border-bottom: 1px solid var(--b1);
+  font-size: 15px; font-weight: 800; color: var(--t1);
 }
 .ct-modal-close {
-  background: none; border: none; color: #64748b;
+  background: none; border: none; color: var(--t4);
   cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 6px;
 }
 .ct-modal-close:hover { color: #ef4444; }
 .ct-modal-body { flex: 1; overflow-y: auto; padding: 20px; }
 .ct-modal-footer {
   display: flex; justify-content: flex-end; gap: 10px;
-  padding: 14px 20px; border-top: 1px solid #1e3a5f44;
+  padding: 14px 20px; border-top: 1px solid var(--b1);
 }
 
 .ct-form-grid {
@@ -349,8 +349,8 @@ export default {
 .ct-form-full { grid-column: span 2; }
 
 .ct-btn-cancel {
-  background: #1e293b; border: 1px solid #334155;
-  color: #94a3b8; border-radius: 8px;
+  background: var(--bg-c); border: 1px solid var(--b3);
+  color: var(--t3); border-radius: 8px;
   padding: 8px 18px; font-size: 13px; font-weight: 600; cursor: pointer;
 }
 .ct-btn-ok {

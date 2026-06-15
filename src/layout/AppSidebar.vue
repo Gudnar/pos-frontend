@@ -125,8 +125,8 @@ export default {
   left: 0; top: 0;
   width: 220px;
   height: 100vh;
-  background: #0d1526;
-  border-right: 1px solid #1e3a5f33;
+  background: var(--bg-s);
+  border-right: 1px solid var(--b2);
   display: flex;
   flex-direction: column;
   transition: width 0.25s ease;
@@ -140,7 +140,7 @@ export default {
   align-items: center;
   gap: 10px;
   padding: 16px 12px;
-  border-bottom: 1px solid #1e3a5f33;
+  border-bottom: 1px solid var(--b2);
   min-height: 60px;
 }
 
@@ -153,7 +153,7 @@ export default {
 }
 
 .ide-sidebar__brand-name {
-  font-size: 14px; font-weight: 900; color: #f1f5f9; letter-spacing: -0.3px;
+  font-size: 14px; font-weight: 900; color: var(--t1); letter-spacing: -0.3px;
 }
 .ide-sidebar__brand-sub {
   font-size: 9px; color: #c96442; font-weight: 700;
@@ -161,9 +161,9 @@ export default {
 
 .ide-sidebar__toggle {
   margin-left: auto; background: none; border: none;
-  color: #475569; cursor: pointer; padding: 4px; border-radius: 4px;
+  color: var(--t5); cursor: pointer; padding: 4px; border-radius: 4px;
 }
-.ide-sidebar__toggle:hover { color: #94a3b8; }
+.ide-sidebar__toggle:hover { color: var(--t3); }
 
 .ide-sidebar__cliente {
   display: flex; align-items: center; gap: 7px;
@@ -185,11 +185,11 @@ export default {
 .ide-sidebar__item {
   display: flex; align-items: center; gap: 10px;
   padding: 9px 10px; border-radius: 8px;
-  color: #64748b; text-decoration: none;
+  color: var(--t4); text-decoration: none;
   font-size: 13px; font-weight: 500;
   transition: all 0.15s; white-space: nowrap; overflow: hidden;
 }
-.ide-sidebar__item:hover { background: #1e293b; color: #94a3b8; }
+.ide-sidebar__item:hover { background: var(--bg-c); color: var(--t3); }
 .ide-sidebar__item--active { background: #6366f122; color: #818cf8 !important; font-weight: 700; }
 
 .ide-sidebar__item-icon { flex-shrink: 0; }
@@ -202,7 +202,7 @@ export default {
 
 .ide-sidebar__footer {
   padding: 12px 8px;
-  border-top: 1px solid #1e3a5f33;
+  border-top: 1px solid var(--b2);
   display: flex; align-items: center; gap: 8px;
 }
 
@@ -216,15 +216,15 @@ export default {
 }
 
 .ide-sidebar__user-name {
-  font-size: 12px; font-weight: 600; color: #e2e8f0;
+  font-size: 12px; font-weight: 600; color: var(--t2);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .ide-sidebar__user-role {
-  font-size: 10px; color: #475569;
+  font-size: 10px; color: var(--t5);
 }
 
 .ide-sidebar__logout {
-  background: none; border: none; color: #475569; cursor: pointer;
+  background: none; border: none; color: var(--t5); cursor: pointer;
   padding: 6px; border-radius: 6px; transition: color 0.15s; flex-shrink: 0;
 }
 .ide-sidebar__logout:hover { color: #ef4444; }

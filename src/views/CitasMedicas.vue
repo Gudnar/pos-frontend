@@ -37,7 +37,7 @@
             </div>
           </div>
           <div class="cm-stat-row">
-            <div class="cm-stat-dot" style="background:#64748b;"></div>
+            <div class="cm-stat-dot" style="background:var(--t4);"></div>
             <div class="cm-stat-info">
               <div class="cm-stat-val">{{ citas.length }}</div>
               <div class="cm-stat-lbl">Total del día</div>
@@ -76,9 +76,9 @@
 
         <!-- Lista vacía -->
         <div v-else-if="citas.length === 0" class="ide-ia-card" style="text-align:center; padding:48px; margin-top:8px;">
-          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="1.25" style="margin-bottom:14px;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          <div style="color:#e2e8f0; font-size:15px; font-weight:700; margin-bottom:6px;">No hay citas para este día</div>
-          <div style="color:#64748b; font-size:13px; margin-bottom:22px;">Agenda una nueva cita usando el botón "Nueva Cita"</div>
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="var(--b3)" stroke-width="1.25" style="margin-bottom:14px;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <div style="color:var(--t2); font-size:15px; font-weight:700; margin-bottom:6px;">No hay citas para este día</div>
+          <div style="color:var(--t4); font-size:13px; margin-bottom:22px;">Agenda una nueva cita usando el botón "Nueva Cita"</div>
           <button class="cm-new-btn" style="margin:0 auto;" @click="abrirDialog()">+ Nueva Cita</button>
         </div>
 
@@ -263,7 +263,7 @@
                 <div v-if="pacienteSeleccionado" class="cm-paciente-chip">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                   {{ form.pacienteNombre }}
-                  <span v-if="form.pacienteEmail" style="color:#64748b;"> · {{ form.pacienteEmail }}</span>
+                  <span v-if="form.pacienteEmail" style="color:var(--t4);"> · {{ form.pacienteEmail }}</span>
                 </div>
               </div>
 
@@ -620,8 +620,8 @@ export default {
   gap: 16px;
 }
 .cm-stats-card {
-  background: #111827;
-  border: 1px solid #1e3a5f44;
+  background: var(--bg);
+  border: 1px solid var(--b1);
   border-radius: 12px;
   padding: 16px;
   display: flex;
@@ -640,8 +640,8 @@ export default {
   flex-shrink: 0;
 }
 .cm-stat-info { display: flex; align-items: center; gap: 8px; flex: 1; }
-.cm-stat-val  { font-size: 18px; font-weight: 800; color: #f1f5f9; line-height: 1; }
-.cm-stat-lbl  { font-size: 12px; color: #64748b; font-weight: 500; }
+.cm-stat-val  { font-size: 18px; font-weight: 800; color: var(--t1); line-height: 1; }
+.cm-stat-lbl  { font-size: 12px; color: var(--t4); font-weight: 500; }
 .cm-new-btn {
   display: flex;
   align-items: center;
@@ -681,9 +681,9 @@ export default {
   width: 30px;
   height: 30px;
   border-radius: 7px;
-  border: 1px solid #1e3a5f66;
-  background: #111827;
-  color: #94a3b8;
+  border: 1px solid var(--b4);
+  background: var(--bg);
+  color: var(--t3);
   cursor: pointer;
   transition: all 0.15s;
 }
@@ -691,9 +691,9 @@ export default {
 .cm-today-btn {
   padding: 5px 12px;
   border-radius: 7px;
-  border: 1px solid #1e3a5f66;
-  background: #111827;
-  color: #94a3b8;
+  border: 1px solid var(--b4);
+  background: var(--bg);
+  color: var(--t3);
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
@@ -706,7 +706,7 @@ export default {
   gap: 6px;
   font-size: 13px;
   font-weight: 700;
-  color: #e2e8f0;
+  color: var(--t2);
   text-transform: capitalize;
   margin-left: 4px;
 }
@@ -741,7 +741,7 @@ export default {
   padding: 2px 7px;
   font-family: monospace;
 }
-.cm-time-sep { color: #475569; font-size: 11px; }
+.cm-time-sep { color: var(--t5); font-size: 11px; }
 .cm-row__info {
   flex: 1;
   min-width: 0;
@@ -749,23 +749,23 @@ export default {
 .cm-paciente-nombre {
   font-size: 14px;
   font-weight: 700;
-  color: #e2e8f0;
+  color: var(--t2);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .cm-paciente-sub {
   font-size: 11px;
-  color: #64748b;
+  color: var(--t4);
   margin-top: 1px;
 }
 .cm-row__svc { flex-shrink: 0; }
 .cm-svc-badge {
   font-size: 11px;
   font-weight: 600;
-  color: #94a3b8;
-  background: #1e293b;
-  border: 1px solid #334155;
+  color: var(--t3);
+  background: var(--bg-c);
+  border: 1px solid var(--b3);
   border-radius: 5px;
   padding: 2px 8px;
   white-space: nowrap;
@@ -795,9 +795,9 @@ export default {
   width: 28px;
   height: 28px;
   border-radius: 6px;
-  border: 1px solid #1e3a5f66;
-  background: #111827;
-  color: #64748b;
+  border: 1px solid var(--b4);
+  background: var(--bg);
+  color: var(--t4);
   cursor: pointer;
   transition: all 0.15s;
 }
@@ -817,8 +817,8 @@ export default {
   z-index: 1000;
 }
 .cm-modal {
-  background: #111827;
-  border: 1px solid #1e3a5f66;
+  background: var(--bg);
+  border: 1px solid var(--b4);
   border-radius: 14px;
   width: 100%;
   max-width: 540px;
@@ -832,22 +832,22 @@ export default {
   align-items: center;
   justify-content: space-between;
   padding: 18px 24px;
-  border-bottom: 1px solid #1e3a5f44;
+  border-bottom: 1px solid var(--b1);
   font-size: 15px;
   font-weight: 700;
-  color: #f1f5f9;
+  color: var(--t1);
 }
 .cm-modal-close {
   background: none;
   border: none;
   cursor: pointer;
-  color: #64748b;
+  color: var(--t4);
   padding: 2px;
   display: flex;
   border-radius: 5px;
   transition: color 0.15s;
 }
-.cm-modal-close:hover { color: #94a3b8; }
+.cm-modal-close:hover { color: var(--t3); }
 .cm-modal-body {
   padding: 20px 24px;
   overflow-y: auto;
@@ -859,7 +859,7 @@ export default {
   justify-content: flex-end;
   gap: 10px;
   padding: 14px 24px;
-  border-top: 1px solid #1e3a5f44;
+  border-top: 1px solid var(--b1);
 }
 
 /* ── Form ── */
@@ -879,29 +879,29 @@ export default {
 .cm-estado-opt {
   padding: 5px 14px;
   border-radius: 7px;
-  border: 1px solid #1e3a5f66;
-  background: #111827;
-  color: #64748b;
+  border: 1px solid var(--b4);
+  background: var(--bg);
+  color: var(--t4);
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s;
 }
-.cm-estado-opt:hover { border-color: #475569; color: #94a3b8; }
+.cm-estado-opt:hover { border-color: var(--t5); color: var(--t3); }
 
 /* ── Buttons modal ── */
 .cm-btn-cancel {
   padding: 8px 18px;
   border-radius: 8px;
-  border: 1px solid #1e3a5f66;
+  border: 1px solid var(--b4);
   background: none;
-  color: #64748b;
+  color: var(--t4);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s;
 }
-.cm-btn-cancel:hover { border-color: #475569; color: #94a3b8; }
+.cm-btn-cancel:hover { border-color: var(--t5); color: var(--t3); }
 .cm-btn-ok {
   display: flex;
   align-items: center;
@@ -923,7 +923,7 @@ export default {
 .cm-spinner {
   width: 26px;
   height: 26px;
-  border: 3px solid #1e3a5f;
+  border: 3px solid var(--b0);
   border-top-color: #6366f1;
   border-radius: 50%;
   animation: spin 0.75s linear infinite;
@@ -947,7 +947,7 @@ export default {
 .cm-autocomplete-icon {
   position: absolute;
   left: 10px;
-  color: #475569;
+  color: var(--t5);
   pointer-events: none;
   flex-shrink: 0;
 }
@@ -961,19 +961,19 @@ export default {
   background: none;
   border: none;
   cursor: pointer;
-  color: #475569;
+  color: var(--t5);
   display: flex;
   padding: 2px;
   border-radius: 4px;
   transition: color 0.15s;
 }
-.cm-autocomplete-clear:hover { color: #94a3b8; }
+.cm-autocomplete-clear:hover { color: var(--t3); }
 .cm-autocomplete-dropdown {
   position: absolute;
   top: calc(100% + 4px);
   left: 0; right: 0;
   background: #1a2234;
-  border: 1px solid #1e3a5f88;
+  border: 1px solid var(--b4);
   border-radius: 10px;
   overflow: hidden;
   z-index: 100;
@@ -991,15 +991,15 @@ export default {
 }
 .cm-autocomplete-item:hover,
 .cm-autocomplete-item--active { background: #6366f122; }
-.cm-autocomplete-nombre { font-size: 13px; font-weight: 600; color: #e2e8f0; }
-.cm-autocomplete-sub { font-size: 11px; color: #64748b; }
+.cm-autocomplete-nombre { font-size: 13px; font-weight: 600; color: var(--t2); }
+.cm-autocomplete-sub { font-size: 11px; color: var(--t4); }
 .cm-autocomplete-item--new {
   flex-direction: row;
   align-items: center;
   gap: 7px;
   font-size: 12px;
   color: #818cf8;
-  border-top: 1px solid #1e3a5f44;
+  border-top: 1px solid var(--b1);
 }
 .cm-autocomplete-loading {
   display: flex;
@@ -1007,7 +1007,7 @@ export default {
   gap: 8px;
   padding: 10px 13px;
   font-size: 12px;
-  color: #64748b;
+  color: var(--t4);
 }
 .cm-paciente-chip {
   display: flex;

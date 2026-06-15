@@ -50,17 +50,17 @@
         </thead>
         <tbody>
           <tr v-for="l in lotes" :key="l.id" class="inv-tr">
-            <td style="font-weight:600;color:#e2e8f0;">{{ l.productoNombre || '—' }}</td>
+            <td style="font-weight:600;color:var(--t2);">{{ l.productoNombre || '—' }}</td>
             <td class="inv-mono">{{ l.nroLote || '—' }}</td>
-            <td class="inv-mono" style="color:#64748b;">{{ l.loteInterno || '—' }}</td>
-            <td style="color:#94a3b8;font-size:11px;">{{ l.fechaIngreso || '—' }}</td>
+            <td class="inv-mono" style="color:var(--t4);">{{ l.loteInterno || '—' }}</td>
+            <td style="color:var(--t3);font-size:11px;">{{ l.fechaIngreso || '—' }}</td>
             <td>
               <span v-if="l.fechaVencimiento" :class="['inv-venc', isVencProximo(l.fechaVencimiento) ? 'inv-venc--warn' : '']">
                 {{ l.fechaVencimiento }}
               </span>
-              <span v-else style="color:#334155;">—</span>
+              <span v-else style="color:var(--b3);">—</span>
             </td>
-            <td style="text-align:right;color:#64748b;">{{ fmt(l.cantidadInicial) }}</td>
+            <td style="text-align:right;color:var(--t4);">{{ fmt(l.cantidadInicial) }}</td>
             <td style="text-align:right;font-weight:800;color:#4ade80;">{{ fmt(l.cantidadActual) }}</td>
             <td><span :class="['inv-estado', estadoCss(l.estadoLote)]">{{ l.estadoLote }}</span></td>
             <td>
@@ -94,7 +94,7 @@
             </div>
             <!-- Movimientos -->
             <div class="inv-traza-title">Movimientos</div>
-            <div v-if="!modalLote.movimientos?.length" style="color:#334155;font-size:12px;padding:8px 0;">Sin movimientos registrados</div>
+            <div v-if="!modalLote.movimientos?.length" style="color:var(--b3);font-size:12px;padding:8px 0;">Sin movimientos registrados</div>
             <table v-else class="inv-table" style="font-size:11px;">
               <thead>
                 <tr>
@@ -104,12 +104,12 @@
               </thead>
               <tbody>
                 <tr v-for="m in modalLote.movimientos" :key="m.id" class="inv-tr">
-                  <td style="color:#64748b;">{{ formatFecha(m.fechaCreacion || m._fechaCreacion) }}</td>
+                  <td style="color:var(--t4);">{{ formatFecha(m.fechaCreacion || m._fechaCreacion) }}</td>
                   <td><span :class="['inv-tipo', tipoCss(m.tipo)]">{{ labelTipo(m.tipo) }}</span></td>
                   <td style="text-align:right;">{{ fmt(m.cantidad) }}</td>
-                  <td style="text-align:right;color:#64748b;">{{ fmt(m.cantidadAnterior) }}</td>
-                  <td style="text-align:right;color:#94a3b8;">{{ fmt(m.cantidadPosterior) }}</td>
-                  <td style="color:#64748b;max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ m.motivo || '—' }}</td>
+                  <td style="text-align:right;color:var(--t4);">{{ fmt(m.cantidadAnterior) }}</td>
+                  <td style="text-align:right;color:var(--t3);">{{ fmt(m.cantidadPosterior) }}</td>
+                  <td style="color:var(--t4);max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ m.motivo || '—' }}</td>
                 </tr>
               </tbody>
             </table>
@@ -195,20 +195,20 @@ export default {
 
 <style scoped>
 .inv-root { height:100%; overflow:hidden; padding:24px; display:flex; flex-direction:column; gap:12px; }
-.inv-filters { display:flex; gap:12px; flex-wrap:wrap; flex-shrink:0; background:#0d1526; border:1px solid #1e3a5f44; border-radius:12px; padding:14px 16px; align-items:flex-end; }
-.inv-table-wrap { flex:1; background:#0d1526; border:1px solid #1e3a5f44; border-radius:12px; overflow:auto; }
+.inv-filters { display:flex; gap:12px; flex-wrap:wrap; flex-shrink:0; background:var(--bg-s); border:1px solid var(--b1); border-radius:12px; padding:14px 16px; align-items:flex-end; }
+.inv-table-wrap { flex:1; background:var(--bg-s); border:1px solid var(--b1); border-radius:12px; overflow:auto; }
 .inv-loading { display:flex; justify-content:center; padding:40px; }
-.inv-empty { text-align:center; padding:40px; font-size:13px; color:#334155; font-style:italic; }
+.inv-empty { text-align:center; padding:40px; font-size:13px; color:var(--b3); font-style:italic; }
 .inv-table { width:100%; border-collapse:collapse; font-size:12px; }
-.inv-table th { background:#0f172a; color:#64748b; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; padding:10px 12px; text-align:left; white-space:nowrap; position:sticky; top:0; z-index:1; }
-.inv-table td { padding:9px 12px; border-top:1px solid #1e3a5f22; vertical-align:middle; }
-.inv-tr:hover { background:#1e293b; }
+.inv-table th { background:var(--bg-e); color:var(--t4); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; padding:10px 12px; text-align:left; white-space:nowrap; position:sticky; top:0; z-index:1; }
+.inv-table td { padding:9px 12px; border-top:1px solid var(--b2); vertical-align:middle; }
+.inv-tr:hover { background:var(--bg-c); }
 .inv-mono { font-family:monospace; font-size:11px; color:#818cf8; }
 .inv-venc { font-size:11px; }
 .inv-venc--warn { color:#fbbf24; font-weight:700; }
 .inv-estado { font-size:9px; font-weight:700; padding:2px 7px; border-radius:4px; }
 .inv-estado--on   { background:#4ade8022; color:#4ade80; border:1px solid #4ade8033; }
-.inv-estado--off  { background:#33415522; color:#64748b; border:1px solid #33415533; }
+.inv-estado--off  { background:var(--b2); color:var(--t4); border:1px solid var(--b2); }
 .inv-estado--venc { background:#f8717122; color:#f87171; border:1px solid #f8717133; }
 .inv-estado--quar { background:#f59e0b22; color:#fbbf24; border:1px solid #f59e0b33; }
 .inv-estado--ret  { background:#6366f122; color:#818cf8; border:1px solid #6366f133; }
@@ -220,18 +220,18 @@ export default {
 .inv-tipo--transf{ background:#6366f122; color:#818cf8; border:1px solid #6366f133; }
 .inv-tipo--dev   { background:#8b5cf622; color:#a78bfa; border:1px solid #8b5cf633; }
 .inv-detail-btn { background:none; border:none; cursor:pointer; color:#4466aa; padding:4px; border-radius:4px; display:flex; align-items:center; justify-content:center; }
-.inv-detail-btn:hover { color:#818cf8; background:#1e293b; }
+.inv-detail-btn:hover { color:#818cf8; background:var(--bg-c); }
 .inv-traza-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:16px; }
 .inv-traza-grid > div { display:flex; flex-direction:column; gap:2px; }
-.inv-traza-grid span { font-size:10px; color:#64748b; text-transform:uppercase; }
-.inv-traza-grid strong { font-size:13px; color:#e2e8f0; }
-.inv-traza-title { font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:.4px; margin-bottom:8px; margin-top:4px; }
+.inv-traza-grid span { font-size:10px; color:var(--t4); text-transform:uppercase; }
+.inv-traza-grid strong { font-size:13px; color:var(--t2); }
+.inv-traza-title { font-size:11px; font-weight:700; color:var(--t4); text-transform:uppercase; letter-spacing:.4px; margin-bottom:8px; margin-top:4px; }
 .ct-modal-bg { position:fixed; inset:0; background:#000a; z-index:50; display:flex; align-items:center; justify-content:center; }
-.ct-modal { background:#0d1526; border:1px solid #1e3a5f44; border-radius:12px; display:flex; flex-direction:column; }
-.ct-modal-header { display:flex; justify-content:space-between; align-items:center; padding:14px 18px; border-bottom:1px solid #1e3a5f44; font-size:13px; font-weight:700; color:#e2e8f0; }
-.ct-modal-close { background:none; border:none; cursor:pointer; color:#64748b; font-size:16px; }
+.ct-modal { background:var(--bg-s); border:1px solid var(--b1); border-radius:12px; display:flex; flex-direction:column; }
+.ct-modal-header { display:flex; justify-content:space-between; align-items:center; padding:14px 18px; border-bottom:1px solid var(--b1); font-size:13px; font-weight:700; color:var(--t2); }
+.ct-modal-close { background:none; border:none; cursor:pointer; color:var(--t4); font-size:16px; }
 .ct-modal-close:hover { color:#f87171; }
 .ct-modal-body { padding:16px 18px; overflow:auto; }
-.ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid #1e3a5f44; border-top-color:#6366f1; animation:spin .8s linear infinite; }
+.ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid var(--b1); border-top-color:#6366f1; animation:spin .8s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
 </style>

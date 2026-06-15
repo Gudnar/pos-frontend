@@ -19,7 +19,7 @@ export default { name: 'AppNotFound' };
 
 <style scoped>
 .ide-error-page {
-  min-height: 100vh; background: #0f172a;
+  min-height: 100vh; background: var(--bg-e);
   display: flex; align-items: center; justify-content: center;
 }
 .ide-error-page__content { text-align: center; }
@@ -29,6 +29,6 @@ export default { name: 'AppNotFound' };
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   line-height: 1;
 }
-.ide-error-page__title { color: #f1f5f9; font-size: 22px; margin: 12px 0 8px; }
-.ide-error-page__sub { color: #64748b; font-size: 13px; margin-bottom: 24px; }
+.ide-error-page__title { color: var(--t1); font-size: 22px; margin: 12px 0 8px; }
+.ide-error-page__sub { color: var(--t4); font-size: 13px; margin-bottom: 24px; }
 </style>

@@ -34,7 +34,7 @@
       <!-- Panel derecho: compras del proveedor seleccionado -->
       <div class="cp-detail-panel">
         <div v-if="!selectedProv" class="cp-placeholder">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#1e3a5f" stroke-width="1.5"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--b0)" stroke-width="1.5"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
           <p>Selecciona un proveedor para ver sus compras pendientes de pago</p>
         </div>
 
@@ -51,22 +51,22 @@
             <div v-else v-for="c in comprasProveedor" :key="c.id" class="cp-compra-card">
               <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
                 <div>
-                  <div style="font-size:13px;font-weight:700;color:#e2e8f0;">{{ c.nroCompra }}</div>
-                  <div style="font-size:11px;color:#475569;margin-top:2px;">{{ c.fecha }} · {{ c.nroFactura || 'Sin factura' }}</div>
+                  <div style="font-size:13px;font-weight:700;color:var(--t2);">{{ c.nroCompra }}</div>
+                  <div style="font-size:11px;color:var(--t5);margin-top:2px;">{{ c.fecha }} · {{ c.nroFactura || 'Sin factura' }}</div>
                 </div>
                 <div style="text-align:right;">
-                  <div style="font-size:12px;color:#94a3b8;">Total: <strong style="color:#f1f5f9;">Bs {{ formatMonto(c.total) }}</strong></div>
-                  <div style="font-size:12px;color:#94a3b8;">Pagado: <strong style="color:#4ade80;">Bs {{ formatMonto(c.montoPagado) }}</strong></div>
-                  <div style="font-size:12px;color:#94a3b8;">Saldo: <strong style="color:#f87171;">Bs {{ formatMonto(saldo(c)) }}</strong></div>
+                  <div style="font-size:12px;color:var(--t3);">Total: <strong style="color:var(--t1);">Bs {{ formatMonto(c.total) }}</strong></div>
+                  <div style="font-size:12px;color:var(--t3);">Pagado: <strong style="color:#4ade80;">Bs {{ formatMonto(c.montoPagado) }}</strong></div>
+                  <div style="font-size:12px;color:var(--t3);">Saldo: <strong style="color:#f87171;">Bs {{ formatMonto(saldo(c)) }}</strong></div>
                 </div>
               </div>
 
               <!-- Pagos existentes -->
               <div v-if="c.pagos && c.pagos.length" style="margin-bottom:8px;">
-                <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;">Pagos registrados</div>
+                <div style="font-size:10px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;">Pagos registrados</div>
                 <div v-for="p in c.pagos" :key="p.id" class="cp-pago-row">
-                  <span style="font-size:11px;color:#94a3b8;">{{ p.fecha }}</span>
-                  <span style="font-size:11px;color:#64748b;background:#1e293b;padding:1px 6px;border-radius:4px;">{{ p.metodoPago }}</span>
+                  <span style="font-size:11px;color:var(--t3);">{{ p.fecha }}</span>
+                  <span style="font-size:11px;color:var(--t4);background:var(--bg-c);padding:1px 6px;border-radius:4px;">{{ p.metodoPago }}</span>
                   <span style="font-size:11px;color:#4ade80;font-weight:700;">Bs {{ formatMonto(p.monto) }}</span>
                   <button class="cp-del-pago-btn" title="Eliminar pago" @click="eliminarPago(c, p)">✕</button>
                 </div>
@@ -206,29 +206,29 @@ export default {
 <style scoped>
 .cp-root { height:100%; overflow:hidden; padding:24px; display:flex; flex-direction:column; }
 .cp-layout { flex:1; overflow:hidden; display:flex; gap:12px; }
-.cp-panel { width:340px; flex-shrink:0; background:#0d1526; border:1px solid #1e3a5f44; border-radius:14px; display:flex; flex-direction:column; overflow:hidden; }
-.cp-detail-panel { flex:1; background:#0d1526; border:1px solid #1e3a5f44; border-radius:14px; display:flex; flex-direction:column; overflow:hidden; }
-.cp-col-header { display:flex; align-items:center; justify-content:space-between; padding:14px 14px 8px; border-bottom:1px solid #1e3a5f33; flex-shrink:0; }
-.cp-col-title { font-size:13px; font-weight:800; color:#f1f5f9; }
-.cp-col-count { font-size:10px; color:#475569; margin-top:1px; }
+.cp-panel { width:340px; flex-shrink:0; background:var(--bg-s); border:1px solid var(--b1); border-radius:14px; display:flex; flex-direction:column; overflow:hidden; }
+.cp-detail-panel { flex:1; background:var(--bg-s); border:1px solid var(--b1); border-radius:14px; display:flex; flex-direction:column; overflow:hidden; }
+.cp-col-header { display:flex; align-items:center; justify-content:space-between; padding:14px 14px 8px; border-bottom:1px solid var(--b2); flex-shrink:0; }
+.cp-col-title { font-size:13px; font-weight:800; color:var(--t1); }
+.cp-col-count { font-size:10px; color:var(--t5); margin-top:1px; }
 .cp-list { flex:1; overflow-y:auto; padding:4px 8px 12px; }
 .cp-loading { display:flex; justify-content:center; padding:24px; }
-.cp-empty { text-align:center; padding:24px; font-size:12px; color:#334155; font-style:italic; }
+.cp-empty { text-align:center; padding:24px; font-size:12px; color:var(--b3); font-style:italic; }
 .cp-prov-row { display:flex; align-items:center; gap:10px; padding:10px 8px; border-radius:8px; cursor:pointer; margin-bottom:3px; transition:background 0.15s; border:1px solid transparent; }
-.cp-prov-row:hover { background:#1e293b; }
+.cp-prov-row:hover { background:var(--bg-c); }
 .cp-prov-row--active { background:#6366f114; border-color:#6366f133; }
 .cp-prov-avatar { width:32px; height:32px; border-radius:8px; background:#6366f122; color:#818cf8; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:800; flex-shrink:0; }
-.cp-prov-nombre { font-size:12px; font-weight:700; color:#e2e8f0; }
-.cp-prov-sub { font-size:10px; color:#475569; margin-top:1px; }
+.cp-prov-nombre { font-size:12px; font-weight:700; color:var(--t2); }
+.cp-prov-sub { font-size:10px; color:var(--t5); margin-top:1px; }
 .cp-saldo-monto { font-size:13px; font-weight:800; color:#f87171; }
-.cp-placeholder { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; color:#1e3a5f; }
-.cp-placeholder p { font-size:12px; color:#334155; text-align:center; }
-.cp-compra-card { background:#1e293b; border:1px solid #1e3a5f44; border-radius:10px; padding:14px; margin-bottom:10px; }
+.cp-placeholder { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; color:var(--b0); }
+.cp-placeholder p { font-size:12px; color:var(--b3); text-align:center; }
+.cp-compra-card { background:var(--bg-c); border:1px solid var(--b1); border-radius:10px; padding:14px; margin-bottom:10px; }
 .cp-pago-row { display:flex; align-items:center; gap:8px; padding:4px 0; }
 .cp-abonar-btn { background:#6366f122; border:1px solid #6366f133; color:#818cf8; border-radius:7px; padding:5px 12px; font-size:11px; font-weight:700; cursor:pointer; width:100%; margin-top:4px; }
 .cp-abonar-btn:hover { background:#6366f133; }
-.cp-del-pago-btn { background:none; border:none; color:#64748b; cursor:pointer; font-size:11px; padding:1px 4px; border-radius:3px; margin-left:auto; }
+.cp-del-pago-btn { background:none; border:none; color:var(--t4); cursor:pointer; font-size:11px; padding:1px 4px; border-radius:3px; margin-left:auto; }
 .cp-del-pago-btn:hover { color:#f87171; }
-.ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid #1e3a5f44; border-top-color:#6366f1; animation:spin 0.8s linear infinite; }
+.ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid var(--b1); border-top-color:#6366f1; animation:spin 0.8s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
 </style>

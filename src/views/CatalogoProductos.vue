@@ -11,6 +11,17 @@
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;"><rect x="2" y="3" width="7" height="7" rx="1"/><rect x="9" y="3" width="7" height="7" rx="1"/><rect x="2" y="10" width="7" height="7" rx="1"/><rect x="9" y="10" width="7" height="7" rx="1"/></svg>
         Unidades de Medida
       </button>
+      <div style="margin-left:auto; display:flex; align-items:center; gap:6px; padding-bottom:10px;">
+        <button class="cp-excel-btn" title="Exportar todos los productos a Excel" @click="exportarProductos">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Exportar Excel
+        </button>
+        <button class="cp-excel-btn" title="Importar productos desde Excel" :disabled="importando" @click="triggerImport">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          {{ importando ? 'Importando…' : 'Importar Excel' }}
+        </button>
+        <input ref="fileInput" type="file" accept=".xlsx,.xls" style="display:none" @change="onFileSelected" />
+      </div>
     </div>
 
     <!-- ══ TAB: CATÁLOGO ══ -->
@@ -94,13 +105,6 @@
             <div class="cp-col-count" style="color:#6366f1;">{{ selectedSub.nombre }}</div>
           </div>
           <div style="display:flex;gap:6px;align-items:center;">
-            <button class="cp-icon-btn cp-icon-btn--price" title="Exportar Excel" @click="exportarProductos">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            </button>
-            <button class="cp-icon-btn" title="Importar Excel" :disabled="importando" @click="triggerImport">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            </button>
-            <input ref="fileInput" type="file" accept=".xlsx,.xls" style="display:none" @change="onFileSelected" />
             <button class="cp-add-btn" @click="abrirProdDialog()">+ Producto</button>
           </div>
         </div>
@@ -138,11 +142,11 @@
 
       <!-- Placeholder cuando no hay selección -->
       <div v-if="!selectedCat" class="cp-placeholder">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#1e3a5f" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--b0)" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
         <p>Selecciona una categoría para ver las subcategorías</p>
       </div>
       <div v-else-if="!selectedSub" class="cp-placeholder">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#1e3a5f" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--b0)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
         <p>Selecciona una subcategoría para ver los productos</p>
       </div>
 
@@ -234,7 +238,7 @@
               </div>
               <div class="ide-field ct-form-full" style="flex-direction:row;align-items:center;gap:10px;padding-top:4px;">
                 <input id="chk-base2" v-model="unidadForm.esBase" type="checkbox" style="width:15px;height:15px;cursor:pointer;" />
-                <label for="chk-base2" style="cursor:pointer;font-size:12px;font-weight:600;color:#94a3b8;margin:0;">
+                <label for="chk-base2" style="cursor:pointer;font-size:12px;font-weight:600;color:var(--t3);margin:0;">
                   Es unidad base (mínima, no contiene otras)
                 </label>
               </div>
@@ -253,7 +257,7 @@
               </template>
             </div>
             <div v-if="unidades.length === 0 && !editandoUnidad" class="cp-uni-hint" style="margin-top:12px;">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--t5)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
               <p>Primero crea las <strong>unidades base</strong> (Unidad, Litro, Metro...), luego podrás crear empaques que las contienen (Caja ×12, Balde ×20...).</p>
             </div>
           </div>
@@ -386,8 +390,8 @@
                 <textarea v-model="prodForm.descripcion" class="ide-textarea" rows="2" placeholder="Descripción del producto..."></textarea>
               </div>
               <!-- Lotes -->
-              <div class="ide-field ct-form-full" style="border-top:1px solid #1e3a5f44;padding-top:10px;margin-top:2px;">
-                <label style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">Control de lotes / trazabilidad</label>
+              <div class="ide-field ct-form-full" style="border-top:1px solid var(--b1);padding-top:10px;margin-top:2px;">
+                <label style="font-size:10px;color:var(--t4);text-transform:uppercase;letter-spacing:.05em;">Control de lotes / trazabilidad</label>
               </div>
               <div class="ide-field" style="display:flex;align-items:center;gap:10px;">
                 <input id="chk-lote" v-model="prodForm.requiereLote" type="checkbox" style="width:15px;height:15px;cursor:pointer;" />
@@ -421,8 +425,8 @@
         <div class="ct-modal" style="max-width:640px;">
           <div class="ct-modal-header">
             <div>
-              <div style="font-weight:800;color:#f1f5f9;">{{ selectedProd && selectedProd.nombre }}</div>
-              <div style="font-size:11px;color:#64748b;">Gestión de precios</div>
+              <div style="font-weight:800;color:var(--t1);">{{ selectedProd && selectedProd.nombre }}</div>
+              <div style="font-size:11px;color:var(--t4);">Gestión de precios</div>
             </div>
             <button class="ct-modal-close" @click="preciosModal = false">✕</button>
           </div>
@@ -444,10 +448,10 @@
                   <div class="cp-price-type-label">{{ tipo }}</div>
                   <template v-if="escalaActivaPorTipo(tipo)">
                     <div v-for="t in escalaActivaPorTipo(tipo).tiers" :key="t.id" style="display:flex;justify-content:space-between;align-items:center;margin-top:3px;">
-                      <span style="font-size:10px;color:#64748b;">
+                      <span style="font-size:10px;color:var(--t4);">
                         {{ t.cantidadMin }}{{ t.cantidadMax ? '–'+t.cantidadMax : '+' }} uds
                       </span>
-                      <span style="font-size:13px;font-weight:800;color:#e2e8f0;">
+                      <span style="font-size:13px;font-weight:800;color:var(--t2);">
                         {{ escalaActivaPorTipo(tipo).moneda }} {{ Number(t.precio).toFixed(2) }}
                       </span>
                     </div>
@@ -469,7 +473,7 @@
                   </div>
                   <template v-if="escalaActivaPorTipo('VENTA') && selectedProd && selectedProd.porcentajeFactura != null">
                     <div v-for="t in escalaActivaPorTipo('VENTA').tiers" :key="'f'+t.id" style="display:flex;justify-content:space-between;align-items:center;margin-top:3px;">
-                      <span style="font-size:10px;color:#64748b;">
+                      <span style="font-size:10px;color:var(--t4);">
                         {{ t.cantidadMin }}{{ t.cantidadMax ? '–'+t.cantidadMax : '+' }} uds
                       </span>
                       <span style="font-size:13px;font-weight:800;color:#fbbf24;">
@@ -490,7 +494,7 @@
               <transition name="modal-fade">
                 <div v-if="showPrecioForm" class="cp-price-form">
                   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-                    <span style="font-size:12px;font-weight:700;color:#94a3b8;">Escala de precios — {{ precioForm.tipo }}</span>
+                    <span style="font-size:12px;font-weight:700;color:var(--t3);">Escala de precios — {{ precioForm.tipo }}</span>
                   </div>
                   <div class="ct-form-grid" style="margin-bottom:12px;">
                     <div class="ide-field">
@@ -527,12 +531,12 @@
                       placeholder="0.00"
                       style="width:80px;padding:4px 8px;font-size:12px;"
                     />
-                    <span style="font-size:11px;color:#94a3b8;">%</span>
-                    <span style="font-size:11px;color:#64748b;margin-left:4px;">— El precio con factura se calcula automáticamente</span>
+                    <span style="font-size:11px;color:var(--t3);">%</span>
+                    <span style="font-size:11px;color:var(--t4);margin-left:4px;">— El precio con factura se calcula automáticamente</span>
                   </div>
 
                   <!-- Tiers de escala -->
-                  <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Tramos de cantidad</div>
+                  <div style="font-size:11px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Tramos de cantidad</div>
                   <div :class="['cp-tier-header', precioForm.tipo !== 'COSTO' ? 'cp-tier-header--factura' : '']">
                     <span>Desde</span><span>Hasta (vacío = sin límite)</span><span>Precio</span>
                     <span v-if="precioForm.tipo !== 'COSTO'" style="color:#f59e0b;">C/Factura</span>
@@ -557,11 +561,11 @@
 
               <!-- Historial de escalas -->
               <div style="margin-top:18px;">
-                <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;">Historial</div>
-                <div v-if="!historico.length" style="color:#334155;font-size:12px;font-style:italic;">Sin historial</div>
+                <div style="font-size:11px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;">Historial</div>
+                <div v-if="!historico.length" style="color:var(--b3);font-size:12px;font-style:italic;">Sin historial</div>
                 <div v-else v-for="p in historico" :key="p.id" class="cp-hist-row">
                   <span class="cp-hist-tipo">{{ p.tipo }}</span>
-                  <span style="font-size:10px;color:#475569;">{{ p.cantidadMin }}–{{ p.cantidadMax || '∞' }}</span>
+                  <span style="font-size:10px;color:var(--t5);">{{ p.cantidadMin }}–{{ p.cantidadMax || '∞' }}</span>
                   <span class="cp-hist-precio">{{ p.moneda }} {{ Number(p.precio).toFixed(2) }}</span>
                   <span class="cp-hist-fecha">{{ p.fechaVigencia || '—' }} → {{ p.fechaFin || '—' }}</span>
                   <span class="cp-hist-badge cp-hist-badge--off">Histórico</span>
@@ -574,16 +578,16 @@
               <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
                 <button class="ct-new-btn" style="font-size:12px;padding:6px 14px;" @click="abrirPromoDialog()">+ Nueva Promoción</button>
               </div>
-              <div v-if="!promociones.length" style="color:#334155;font-size:12px;font-style:italic;text-align:center;padding:24px 0;">Sin promociones configuradas</div>
+              <div v-if="!promociones.length" style="color:var(--b3);font-size:12px;font-style:italic;text-align:center;padding:24px 0;">Sin promociones configuradas</div>
               <div v-else v-for="promo in promociones" :key="promo.id" class="cp-promo-card">
                 <div style="display:flex;align-items:flex-start;justify-content:space-between;">
                   <div>
-                    <div style="font-weight:700;font-size:13px;color:#e2e8f0;">{{ promo.nombre }}</div>
+                    <div style="font-weight:700;font-size:13px;color:var(--t2);">{{ promo.nombre }}</div>
                     <div style="font-size:12px;color:#6366f1;font-weight:700;margin-top:2px;">{{ promo.moneda }} {{ Number(promo.precio).toFixed(2) }}</div>
-                    <div style="font-size:11px;color:#64748b;margin-top:3px;">
+                    <div style="font-size:11px;color:var(--t4);margin-top:3px;">
                       {{ promo.fechaInicio || '—' }} → {{ promo.fechaFin || '—' }}
                     </div>
-                    <div v-if="promo.notas" style="font-size:11px;color:#475569;font-style:italic;margin-top:2px;">{{ promo.notas }}</div>
+                    <div v-if="promo.notas" style="font-size:11px;color:var(--t5);font-style:italic;margin-top:2px;">{{ promo.notas }}</div>
                   </div>
                   <div style="display:flex;gap:4px;align-items:center;">
                     <button
@@ -641,7 +645,7 @@
               </div>
               <div class="ide-field ct-form-full" style="flex-direction:row;align-items:center;gap:10px;padding-top:6px;">
                 <input id="chk-hab" v-model="promoForm.habilitado" type="checkbox" style="width:15px;height:15px;cursor:pointer;" />
-                <label for="chk-hab" style="cursor:pointer;font-size:12px;font-weight:600;color:#94a3b8;margin:0;">Habilitada (activa ahora)</label>
+                <label for="chk-hab" style="cursor:pointer;font-size:12px;font-weight:600;color:var(--t3);margin:0;">Habilitada (activa ahora)</label>
               </div>
               <div class="ide-field ct-form-full">
                 <label>Notas</label>
@@ -1058,15 +1062,23 @@ export default {
 /* Navegación principal */
 .cp-nav {
   display: flex; gap: 4px; margin-bottom: 16px; flex-shrink: 0;
-  border-bottom: 1px solid #1e3a5f44; padding-bottom: 0;
+  border-bottom: 1px solid var(--b1); padding-bottom: 0;
 }
 .cp-nav-tab {
   display: flex; align-items: center; padding: 8px 18px; font-size: 12px; font-weight: 700;
-  color: #475569; background: none; border: none; border-bottom: 2px solid transparent;
+  color: var(--t5); background: none; border: none; border-bottom: 2px solid transparent;
   cursor: pointer; transition: all 0.15s; margin-bottom: -1px;
 }
-.cp-nav-tab:hover { color: #94a3b8; }
+.cp-nav-tab:hover { color: var(--t3); }
 .cp-nav-tab--active { color: #818cf8; border-bottom-color: #6366f1; }
+.cp-excel-btn {
+  display: flex; align-items: center; gap: 5px; padding: 5px 11px;
+  font-size: 11px; font-weight: 600; border-radius: 7px; cursor: pointer;
+  background: #22c55e18; border: 1px solid #22c55e33; color: #22c55e;
+  transition: background 0.15s; font-family: inherit;
+}
+.cp-excel-btn:hover:not(:disabled) { background: #22c55e28; }
+.cp-excel-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* Contenedor de tab */
 .cp-tab-content { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
@@ -1074,52 +1086,54 @@ export default {
 /* Layout unidades */
 .cp-uni-layout { display: flex; gap: 12px; flex: 1; overflow: hidden; }
 .cp-uni-list-col {
-  width: 340px; flex-shrink: 0; background: #0d1526;
-  border: 1px solid #1e3a5f44; border-radius: 14px;
+  width: 340px; flex-shrink: 0; background: var(--bg-s);
+  border: 1px solid var(--b1); border-radius: 14px;
   display: flex; flex-direction: column; overflow: hidden;
+  transition: background 0.25s;
 }
 .cp-uni-form-col {
-  flex: 1; background: #0d1526; border: 1px solid #1e3a5f44;
-  border-radius: 14px; overflow-y: auto;
+  flex: 1; background: var(--bg-s); border: 1px solid var(--b1);
+  border-radius: 14px; overflow-y: auto; transition: background 0.25s;
 }
 
 .cp-uni-group-label {
-  font-size: 10px; font-weight: 700; color: #475569; text-transform: uppercase;
+  font-size: 10px; font-weight: 700; color: var(--t5); text-transform: uppercase;
   letter-spacing: .5px; padding: 8px 4px 4px;
 }
 .cp-uni-row {
   display: flex; align-items: center; gap: 8px; padding: 9px 8px;
   border-radius: 8px; cursor: pointer; margin-bottom: 2px; transition: background 0.15s;
 }
-.cp-uni-row:hover { background: #1e293b; }
+.cp-uni-row:hover { background: var(--bg-c); }
 .cp-uni-row--active { background: #6366f114; border: 1px solid #6366f133; }
 .cp-uni-info { flex: 1; display: flex; align-items: center; gap: 6px; min-width: 0; }
-.cp-uni-name { font-size: 12px; color: #cbd5e1; font-weight: 600; }
-.cp-uni-abrev { font-size: 10px; color: #475569; background: #1e293b; padding: 1px 6px; border-radius: 4px; }
+.cp-uni-name { font-size: 12px; color: var(--t2); font-weight: 600; }
+.cp-uni-abrev { font-size: 10px; color: var(--t5); background: var(--bg-c); padding: 1px 6px; border-radius: 4px; }
 .cp-uni-factor { font-size: 10px; color: #22c55e; background: #22c55e11; padding: 1px 6px; border-radius: 4px; border: 1px solid #22c55e22; }
 
 .cp-uni-hint {
-  display: flex; gap: 10px; align-items: flex-start; background: #1e293b;
-  border: 1px solid #1e3a5f44; border-radius: 8px; padding: 12px; margin-top: 20px;
+  display: flex; gap: 10px; align-items: flex-start; background: var(--bg-c);
+  border: 1px solid var(--b1); border-radius: 8px; padding: 12px; margin-top: 20px;
 }
-.cp-uni-hint p { font-size: 11px; color: #475569; margin: 0; line-height: 1.6; }
+.cp-uni-hint p { font-size: 11px; color: var(--t5); margin: 0; line-height: 1.6; }
 .cp-uni-hint strong { color: #818cf8; }
 
 /* Columnas */
 .cp-columns { display: flex; gap: 12px; flex: 1; overflow: hidden; }
 
 .cp-col {
-  background: #0d1526; border: 1px solid #1e3a5f44; border-radius: 14px;
+  background: var(--bg-s); border: 1px solid var(--b1); border-radius: 14px;
   display: flex; flex-direction: column; width: 220px; flex-shrink: 0; overflow: hidden;
+  transition: background 0.25s, border-color 0.25s;
 }
 .cp-col--wide { flex: 1; width: auto; }
 
 .cp-col-header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 14px 8px; border-bottom: 1px solid #1e3a5f33; flex-shrink: 0;
+  padding: 14px 14px 8px; border-bottom: 1px solid var(--b2); flex-shrink: 0;
 }
-.cp-col-title { font-size: 13px; font-weight: 800; color: #f1f5f9; }
-.cp-col-count { font-size: 10px; color: #475569; margin-top: 1px; }
+.cp-col-title { font-size: 13px; font-weight: 800; color: var(--t1); }
+.cp-col-count { font-size: 10px; color: var(--t5); margin-top: 1px; }
 
 .cp-add-btn {
   background: #6366f122; border: 1px solid #6366f133; color: #818cf8;
@@ -1128,9 +1142,9 @@ export default {
 .cp-add-btn:hover { background: #6366f133; }
 
 .cp-search {
-  margin: 8px 10px 4px; background: #0f172a; border: 1px solid #1e3a5f44;
-  border-radius: 7px; color: #94a3b8; font-size: 11px; padding: 6px 10px;
-  outline: none; flex-shrink: 0;
+  margin: 8px 10px 4px; background: var(--bg-e); border: 1px solid var(--b1);
+  border-radius: 7px; color: var(--t3); font-size: 11px; padding: 6px 10px;
+  outline: none; flex-shrink: 0; transition: background 0.25s;
 }
 
 .cp-list { flex: 1; overflow-y: auto; padding: 4px 6px 8px; }
@@ -1141,13 +1155,13 @@ export default {
   border-radius: 8px; cursor: pointer; margin-bottom: 2px;
   transition: background 0.15s; position: relative;
 }
-.cp-item:hover { background: #1e293b; }
+.cp-item:hover { background: var(--bg-c); }
 .cp-item--active { background: #6366f114; border: 1px solid #6366f133; }
 
 .cp-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.cp-dot--sub { background: #334155; }
+.cp-dot--sub { background: var(--b3); }
 
-.cp-item-name { flex: 1; font-size: 12px; color: #cbd5e1; font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cp-item-name { flex: 1; font-size: 12px; color: var(--t2); font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .cp-item-btns { display: flex; gap: 2px; opacity: 0; transition: opacity 0.15s; }
 .cp-item:hover .cp-item-btns { opacity: 1; }
@@ -1158,24 +1172,24 @@ export default {
 .cp-prod-row {
   display: flex; align-items: center; justify-content: space-between;
   padding: 9px 10px; border-radius: 8px; margin-bottom: 3px;
-  border: 1px solid #1e3a5f33;
+  border: 1px solid var(--b2); transition: background 0.15s;
 }
-.cp-prod-row:hover { background: #1e293b; }
+.cp-prod-row:hover { background: var(--bg-c); }
 .cp-prod-main { flex: 1; min-width: 0; }
-.cp-prod-name { font-size: 13px; font-weight: 700; color: #e2e8f0; }
+.cp-prod-name { font-size: 13px; font-weight: 700; color: var(--t2); }
 .cp-prod-codes { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 3px; }
 
 .cp-code { font-size: 10px; padding: 1px 6px; border-radius: 4px; font-family: monospace; }
 .cp-code--tienda  { background: #6366f122; color: #818cf8; border: 1px solid #6366f133; }
 .cp-code--barras  { background: #0ea5e922; color: #38bdf8; border: 1px solid #0ea5e933; }
 .cp-code--prov    { background: #10b98122; color: #34d399; border: 1px solid #10b98133; }
-.cp-code          { background: #1e293b; color: #64748b; border: 1px solid #334155; }
+.cp-code          { background: var(--bg-c); color: var(--t4); border: 1px solid var(--b3); }
 
 /* Botones icono */
 .cp-icon-btn {
-  background: #0f172a; border: 1px solid #1e3a5f44; border-radius: 6px;
+  background: var(--bg-e); border: 1px solid var(--b1); border-radius: 6px;
   padding: 5px; display: flex; align-items: center; justify-content: center;
-  cursor: pointer; color: #64748b; transition: all 0.15s;
+  cursor: pointer; color: var(--t4); transition: all 0.15s;
 }
 .cp-icon-btn:hover        { border-color: #6366f1; color: #818cf8; }
 .cp-icon-btn--danger:hover { border-color: #ef4444; color: #f87171; }
@@ -1183,19 +1197,19 @@ export default {
 
 /* Loading / empty */
 .cp-loading { display: flex; justify-content: center; padding: 24px; }
-.cp-empty   { text-align: center; padding: 20px 10px; font-size: 12px; color: #334155; font-style: italic; }
+.cp-empty   { text-align: center; padding: 20px 10px; font-size: 12px; color: var(--t5); font-style: italic; }
 
 /* Placeholder central */
 .cp-placeholder {
   flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 12px; color: #1e3a5f;
+  gap: 12px; color: var(--b3);
 }
-.cp-placeholder p { font-size: 12px; color: #334155; text-align: center; }
+.cp-placeholder p { font-size: 12px; color: var(--t5); text-align: center; }
 
 /* Tabs de precios */
-.cp-tabs { display: flex; border-bottom: 1px solid #1e3a5f44; padding: 0 20px; flex-shrink: 0; }
+.cp-tabs { display: flex; border-bottom: 1px solid var(--b1); padding: 0 20px; flex-shrink: 0; }
 .cp-tab {
-  padding: 10px 18px; font-size: 12px; font-weight: 700; color: #475569;
+  padding: 10px 18px; font-size: 12px; font-weight: 700; color: var(--t5);
   background: none; border: none; border-bottom: 2px solid transparent;
   cursor: pointer; transition: all 0.15s; margin-bottom: -1px;
 }
@@ -1204,14 +1218,15 @@ export default {
 /* Cards de tipos de precio */
 .cp-price-types { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
 .cp-price-type-card {
-  flex: 1; background: #1e293b; border: 1px solid #1e3a5f44; border-radius: 10px;
+  flex: 1; background: var(--bg-c); border: 1px solid var(--b1); border-radius: 10px;
   padding: 12px; display: flex; flex-direction: column; gap: 4px; min-width: 130px;
+  transition: background 0.25s;
 }
-.cp-price-type-card--factura { border-color: #f59e0b33; background: #1e293b; }
-.cp-price-type-label { font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: .6px; }
-.cp-price-value { font-size: 15px; font-weight: 800; color: #e2e8f0; }
-.cp-price-date  { font-size: 10px; color: #475569; font-weight: 400; display: block; margin-top: 2px; }
-.cp-price-empty { font-size: 12px; color: #334155; font-style: italic; }
+.cp-price-type-card--factura { border-color: #f59e0b33; }
+.cp-price-type-label { font-size: 10px; font-weight: 800; color: var(--t4); text-transform: uppercase; letter-spacing: .6px; }
+.cp-price-value { font-size: 15px; font-weight: 800; color: var(--t2); }
+.cp-price-date  { font-size: 10px; color: var(--t5); font-weight: 400; display: block; margin-top: 2px; }
+.cp-price-empty { font-size: 12px; color: var(--t5); font-style: italic; }
 .cp-set-price-btn {
   margin-top: 6px; background: #6366f122; border: 1px solid #6366f133; color: #818cf8;
   border-radius: 6px; padding: 4px 10px; font-size: 10px; font-weight: 700; cursor: pointer;
@@ -1220,26 +1235,26 @@ export default {
 
 /* Form precio */
 .cp-price-form {
-  background: #1e293b; border: 1px solid #6366f133; border-radius: 10px;
-  padding: 14px; margin-bottom: 10px;
+  background: var(--bg-c); border: 1px solid #6366f133; border-radius: 10px;
+  padding: 14px; margin-bottom: 10px; transition: background 0.25s;
 }
 
 /* Historial precios */
 .cp-hist-row {
   display: flex; align-items: center; gap: 10px; padding: 7px 0;
-  border-bottom: 1px solid #1e3a5f22; flex-wrap: wrap;
+  border-bottom: 1px solid var(--b2); flex-wrap: wrap;
 }
 .cp-hist-tipo   { font-size: 10px; font-weight: 700; color: #6366f1; background: #6366f122; padding: 1px 6px; border-radius: 4px; }
-.cp-hist-precio { font-size: 12px; font-weight: 700; color: #e2e8f0; }
-.cp-hist-fecha  { font-size: 10px; color: #475569; flex: 1; }
+.cp-hist-precio { font-size: 12px; font-weight: 700; color: var(--t2); }
+.cp-hist-fecha  { font-size: 10px; color: var(--t5); flex: 1; }
 .cp-hist-badge  { font-size: 9px; padding: 1px 6px; border-radius: 4px; font-weight: 700; }
 .cp-hist-badge--on  { background: #22c55e22; color: #4ade80; border: 1px solid #22c55e33; }
-.cp-hist-badge--off { background: #33415522; color: #64748b; border: 1px solid #33415544; }
+.cp-hist-badge--off { background: rgba(51,65,85,.13); color: var(--t4); border: 1px solid var(--b3); }
 
 /* Promo card */
 .cp-promo-card {
-  background: #1e293b; border: 1px solid #1e3a5f44; border-radius: 10px;
-  padding: 12px; margin-bottom: 8px;
+  background: var(--bg-c); border: 1px solid var(--b1); border-radius: 10px;
+  padding: 12px; margin-bottom: 8px; transition: background 0.25s;
 }
 
 /* Toggle button */
@@ -1248,12 +1263,12 @@ export default {
   cursor: pointer; border: 1px solid; transition: all 0.15s;
 }
 .cp-toggle-btn--on  { background: #22c55e22; border-color: #22c55e44; color: #4ade80; }
-.cp-toggle-btn--off { background: #33415522; border-color: #33415544; color: #64748b; }
+.cp-toggle-btn--off { background: rgba(51,65,85,.13); border-color: var(--b3); color: var(--t4); }
 
 /* Spinner */
 .ct-spinner {
   width: 24px; height: 24px; border-radius: 50%;
-  border: 3px solid #1e3a5f44; border-top-color: #6366f1;
+  border: 3px solid var(--b1); border-top-color: #6366f1;
   animation: spin 0.8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -1261,7 +1276,7 @@ export default {
 /* Tiers de escala de precios */
 .cp-tier-header {
   display: grid; grid-template-columns: 1fr 1fr 1fr 28px; gap: 6px;
-  font-size: 10px; font-weight: 700; color: #475569;
+  font-size: 10px; font-weight: 700; color: var(--t5);
   text-transform: uppercase; letter-spacing: .4px; margin-bottom: 4px;
 }
 .cp-tier-header--factura { grid-template-columns: 1fr 1fr 1fr 1fr 28px; }

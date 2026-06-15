@@ -75,14 +75,14 @@
             <td>
               <span class="cp-metodo">{{ p.metodoPago }}</span>
             </td>
-            <td style="color:#64748b;">{{ p.referencia || '—' }}</td>
-            <td style="color:#64748b;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" :title="p.notas">{{ p.notas || '—' }}</td>
+            <td style="color:var(--t4);">{{ p.referencia || '—' }}</td>
+            <td style="color:var(--t4);max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" :title="p.notas">{{ p.notas || '—' }}</td>
             <td style="text-align:right;font-weight:800;color:#4ade80;">Bs {{ formatMonto(p.monto) }}</td>
           </tr>
         </tbody>
         <tfoot>
           <tr>
-            <td colspan="8" style="text-align:right;font-size:11px;font-weight:700;color:#64748b;padding:10px 12px;">Total:</td>
+            <td colspan="8" style="text-align:right;font-size:11px;font-weight:700;color:var(--t4);padding:10px 12px;">Total:</td>
             <td style="text-align:right;font-weight:800;color:#4ade80;padding:10px 12px;">Bs {{ formatMonto(totalPagado) }}</td>
           </tr>
         </tfoot>
@@ -132,24 +132,24 @@ export default {
 
 <style scoped>
 .cp-root { height:100%; overflow:hidden; padding:24px; display:flex; flex-direction:column; gap:12px; }
-.cp-filters { display:flex; gap:12px; flex-wrap:wrap; flex-shrink:0; background:#0d1526; border:1px solid #1e3a5f44; border-radius:12px; padding:14px 16px; align-items:flex-end; }
-.cp-summary-bar { display:flex; gap:20px; flex-wrap:wrap; flex-shrink:0; background:#0d1526; border:1px solid #1e3a5f44; border-radius:12px; padding:12px 20px; }
+.cp-filters { display:flex; gap:12px; flex-wrap:wrap; flex-shrink:0; background:var(--bg-s); border:1px solid var(--b1); border-radius:12px; padding:14px 16px; align-items:flex-end; }
+.cp-summary-bar { display:flex; gap:20px; flex-wrap:wrap; flex-shrink:0; background:var(--bg-s); border:1px solid var(--b1); border-radius:12px; padding:12px 20px; }
 .cp-summary-item { display:flex; flex-direction:column; gap:2px; }
-.cp-summary-item span { font-size:10px; color:#64748b; text-transform:uppercase; letter-spacing:.4px; }
-.cp-summary-item strong { font-size:15px; color:#f1f5f9; }
-.cp-table-container { flex:1; background:#0d1526; border:1px solid #1e3a5f44; border-radius:12px; overflow:auto; }
+.cp-summary-item span { font-size:10px; color:var(--t4); text-transform:uppercase; letter-spacing:.4px; }
+.cp-summary-item strong { font-size:15px; color:var(--t1); }
+.cp-table-container { flex:1; background:var(--bg-s); border:1px solid var(--b1); border-radius:12px; overflow:auto; }
 .cp-loading { display:flex; justify-content:center; padding:40px; }
-.cp-empty { text-align:center; padding:40px; font-size:13px; color:#334155; font-style:italic; }
+.cp-empty { text-align:center; padding:40px; font-size:13px; color:var(--b3); font-style:italic; }
 .cp-table { width:100%; border-collapse:collapse; font-size:12px; }
-.cp-table th { background:#0f172a; color:#64748b; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; padding:10px 12px; text-align:left; white-space:nowrap; position:sticky; top:0; z-index:1; }
-.cp-table td { padding:10px 12px; border-top:1px solid #1e3a5f22; vertical-align:middle; }
-.cp-table tfoot td { background:#0f172a44; border-top:2px solid #1e3a5f44; }
-.cp-tr:hover { background:#1e293b; }
+.cp-table th { background:var(--bg-e); color:var(--t4); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; padding:10px 12px; text-align:left; white-space:nowrap; position:sticky; top:0; z-index:1; }
+.cp-table td { padding:10px 12px; border-top:1px solid var(--b2); vertical-align:middle; }
+.cp-table tfoot td { background:var(--b1); border-top:2px solid var(--b1); }
+.cp-tr:hover { background:var(--bg-c); }
 .cp-mono { font-family:monospace; font-size:11px; color:#818cf8; }
 .cp-tipo { font-size:9px; font-weight:700; padding:2px 7px; border-radius:4px; }
 .cp-tipo--ini { background:#f59e0b22; color:#fbbf24; border:1px solid #f59e0b33; }
 .cp-tipo--com { background:#6366f122; color:#818cf8; border:1px solid #6366f133; }
-.cp-metodo { font-size:10px; font-weight:700; background:#1e293b; color:#94a3b8; padding:2px 7px; border-radius:4px; border:1px solid #1e3a5f44; }
-.ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid #1e3a5f44; border-top-color:#6366f1; animation:spin 0.8s linear infinite; }
+.cp-metodo { font-size:10px; font-weight:700; background:var(--bg-c); color:var(--t3); padding:2px 7px; border-radius:4px; border:1px solid var(--b1); }
+.ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid var(--b1); border-top-color:#6366f1; animation:spin 0.8s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
 </style>

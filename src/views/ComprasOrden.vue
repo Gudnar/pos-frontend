@@ -134,24 +134,19 @@
                   </thead>
                   <tbody>
                     <tr v-if="!form.detalles.length">
-                      <td colspan="7" style="text-align:center;color:#334155;font-style:italic;padding:16px;">Agrega productos usando el botón de arriba</td>
+                      <td colspan="7" style="text-align:center;color:var(--b3);font-style:italic;padding:16px;">Agrega productos usando el botón de arriba</td>
                     </tr>
                     <tr v-for="(d, idx) in form.detalles" :key="idx">
                       <td style="position:relative;min-width:240px;">
                         <input v-model="d._busqueda" class="ide-input" :class="{ 'cp-prod-ok': d.productoId }" placeholder="Buscar por nombre, código..." autocomplete="off" @input="onBusqueda(d)" @focus="d._showDrop = !!d._busqueda" @blur="ocultarDrop(d)" />
-                        <div v-if="d.productoId && d._subcategoriaNombre" class="cp-sel-cats">
-                          <span class="cp-drop-cat-chip" :style="{ borderColor: d._categoriaColor + '66', color: d._categoriaColor }">{{ d._categoriaNombre }}</span>
-                          <span class="cp-drop-subcat">{{ d._subcategoriaNombre }}</span>
+                        <div v-if="d.productoId && (d._categoriaNombre || d._subcategoriaNombre)" class="cp-sel-cats">
+                          <span class="cp-sel-breadcrumb">{{ [d._categoriaNombre, d._subcategoriaNombre].filter(Boolean).join(' ') }}</span>
                         </div>
                         <div v-if="d._showDrop" class="cp-prod-drop">
                           <div v-if="!filtrarProductos(d._busqueda, d).length" class="cp-drop-empty">Sin resultados</div>
                           <div v-for="p in filtrarProductos(d._busqueda, d)" :key="p.id" class="cp-drop-item" @mousedown.prevent="seleccionarProducto(d, p)">
                             <div style="flex:1;min-width:0;">
-                              <div class="cp-drop-nombre">{{ p.nombre }}</div>
-                              <div v-if="p.subcategoriaNombre" class="cp-drop-cats">
-                                <span class="cp-drop-cat-chip" :style="{ borderColor: p.categoriaColor + '66', color: p.categoriaColor }">{{ p.categoriaNombre }}</span>
-                                <span class="cp-drop-subcat">{{ p.subcategoriaNombre }}</span>
-                              </div>
+                              <div class="cp-drop-nombre">{{ [p.categoriaNombre, p.subcategoriaNombre, p.nombre].filter(Boolean).join(' ') }}</div>
                             </div>
                             <span v-if="p.codigoBarras || p.codigoTienda" class="cp-drop-code">{{ p.codigoBarras || p.codigoTienda }}</span>
                           </div>
@@ -161,14 +156,14 @@
                       <td><input v-model.number="d.cantidad" class="ide-input" type="number" min="0.001" step="1" /></td>
                       <td><input v-model.number="d.precioUnitario" class="ide-input" type="number" min="0" step="0.01" /></td>
                       <td><input v-model.number="d.descuento" class="ide-input" type="number" min="0" step="0.01" /></td>
-                      <td style="font-size:12px;font-weight:700;color:#e2e8f0;padding:6px 12px;">Bs {{ formatMonto(d.cantidad * d.precioUnitario - (d.descuento || 0)) }}</td>
+                      <td style="font-size:12px;font-weight:700;color:var(--t2);padding:6px 12px;">Bs {{ formatMonto(d.cantidad * d.precioUnitario - (d.descuento || 0)) }}</td>
                       <td><button class="cp-del-row-btn" @click="form.detalles.splice(idx,1)">✕</button></td>
                     </tr>
                   </tbody>
                   <tfoot v-if="form.detalles.length">
                     <tr>
-                      <td colspan="5" style="text-align:right;font-size:12px;font-weight:700;color:#94a3b8;padding:8px 12px;">Total:</td>
-                      <td style="font-size:14px;font-weight:800;color:#f1f5f9;padding:8px 12px;">Bs {{ formatMonto(totalForm) }}</td>
+                      <td colspan="5" style="text-align:right;font-size:12px;font-weight:700;color:var(--t3);padding:8px 12px;">Total:</td>
+                      <td style="font-size:14px;font-weight:800;color:var(--t1);padding:8px 12px;">Bs {{ formatMonto(totalForm) }}</td>
                       <td></td>
                     </tr>
                   </tfoot>
@@ -275,7 +270,7 @@
                 Esta acción cambiará el estado a <strong>ANULADA</strong> y no se podrá deshacer.
               </div>
               <div class="ide-field" style="margin-top:12px;">
-                <label>Motivo / Glosa <span style="color:#64748b;font-weight:400;">(opcional)</span></label>
+                <label>Motivo / Glosa <span style="color:var(--t4);font-weight:400;">(opcional)</span></label>
                 <textarea
                   v-model="anularMotivo"
                   class="ide-input"
@@ -363,7 +358,7 @@
               </div>
 
               <!-- Productos -->
-              <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;margin-top:4px;">Productos</div>
+              <div style="font-size:11px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;margin-top:4px;">Productos</div>
               <div v-if="loadingDetalle" class="cp-loading"><div class="ct-spinner"></div></div>
               <table v-else class="cp-table" style="margin-bottom:16px;">
                 <thead><tr><th>Producto</th><th>Cant.</th><th>Precio</th><th>Desc.</th><th>Subtotal</th><th>Lote</th><th>Vencimiento</th></tr></thead>
@@ -381,9 +376,9 @@
               </table>
 
               <!-- Trazabilidad / Log -->
-              <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Historial de Cambios</div>
+              <div style="font-size:11px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Historial de Cambios</div>
               <div v-if="loadingLogs" class="cp-loading"><div class="ct-spinner"></div></div>
-              <div v-else-if="!logs.length" style="font-size:11px;color:#334155;font-style:italic;padding:8px 0;">Sin registros</div>
+              <div v-else-if="!logs.length" style="font-size:11px;color:var(--b3);font-style:italic;padding:8px 0;">Sin registros</div>
               <div v-else class="cp-log-list">
                 <div v-for="l in logs" :key="l.id" class="cp-log-row">
                   <div class="cp-log-icon" :class="logIconClass(l.tipo)">
@@ -396,7 +391,7 @@
                     <div class="cp-log-desc">{{ l.descripcion }}</div>
                     <div v-if="l.estadoAnterior && l.estadoNuevo" class="cp-log-estados">
                       <span :class="badgeClass(l.estadoAnterior)" style="font-size:9px;">{{ labelEstado(l.estadoAnterior) }}</span>
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--t4)" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                       <span :class="badgeClass(l.estadoNuevo)" style="font-size:9px;">{{ labelEstado(l.estadoNuevo) }}</span>
                     </div>
                   </div>
@@ -473,10 +468,10 @@ export default {
       const [pr, s, p, u, subs, cats] = await Promise.all([
         this.$service.list('proveedores').catch(() => []),
         this.$service.list('sucursales').catch(() => []),
-        this.$service.list('productos').catch(() => []),
+        this.$service.list('productos?soloActivos=true').catch(() => []),
         this.$service.list('unidades-medida').catch(() => []),
-        this.$service.list('subcategorias-producto').catch(() => []),
-        this.$service.list('categorias-producto').catch(() => []),
+        this.$service.list('subcategorias-producto?soloActivos=true').catch(() => []),
+        this.$service.list('categorias-producto?soloActivos=true').catch(() => []),
       ])
       this.proveedores = pr || []
       this.sucursales = s || []
@@ -716,7 +711,7 @@ export default {
         .field label { font-size: 10px; color: #888; text-transform: uppercase; display: block; }
         .field span { font-weight: bold; }
         table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
-        th { background: #1e3a5f; color: #fff; padding: 6px 8px; text-align: left; font-size: 11px; }
+        th { background: var(--b0); color: #fff; padding: 6px 8px; text-align: left; font-size: 11px; }
         td { padding: 5px 8px; border-bottom: 1px solid #ddd; font-size: 11px; }
         tr:nth-child(even) td { background: #f8f8f8; }
         .total { text-align: right; font-size: 14px; font-weight: bold; margin-top: 8px; }
@@ -804,10 +799,10 @@ export default {
 <style scoped>
 .cp-root { height:100%; overflow:hidden; padding:24px; display:flex; flex-direction:column; }
 .cp-layout { flex:1; overflow:hidden; display:flex; gap:12px; }
-.cp-panel { width:420px; flex-shrink:0; background:#0d1526; border:1px solid #1e3a5f44; border-radius:14px; display:flex; flex-direction:column; overflow:hidden; }
-.cp-col-header { display:flex; align-items:center; justify-content:space-between; padding:14px 14px 8px; border-bottom:1px solid #1e3a5f33; flex-shrink:0; }
-.cp-col-title { font-size:13px; font-weight:800; color:#f1f5f9; }
-.cp-col-count { font-size:10px; color:#475569; margin-top:1px; }
+.cp-panel { width:420px; flex-shrink:0; background:var(--bg-s); border:1px solid var(--b1); border-radius:14px; display:flex; flex-direction:column; overflow:hidden; }
+.cp-col-header { display:flex; align-items:center; justify-content:space-between; padding:14px 14px 8px; border-bottom:1px solid var(--b2); flex-shrink:0; }
+.cp-col-title { font-size:13px; font-weight:800; color:var(--t1); }
+.cp-col-count { font-size:10px; color:var(--t5); margin-top:1px; }
 .cp-add-btn { background:#6366f122; border:1px solid #6366f133; color:#818cf8; border-radius:7px; padding:3px 9px; font-size:16px; cursor:pointer; font-weight:700; }
 .cp-add-btn:hover { background:#6366f133; }
 .cp-export-btn { background:#16302222; border:1px solid #34d39933; color:#34d399; border-radius:6px; padding:3px 8px; font-size:11px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:4px; }
@@ -815,64 +810,62 @@ export default {
 .cp-pdf-dl-btn { background:#1e1a3544; border:1px solid #818cf833; color:#818cf8; border-radius:6px; padding:3px 8px; font-size:11px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:4px; }
 .cp-pdf-dl-btn:hover { background:#1e1a35; }
 .cp-pdf-dl-btn:disabled { opacity:.5; cursor:default; }
-.cp-tabs { display:flex; gap:2px; padding:6px 10px; border-bottom:1px solid #1e3a5f22; flex-shrink:0; overflow-x:auto; }
-.cp-tab { background:none; border:1px solid transparent; color:#475569; border-radius:5px; padding:3px 8px; font-size:10px; font-weight:700; cursor:pointer; text-transform:uppercase; letter-spacing:.3px; white-space:nowrap; }
-.cp-tab:hover { color:#94a3b8; border-color:#1e3a5f44; }
+.cp-tabs { display:flex; gap:2px; padding:6px 10px; border-bottom:1px solid var(--b2); flex-shrink:0; overflow-x:auto; }
+.cp-tab { background:none; border:1px solid transparent; color:var(--t5); border-radius:5px; padding:3px 8px; font-size:10px; font-weight:700; cursor:pointer; text-transform:uppercase; letter-spacing:.3px; white-space:nowrap; }
+.cp-tab:hover { color:var(--t3); border-color:var(--b1); }
 .cp-tab.active { background:#6366f122; border-color:#6366f133; color:#818cf8; }
-.cp-search { margin:8px 10px 4px; background:#0f172a; border:1px solid #1e3a5f44; border-radius:7px; color:#94a3b8; font-size:11px; padding:6px 10px; outline:none; flex-shrink:0; }
+.cp-search { margin:8px 10px 4px; background:var(--bg-e); border:1px solid var(--b1); border-radius:7px; color:var(--t3); font-size:11px; padding:6px 10px; outline:none; flex-shrink:0; }
 .cp-list { flex:1; overflow-y:auto; padding:4px 8px 12px; }
 .cp-loading { display:flex; justify-content:center; padding:24px; }
-.cp-empty { text-align:center; padding:20px; font-size:12px; color:#334155; font-style:italic; }
+.cp-empty { text-align:center; padding:20px; font-size:12px; color:var(--b3); font-style:italic; }
 .cp-row { display:flex; align-items:center; gap:8px; padding:10px 8px; border-radius:8px; cursor:pointer; margin-bottom:3px; transition:background 0.15s; border:1px solid transparent; }
-.cp-row:hover { background:#1e293b; border-color:#1e3a5f44; }
-.cp-row-title { font-size:12px; font-weight:700; color:#e2e8f0; }
-.cp-row-sub { font-size:10px; color:#475569; margin-top:2px; }
-.cp-row-monto { font-size:12px; font-weight:800; color:#f1f5f9; }
-.cp-icon-btn { background:#1e293b; border:1px solid #1e3a5f44; color:#64748b; cursor:pointer; border-radius:5px; padding:4px 5px; display:flex; align-items:center; justify-content:center; }
+.cp-row:hover { background:var(--bg-c); border-color:var(--b1); }
+.cp-row-title { font-size:12px; font-weight:700; color:var(--t2); }
+.cp-row-sub { font-size:10px; color:var(--t5); margin-top:2px; }
+.cp-row-monto { font-size:12px; font-weight:800; color:var(--t1); }
+.cp-icon-btn { background:var(--bg-c); border:1px solid var(--b1); color:var(--t4); cursor:pointer; border-radius:5px; padding:4px 5px; display:flex; align-items:center; justify-content:center; }
 .cp-icon-btn:hover { border-color:#6366f1; color:#818cf8; }
 .cp-action-btn { border:none; border-radius:6px; padding:5px 7px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; }
-.cp-action--transit { background:#1e3a5f44; color:#60a5fa; }
-.cp-action--transit:hover { background:#1e3a5f88; }
+.cp-action--transit { background:var(--b1); color:#60a5fa; }
+.cp-action--transit:hover { background:var(--b4); }
 .cp-action--finalizar { background:#16302222; color:#34d399; }
 .cp-action--finalizar:hover { background:#163022; }
 .cp-action--anular { background:#2d1a1a44; color:#f87171; }
 .cp-action--anular:hover { background:#2d1a1a88; }
 .cp-action-btn:disabled { opacity:.4; cursor:default; }
 .cp-add-row-btn { background:#6366f122; border:1px solid #6366f133; color:#818cf8; border-radius:6px; padding:4px 10px; font-size:11px; font-weight:700; cursor:pointer; }
-.cp-del-row-btn { background:none; border:none; color:#64748b; cursor:pointer; font-size:13px; padding:2px 4px; border-radius:4px; }
+.cp-del-row-btn { background:none; border:none; color:var(--t4); cursor:pointer; font-size:13px; padding:2px 4px; border-radius:4px; }
 .cp-del-row-btn:hover { color:#f87171; }
-.cp-table-wrap { overflow-x:auto; border-radius:8px; border:1px solid #1e3a5f44; }
+.cp-table-wrap { overflow-x:auto; border-radius:8px; border:1px solid var(--b1); }
 .cp-table { width:100%; border-collapse:collapse; font-size:12px; }
-.cp-table th { background:#0f172a; color:#64748b; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; padding:8px 12px; text-align:left; white-space:nowrap; }
-.cp-table td { padding:6px 8px; border-top:1px solid #1e3a5f33; vertical-align:middle; }
-.cp-table tfoot td { background:#0f172a44; }
+.cp-table th { background:var(--bg-e); color:var(--t4); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; padding:8px 12px; text-align:left; white-space:nowrap; }
+.cp-table td { padding:6px 8px; border-top:1px solid var(--b2); vertical-align:middle; }
+.cp-table tfoot td { background:var(--b1); }
 .cp-info-item { display:flex; flex-direction:column; gap:3px; }
-.cp-info-item span { font-size:10px; color:#64748b; text-transform:uppercase; letter-spacing:.4px; }
-.cp-info-item strong { font-size:13px; color:#e2e8f0; }
-.cp-section-label { font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px; margin-top:16px; display:block; }
+.cp-info-item span { font-size:10px; color:var(--t4); text-transform:uppercase; letter-spacing:.4px; }
+.cp-info-item strong { font-size:13px; color:var(--t2); }
+.cp-section-label { font-size:11px; font-weight:700; color:var(--t4); text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px; margin-top:16px; display:block; }
 .cp-detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
-.cp-trace-block { background:#0f172a; border:1px solid #1e3a5f44; border-radius:8px; padding:12px 14px; margin-bottom:10px; }
-.cp-trace-title { font-size:10px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:.4px; display:flex; align-items:center; gap:5px; margin-bottom:8px; }
+.cp-trace-block { background:var(--bg-e); border:1px solid var(--b1); border-radius:8px; padding:12px 14px; margin-bottom:10px; }
+.cp-trace-title { font-size:10px; font-weight:700; color:var(--t4); text-transform:uppercase; letter-spacing:.4px; display:flex; align-items:center; gap:5px; margin-bottom:8px; }
 .cp-trace-row { display:flex; gap:10px; align-items:baseline; font-size:12px; margin-bottom:3px; }
-.cp-trace-row span:first-child { color:#475569; min-width:100px; font-size:11px; }
-.cp-trace-info { background:#1e3a5f22; border:1px solid #1e3a5f44; border-radius:7px; padding:10px 14px; font-size:12px; color:#64748b; margin-bottom:14px; line-height:1.5; }
-.cp-recepcion-badge { background:#0f172a; border:1px solid #1e3a5f44; border-radius:8px; padding:10px 14px; margin-bottom:12px; }
+.cp-trace-row span:first-child { color:var(--t5); min-width:100px; font-size:11px; }
+.cp-trace-info { background:var(--b2); border:1px solid var(--b1); border-radius:7px; padding:10px 14px; font-size:12px; color:var(--t4); margin-bottom:14px; line-height:1.5; }
+.cp-recepcion-badge { background:var(--bg-e); border:1px solid var(--b1); border-radius:8px; padding:10px 14px; margin-bottom:12px; }
 .cp-cond { font-size:11px; font-weight:700; padding:2px 7px; border-radius:4px; }
 .cp-cond--ok   { background:#16302244; color:#34d399; }
 .cp-cond--bad  { background:#2d1a1a44; color:#f87171; }
 .cp-cond--warn { background:#2d240a44; color:#fbbf24; }
 .cp-prod-ok { border-color:#6366f144 !important; }
-.cp-sel-cats { display:flex; align-items:center; gap:5px; margin-top:3px; padding:0 2px; }
-.cp-prod-drop { position:absolute; top:100%; left:0; right:0; z-index:200; background:#0f172a; border:1px solid #1e3a5f66; border-radius:8px; max-height:260px; overflow-y:auto; box-shadow:0 8px 24px #00000066; margin-top:2px; }
-.cp-drop-item { display:flex; align-items:flex-start; gap:8px; padding:7px 10px; cursor:pointer; }
-.cp-drop-item:hover { background:#1e293b; }
-.cp-drop-nombre { font-size:12px; color:#e2e8f0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.cp-drop-cats { display:flex; align-items:center; gap:5px; margin-top:2px; }
-.cp-drop-cat-chip { font-size:9px; font-weight:700; padding:1px 5px; border-radius:3px; border:1px solid; }
-.cp-drop-subcat { font-size:10px; color:#475569; }
-.cp-drop-code { font-size:10px; color:#475569; font-family:monospace; flex-shrink:0; padding-top:1px; }
-.cp-drop-empty { padding:10px; font-size:11px; color:#334155; font-style:italic; text-align:center; }
-.ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid #1e3a5f44; border-top-color:#6366f1; animation:spin 0.8s linear infinite; }
+.cp-sel-cats { margin-top:3px; padding:0 2px; }
+.cp-sel-breadcrumb { font-size:10px; color:var(--t5); }
+.cp-prod-drop { position:absolute; top:100%; left:0; right:0; z-index:200; background:var(--bg-e); border:1px solid var(--b4); border-radius:8px; max-height:260px; overflow-y:auto; box-shadow:0 8px 24px #00000066; margin-top:2px; }
+.cp-drop-item { display:flex; align-items:center; gap:8px; padding:7px 10px; cursor:pointer; }
+.cp-drop-item:hover { background:var(--bg-c); }
+.cp-drop-nombre { font-size:12px; font-weight:600; color:var(--t2); overflow:hidden; text-overflow:ellipsis; }
+.cp-drop-code { font-size:10px; color:var(--t5); font-family:monospace; flex-shrink:0; padding-top:1px; }
+.cp-drop-empty { padding:10px; font-size:11px; color:var(--b3); font-style:italic; text-align:center; }
+.ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid var(--b1); border-top-color:#6366f1; animation:spin 0.8s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
 .cp-btn-finalizar { background:#163022 !important; border-color:#34d39944 !important; color:#34d399 !important; }
 .cp-btn-finalizar:hover { background:#1a4030 !important; }
@@ -881,18 +874,18 @@ export default {
 .cp-btn-anular:disabled { opacity:.5; cursor:default; }
 /* Log list */
 .cp-log-list { display:flex; flex-direction:column; gap:4px; }
-.cp-log-row { display:flex; align-items:flex-start; gap:10px; background:#0f172a; border:1px solid #1e3a5f33; border-radius:7px; padding:8px 10px; }
+.cp-log-row { display:flex; align-items:flex-start; gap:10px; background:var(--bg-e); border:1px solid var(--b2); border-radius:7px; padding:8px 10px; }
 .cp-log-icon { width:24px; height:24px; border-radius:6px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-.cp-log-icon--creacion { background:#1e3a5f44; color:#60a5fa; }
+.cp-log-icon--creacion { background:var(--b1); color:#60a5fa; }
 .cp-log-icon--estado   { background:#16302244; color:#34d399; }
-.cp-log-icon--edicion  { background:#1e293b;   color:#818cf8; }
+.cp-log-icon--edicion  { background:var(--bg-c);   color:#818cf8; }
 .cp-log-icon--pago     { background:#2d240a44; color:#fbbf24; }
-.cp-log-desc { font-size:12px; color:#e2e8f0; line-height:1.4; }
+.cp-log-desc { font-size:12px; color:var(--t2); line-height:1.4; }
 .cp-log-estados { display:flex; align-items:center; gap:5px; margin-top:4px; }
-.cp-log-date { font-size:10px; color:#334155; white-space:nowrap; flex-shrink:0; }
+.cp-log-date { font-size:10px; color:var(--b3); white-space:nowrap; flex-shrink:0; }
 /* State badges */
 .ct-badge { display:inline-flex; align-items:center; padding:2px 7px; border-radius:4px; font-weight:700; font-size:10px; letter-spacing:.3px; }
-.ct-badge--transit { background:#1e3a5f44; color:#60a5fa; }
+.ct-badge--transit { background:var(--b1); color:#60a5fa; }
 .ct-badge--warn    { background:#2d240a44; color:#fbbf24; }
 .ct-badge--on      { background:#16302244; color:#34d399; }
 .ct-badge--off     { background:#2d1a1a44; color:#f87171; }

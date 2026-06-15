@@ -14,7 +14,7 @@
         </div>
       </div>
 
-      <div style="font-size:10px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:1px; padding:0 10px 8px;">Agentes</div>
+      <div style="font-size:10px; font-weight:700; color:var(--t5); text-transform:uppercase; letter-spacing:1px; padding:0 10px 8px;">Agentes</div>
 
       <div v-if="loadingAgentes" style="display:flex; justify-content:center; padding:16px;">
         <v-progress-circular indeterminate color="primary" size="20" />
@@ -31,14 +31,14 @@
         <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ ag.nombre }}</span>
       </button>
 
-      <div v-if="!loadingAgentes && agentes.length === 0" style="font-size:11px; color:#475569; padding:8px 12px;">
+      <div v-if="!loadingAgentes && agentes.length === 0" style="font-size:11px; color:var(--t5); padding:8px 12px;">
         No hay agentes
       </div>
     </div>
 
     <!-- Content -->
     <div class="ide-body">
-      <div v-if="!agenteSeleccionado" style="text-align:center; padding:48px; color:#475569;">
+      <div v-if="!agenteSeleccionado" style="text-align:center; padding:48px; color:var(--t5);">
         <div style="font-size:32px; margin-bottom:12px;">🔧</div>
         <div style="font-size:13px; margin-bottom:8px;">Selecciona un agente para ver sus herramientas</div>
       </div>

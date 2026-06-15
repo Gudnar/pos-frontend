@@ -30,8 +30,8 @@
       <!-- Empty state -->
       <div v-else-if="!empresas.length" class="ide-ia-card" style="text-align:center;padding:60px 24px;">
         <div style="font-size:48px;margin-bottom:12px;">🏢</div>
-        <div style="font-size:16px;font-weight:700;color:#e2e8f0;margin-bottom:8px;">Sin empresas registradas</div>
-        <p style="color:#64748b;margin-bottom:20px;font-size:13px;">Crea la primera empresa para comenzar</p>
+        <div style="font-size:16px;font-weight:700;color:var(--t2);margin-bottom:8px;">Sin empresas registradas</div>
+        <p style="color:var(--t4);margin-bottom:20px;font-size:13px;">Crea la primera empresa para comenzar</p>
         <button class="ct-new-btn" @click="abrirCrear">+ Nueva empresa</button>
       </div>
 
@@ -49,8 +49,8 @@
                 {{ emp.nombre.charAt(0).toUpperCase() }}
               </div>
               <div style="min-width:0;">
-                <div style="font-size:14px;font-weight:700;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;">{{ emp.nombre }}</div>
-                <div style="font-size:11px;color:#475569;font-family:monospace;">{{ emp.slug }}</div>
+                <div style="font-size:14px;font-weight:700;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;">{{ emp.nombre }}</div>
+                <div style="font-size:11px;color:var(--t5);font-family:monospace;">{{ emp.slug }}</div>
               </div>
             </div>
             <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
@@ -62,7 +62,7 @@
           </div>
 
           <!-- Info -->
-          <div style="border-top:1px solid #1e3a5f33;padding-top:10px;margin-bottom:10px;">
+          <div style="border-top:1px solid var(--b2);padding-top:10px;margin-bottom:10px;">
             <div v-if="emp.correoContacto" class="ct-info-row">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
               <span>{{ emp.correoContacto }}</span>
@@ -71,13 +71,13 @@
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.63A2 2 0 012 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
               <span>{{ emp.telefono }}</span>
             </div>
-            <div v-if="!emp.correoContacto && !emp.telefono" style="font-size:11px;color:#334155;font-style:italic;">
+            <div v-if="!emp.correoContacto && !emp.telefono" style="font-size:11px;color:var(--b3);font-style:italic;">
               Sin datos de contacto
             </div>
           </div>
 
           <!-- Acciones -->
-          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:8px;border-top:1px solid #1e3a5f33;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:8px;border-top:1px solid var(--b2);">
             <div style="display:flex;gap:6px;">
               <button
                 class="emp-acceder-btn"
@@ -137,8 +137,8 @@
       <!-- Empty state -->
       <div v-else-if="!usuariosEmp.length" class="ide-ia-card" style="text-align:center;padding:60px 24px;">
         <div style="font-size:48px;margin-bottom:12px;">👤</div>
-        <div style="font-size:16px;font-weight:700;color:#e2e8f0;margin-bottom:8px;">Sin usuarios</div>
-        <p style="color:#64748b;margin-bottom:20px;font-size:13px;">Crea el primer usuario para esta empresa</p>
+        <div style="font-size:16px;font-weight:700;color:var(--t2);margin-bottom:8px;">Sin usuarios</div>
+        <p style="color:var(--t4);margin-bottom:20px;font-size:13px;">Crea el primer usuario para esta empresa</p>
         <button class="ct-new-btn" @click="abrirFormUsuario()">+ Nuevo usuario</button>
       </div>
 
@@ -150,9 +150,9 @@
               {{ iniciales(u) }}
             </div>
             <div style="flex:1;min-width:0;">
-              <div style="font-size:14px;font-weight:700;color:#e2e8f0;">{{ u.nombres }} {{ u.apellidos || '' }}</div>
-              <div style="font-size:11px;color:#475569;margin-top:1px;">@{{ u.usuario }}</div>
-              <div v-if="u.correoElectronico" style="font-size:11px;color:#475569;">{{ u.correoElectronico }}</div>
+              <div style="font-size:14px;font-weight:700;color:var(--t2);">{{ u.nombres }} {{ u.apellidos || '' }}</div>
+              <div style="font-size:11px;color:var(--t5);margin-top:1px;">@{{ u.usuario }}</div>
+              <div v-if="u.correoElectronico" style="font-size:11px;color:var(--t5);">{{ u.correoElectronico }}</div>
             </div>
             <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">
               <span class="usr-rol-badge" :style="{ background: rolColor(u.rol)+'22', color: rolColor(u.rol), borderColor: rolColor(u.rol)+'44' }">
@@ -165,15 +165,15 @@
           </div>
 
           <!-- Sucursales -->
-          <div v-if="u.sucursales && u.sucursales.length" style="margin-top:10px;padding-top:8px;border-top:1px solid #1e3a5f33;">
-            <div style="font-size:10px;color:#475569;margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Sucursales</div>
+          <div v-if="u.sucursales && u.sucursales.length" style="margin-top:10px;padding-top:8px;border-top:1px solid var(--b2);">
+            <div style="font-size:10px;color:var(--t5);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Sucursales</div>
             <div style="display:flex;flex-wrap:wrap;gap:4px;">
               <span v-for="s in u.sucursales" :key="s.id" class="usr-suc-chip">{{ s.nombre }}</span>
             </div>
           </div>
 
           <!-- Acciones -->
-          <div style="display:flex;justify-content:flex-end;gap:6px;margin-top:10px;padding-top:8px;border-top:1px solid #1e3a5f33;">
+          <div style="display:flex;justify-content:flex-end;gap:6px;margin-top:10px;padding-top:8px;border-top:1px solid var(--b2);">
             <button class="ct-action-btn" title="Editar" @click="abrirFormUsuario(u)">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             </button>
@@ -207,7 +207,7 @@
               <div class="ide-field">
                 <label>Slug (URL) *</label>
                 <input v-model="formEmpresa.slug" class="ide-input" placeholder="mi-empresa" />
-                <div style="font-size:10px;color:#475569;margin-top:3px;">Solo letras minúsculas, números y guiones</div>
+                <div style="font-size:10px;color:var(--t5);margin-top:3px;">Solo letras minúsculas, números y guiones</div>
               </div>
               <div class="ide-field">
                 <label>Correo de contacto</label>
@@ -227,7 +227,7 @@
               </div>
               <div v-if="editandoEmpresa" class="ide-field" style="display:flex;align-items:center;gap:10px;padding-top:20px;">
                 <div class="ide-toggle" :class="{ 'ide-toggle--on': formEmpresa.activo }" @click="formEmpresa.activo = !formEmpresa.activo"><div></div></div>
-                <span style="font-size:13px;color:#cbd5e1;">{{ formEmpresa.activo ? 'Empresa activa' : 'Empresa inactiva' }}</span>
+                <span style="font-size:13px;color:var(--scroll);">{{ formEmpresa.activo ? 'Empresa activa' : 'Empresa inactiva' }}</span>
               </div>
               <div class="ide-field ct-form-full">
                 <label>Días de atención</label>
@@ -269,7 +269,7 @@
           <div class="ct-modal-header">
             <div>
               <span>{{ editandoUsuario ? 'Editar usuario' : 'Nuevo usuario' }}</span>
-              <div v-if="empresaSeleccionada" style="font-size:10px;color:#475569;margin-top:2px;">{{ empresaSeleccionada.nombre }}</div>
+              <div v-if="empresaSeleccionada" style="font-size:10px;color:var(--t5);margin-top:2px;">{{ empresaSeleccionada.nombre }}</div>
             </div>
             <button class="ct-modal-close" @click="cerrarDialogUsuario">✕</button>
           </div>
@@ -316,10 +316,10 @@
 
             <!-- Sucursales -->
             <div style="margin-top:16px;">
-              <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">
+              <div style="font-size:11px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">
                 Sucursales asignadas
               </div>
-              <div v-if="!sucursalesEmp.length" style="font-size:12px;color:#334155;font-style:italic;">
+              <div v-if="!sucursalesEmp.length" style="font-size:12px;color:var(--b3);font-style:italic;">
                 No hay sucursales creadas para esta empresa aún.
               </div>
               <div v-else style="display:flex;flex-wrap:wrap;gap:8px;">
@@ -328,7 +328,7 @@
                   :class="['usr-suc-sel', formUsuario.sucursales.includes(s.id) ? 'usr-suc-sel--on' : '']"
                   @click="toggleSucursalForm(s.id)"
                 >
-                  <span class="emp-dot-sm" :style="{ background: s.esPrincipal ? '#6366f1' : '#334155' }"></span>
+                  <span class="emp-dot-sm" :style="{ background: s.esPrincipal ? '#6366f1' : 'var(--b3)' }"></span>
                   {{ s.nombre }}
                 </label>
               </div>
@@ -413,7 +413,7 @@ export default {
     // ── Helpers ────────────────────────────────────────────
 
     avatarColor(nombre) { return COLORS[nombre.charCodeAt(0) % COLORS.length]; },
-    rolColor(rol) { return ROL_COLORS[rol] || '#64748b'; },
+    rolColor(rol) { return ROL_COLORS[rol] || 'var(--t4)'; },
     iniciales(u) {
       return ((u.nombres?.[0] || '') + (u.apellidos?.[0] || u.nombres?.[1] || '')).toUpperCase();
     },
@@ -642,8 +642,8 @@ export default {
 </script>
 
 <style scoped>
-.section-title    { font-size: 22px; font-weight: 800; color: #f1f5f9; margin-bottom: 4px; }
-.section-subtitle { font-size: 13px; color: #64748b; margin: 0; }
+.section-title    { font-size: 22px; font-weight: 800; color: var(--t1); margin-bottom: 4px; }
+.section-subtitle { font-size: 13px; color: var(--t4); margin: 0; }
 
 .ct-new-btn {
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
@@ -658,7 +658,7 @@ export default {
   display: flex; align-items: center; gap: 6px;
   background: #22c55e18; border: 1px solid #22c55e33;
   border-radius: 8px; padding: 6px 10px;
-  font-size: 12px; color: #94a3b8; white-space: nowrap;
+  font-size: 12px; color: var(--t3); white-space: nowrap;
 }
 .emp-activa-badge strong { color: #4ade80; }
 .emp-dot {
@@ -671,7 +671,7 @@ export default {
 }
 @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
 .emp-salir-btn {
-  background: none; border: none; color: #475569;
+  background: none; border: none; color: var(--t5);
   cursor: pointer; font-size: 11px; padding: 0 2px; border-radius: 3px;
 }
 .emp-salir-btn:hover { color: #ef4444; }
@@ -679,7 +679,7 @@ export default {
 /* Spinner */
 .ct-spinner {
   width: 32px; height: 32px; border-radius: 50%;
-  border: 3px solid #1e3a5f44; border-top-color: #6366f1;
+  border: 3px solid var(--b1); border-top-color: #6366f1;
   animation: spin 0.8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -704,9 +704,9 @@ export default {
 
 .ct-info-row {
   display: flex; align-items: center; gap: 6px;
-  font-size: 12px; color: #94a3b8; margin-top: 5px;
+  font-size: 12px; color: var(--t3); margin-top: 5px;
 }
-.ct-info-row svg { flex-shrink: 0; color: #475569; }
+.ct-info-row svg { flex-shrink: 0; color: var(--t5); }
 
 /* Card buttons */
 .emp-acceder-btn {
@@ -730,8 +730,8 @@ export default {
 .emp-usuarios-btn:hover { background: #0ea5e922; border-color: #0ea5e955; }
 
 .ct-action-btn {
-  background: #1e293b; border: 1px solid #334155;
-  border-radius: 7px; color: #64748b;
+  background: var(--bg-c); border: 1px solid var(--b3);
+  border-radius: 7px; color: var(--t4);
   padding: 5px; cursor: pointer; display: flex;
   align-items: center; justify-content: center; transition: all 0.15s;
 }
@@ -741,13 +741,13 @@ export default {
 /* Back button */
 .emp-back-btn {
   display: flex; align-items: center; gap: 6px;
-  background: #1e293b; border: 1px solid #334155;
-  border-radius: 8px; color: #94a3b8;
+  background: var(--bg-c); border: 1px solid var(--b3);
+  border-radius: 8px; color: var(--t3);
   padding: 7px 12px; font-size: 12px; font-weight: 600;
   cursor: pointer; transition: all 0.15s; font-family: inherit;
 }
 .emp-back-btn:hover { border-color: #6366f1; color: #818cf8; }
-.emp-breadcrumb-sep { color: #334155; font-size: 18px; font-weight: 300; }
+.emp-breadcrumb-sep { color: var(--b3); font-size: 18px; font-weight: 300; }
 
 /* Usuarios grid */
 .usr-grid {
@@ -777,18 +777,18 @@ export default {
 .usr-suc-sel {
   display: flex; align-items: center; gap: 6px;
   padding: 5px 10px; border-radius: 8px;
-  border: 1px solid #1e3a5f44; background: #0f172a;
-  color: #64748b; font-size: 11px; font-weight: 600;
+  border: 1px solid var(--b1); background: var(--bg-e);
+  color: var(--t4); font-size: 11px; font-weight: 600;
   cursor: pointer; transition: all 0.15s; user-select: none;
 }
-.usr-suc-sel:hover { border-color: #6366f133; color: #94a3b8; }
+.usr-suc-sel:hover { border-color: #6366f133; color: var(--t3); }
 .usr-suc-sel--on { background: #6366f114; border-color: #6366f144; color: #818cf8; }
 
 /* Dias form */
 .emp-dia {
   padding: 4px 10px; border-radius: 6px;
-  background: #0f172a; border: 1px solid #1e3a5f44;
-  font-size: 11px; font-weight: 600; color: #64748b;
+  background: var(--bg-e); border: 1px solid var(--b1);
+  font-size: 11px; font-weight: 600; color: var(--t4);
   cursor: pointer; user-select: none; transition: all 0.12s;
 }
 .emp-dia--on { background: #6366f122; border-color: #6366f144; color: #818cf8; }

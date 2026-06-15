@@ -80,7 +80,7 @@
                     <div class="rm-card-row">
                       <div class="rm-avatar rm-avatar--gray">{{ (rep.nombre || '?')[0].toUpperCase() }}</div>
                       <div class="rm-card-info">
-                        <div class="rm-card-name" style="color:#94a3b8;">{{ rep.nombre }}</div>
+                        <div class="rm-card-name" style="color:var(--t3);">{{ rep.nombre }}</div>
                         <div v-if="rep.cargo" class="rm-card-meta">{{ rep.cargo }}</div>
                         <div class="rm-card-date">
                           {{ rep.fechaInicio || '—' }}
@@ -145,7 +145,7 @@
               <template v-if="!editingRep">
                 <div class="ide-field ct-form-full" style="flex-direction:row;align-items:center;gap:10px;padding-top:6px;">
                   <input id="chk-reemplazar" v-model="form.reemplazarActual" type="checkbox" style="width:15px;height:15px;cursor:pointer;flex-shrink:0;" />
-                  <label for="chk-reemplazar" style="cursor:pointer;font-size:12px;font-weight:600;color:#94a3b8;margin:0;">
+                  <label for="chk-reemplazar" style="cursor:pointer;font-size:12px;font-weight:600;color:var(--t3);margin:0;">
                     Reemplaza al representante actual (lo da de baja automáticamente)
                   </label>
                 </div>
@@ -180,8 +180,8 @@
             <button class="rm-close" @click="bajaDialog = false">✕</button>
           </div>
           <div class="rm-sub-body">
-            <p style="font-size:13px;color:#94a3b8;margin-bottom:16px;">
-              <strong style="color:#e2e8f0;">{{ repParaBaja && repParaBaja.nombre }}</strong> quedará en el historial para trazabilidad. No se eliminará.
+            <p style="font-size:13px;color:var(--t3);margin-bottom:16px;">
+              <strong style="color:var(--t2);">{{ repParaBaja && repParaBaja.nombre }}</strong> quedará en el historial para trazabilidad. No se eliminará.
             </p>
             <div class="ct-form-grid">
               <div class="ide-field">
@@ -332,7 +332,7 @@ export default {
   padding: 20px;
 }
 .rm-modal {
-  background: #0d1526; border: 1px solid #1e3a5f66;
+  background: var(--bg-s); border: 1px solid var(--b4);
   border-radius: 14px; width: 100%; max-width: 560px;
   max-height: 88vh; display: flex; flex-direction: column;
   overflow: hidden;
@@ -346,7 +346,7 @@ export default {
   padding: 20px;
 }
 .rm-sub-modal {
-  background: #0d1526; border: 1px solid #1e3a5f66;
+  background: var(--bg-s); border: 1px solid var(--b4);
   border-radius: 14px; width: 100%; max-width: 520px;
   max-height: 90vh; display: flex; flex-direction: column;
   overflow: hidden;
@@ -355,13 +355,13 @@ export default {
 /* Header compartido */
 .rm-header {
   display: flex; align-items: flex-start; justify-content: space-between;
-  padding: 16px 20px; border-bottom: 1px solid #1e3a5f44;
+  padding: 16px 20px; border-bottom: 1px solid var(--b1);
   flex-shrink: 0;
 }
-.rm-title   { font-size: 15px; font-weight: 800; color: #f1f5f9; }
-.rm-subtitle { font-size: 11px; color: #64748b; margin-top: 2px; }
+.rm-title   { font-size: 15px; font-weight: 800; color: var(--t1); }
+.rm-subtitle { font-size: 11px; color: var(--t4); margin-top: 2px; }
 .rm-close {
-  background: none; border: none; color: #64748b;
+  background: none; border: none; color: var(--t4);
   cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 6px;
   flex-shrink: 0;
 }
@@ -373,35 +373,35 @@ export default {
 
 /* Footer */
 .rm-footer {
-  padding: 12px 20px; border-top: 1px solid #1e3a5f44;
+  padding: 12px 20px; border-top: 1px solid var(--b1);
   flex-shrink: 0;
 }
 
 /* Section labels */
 .rm-section-label {
   display: flex; align-items: center; gap: 6px;
-  font-size: 11px; font-weight: 700; color: #64748b;
+  font-size: 11px; font-weight: 700; color: var(--t4);
   text-transform: uppercase; letter-spacing: 0.6px;
   margin-bottom: 8px;
 }
-.rm-toggle-label { margin-left: auto; font-size: 10px; color: #475569; }
+.rm-toggle-label { margin-left: auto; font-size: 10px; color: var(--t5); }
 
 /* Dots */
 .rm-dot       { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 .rm-dot--green { background: #22c55e; }
-.rm-dot--gray  { background: #475569; }
+.rm-dot--gray  { background: var(--t5); }
 
 /* Empty state */
-.rm-empty { font-size: 13px; color: #475569; padding: 10px 0; }
+.rm-empty { font-size: 13px; color: var(--t5); padding: 10px 0; }
 .rm-link  { color: #6366f1; cursor: pointer; text-decoration: underline; }
 
 /* Cards */
 .rm-card {
-  background: #1e293b; border: 1px solid #1e3a5f44;
+  background: var(--bg-c); border: 1px solid var(--b1);
   border-radius: 10px; padding: 12px; margin-bottom: 8px;
 }
 .rm-card--historic {
-  background: #161d2f; border-color: #1e3a5f22; opacity: 0.8;
+  background: var(--bg-n); border-color: var(--b2); opacity: 0.8;
 }
 .rm-card-row {
   display: flex; align-items: flex-start; gap: 10px;
@@ -414,39 +414,39 @@ export default {
   display: flex; align-items: center; justify-content: center;
   font-size: 15px; font-weight: 800;
 }
-.rm-avatar--gray { background: #33415522; color: #64748b; }
+.rm-avatar--gray { background: var(--b2); color: var(--t4); }
 
 /* Card info */
 .rm-card-info  { flex: 1; min-width: 0; }
-.rm-card-name  { font-size: 13px; font-weight: 700; color: #e2e8f0; }
-.rm-card-meta  { font-size: 11px; color: #64748b; margin-top: 2px; }
-.rm-card-date  { font-size: 11px; color: #475569; margin-top: 3px; }
-.rm-card-notes { font-size: 11px; color: #64748b; margin-top: 4px; font-style: italic; }
+.rm-card-name  { font-size: 13px; font-weight: 700; color: var(--t2); }
+.rm-card-meta  { font-size: 11px; color: var(--t4); margin-top: 2px; }
+.rm-card-date  { font-size: 11px; color: var(--t5); margin-top: 3px; }
+.rm-card-notes { font-size: 11px; color: var(--t4); margin-top: 4px; font-style: italic; }
 .rm-card-contacts {
   display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px;
 }
 .rm-contact-item {
   display: flex; align-items: center; gap: 4px;
-  font-size: 11px; color: #94a3b8;
+  font-size: 11px; color: var(--t3);
 }
 
 /* Action buttons */
 .rm-card-actions { display: flex; gap: 4px; flex-shrink: 0; }
 .rm-btn {
-  background: #0f172a; border-radius: 6px; padding: 5px;
+  background: var(--bg-e); border-radius: 6px; padding: 5px;
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: all 0.15s; border: 1px solid #1e3a5f44;
+  cursor: pointer; transition: all 0.15s; border: 1px solid var(--b1);
 }
 .rm-btn--edit:hover  { border-color: #6366f1; color: #818cf8; }
 .rm-btn--baja:hover  { border-color: #f59e0b; color: #fbbf24; }
 .rm-btn--del:hover   { border-color: #ef4444; color: #f87171; }
-.rm-btn svg { color: #64748b; }
+.rm-btn svg { color: var(--t4); }
 .rm-btn:hover svg { color: inherit; }
 
 /* Spinner */
 .ct-spinner {
   width: 28px; height: 28px; border-radius: 50%;
-  border: 3px solid #1e3a5f44; border-top-color: #6366f1;
+  border: 3px solid var(--b1); border-top-color: #6366f1;
   animation: spin 0.8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
