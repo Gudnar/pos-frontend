@@ -153,8 +153,8 @@
               </div>
               <div style="margin-top:8px; font-size:11px; font-weight:700; color:var(--t4); margin-bottom:4px;">Token de verificación</div>
               <div style="display:flex; align-items:center; gap:8px;">
-                <code style="font-size:11px; color:#818cf8;">{{ waForm.verifyToken || 'ide_ia_verify_token' }}</code>
-                <button class="cfg-copy-btn" @click="copiar(waForm.verifyToken || 'ide_ia_verify_token')">Copiar</button>
+                <code style="font-size:11px; color:#818cf8;">{{ waForm.verifyToken || '(sin configurar)' }}</code>
+                <button v-if="waForm.verifyToken" class="cfg-copy-btn" @click="copiar(waForm.verifyToken)">Copiar</button>
               </div>
             </div>
           </div>
@@ -320,8 +320,8 @@
               </div>
               <div style="margin-top:8px; font-size:11px; font-weight:700; color:var(--t4); margin-bottom:4px;">Token de verificación</div>
               <div style="display:flex; align-items:center; gap:8px;">
-                <code style="font-size:11px; color:#818cf8;">{{ fbForm.verifyToken || 'fb_verify_token' }}</code>
-                <button class="cfg-copy-btn" @click="copiar(fbForm.verifyToken || 'fb_verify_token')">Copiar</button>
+                <code style="font-size:11px; color:#818cf8;">{{ fbForm.verifyToken || '(sin configurar)' }}</code>
+                <button v-if="fbForm.verifyToken" class="cfg-copy-btn" @click="copiar(fbForm.verifyToken)">Copiar</button>
               </div>
             </div>
           </div>
@@ -555,7 +555,7 @@ export default {
         accessToken: '',
         phoneNumberId: '',
         wabaId: '',
-        verifyToken: 'ide_ia_verify_token',
+        verifyToken: '',
         agenteId: '',
         enabled: false,
       },
@@ -565,7 +565,7 @@ export default {
       showWaToken: false,
       // Facebook
       fbForm: {
-        pageAccessToken: '', pageId: '', verifyToken: 'fb_verify_token',
+        pageAccessToken: '', pageId: '', verifyToken: '',
         messengerAgenteId: '', commentsAgenteId: '', enabled: false, replyComments: true,
       },
       fbTestResult: null,
@@ -679,7 +679,7 @@ export default {
         if (!cfg) return;
         this.waForm.phoneNumberId = cfg.phoneNumberId || '';
         this.waForm.wabaId        = cfg.wabaId        || '';
-        this.waForm.verifyToken   = cfg.verifyToken   || 'ide_ia_verify_token';
+        this.waForm.verifyToken   = cfg.verifyToken   || '';
         this.waForm.agenteId      = cfg.agenteId      || '';
         this.waForm.enabled       = cfg.enabled       || false;
       } catch (_e) { /* silently ignore */ }
@@ -815,7 +815,7 @@ export default {
         const cfg = await this.$service.get('facebook/config');
         if (!cfg) return;
         this.fbForm.pageId            = cfg.pageId            || '';
-        this.fbForm.verifyToken       = cfg.verifyToken       || 'fb_verify_token';
+        this.fbForm.verifyToken       = cfg.verifyToken       || '';
         this.fbForm.messengerAgenteId = cfg.messengerAgenteId || '';
         this.fbForm.commentsAgenteId  = cfg.commentsAgenteId  || '';
         this.fbForm.enabled           = cfg.enabled           || false;
@@ -914,7 +914,7 @@ export default {
 </script>
 
 <style scoped>
-.cfg-info-card  { background: #1a0f0a; border: 1px solid #c9644244; border-radius: 8px; padding: 14px; margin-bottom: 16px; }
+.cfg-info-card  { background: var(--bg-e); border: 1px solid #c9644244; border-radius: 8px; padding: 14px; margin-bottom: 16px; }
 .cfg-step-num   { width: 18px; height: 18px; border-radius: 50%; background: #c9644233; color: #e8956d; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
 .cfg-form-row   { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 4px; }
 .cfg-result     { padding: 10px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; line-height: 1.5; margin-top: 12px; }
