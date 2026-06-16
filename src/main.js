@@ -29,7 +29,7 @@ Vue.use(Util);
 Vue.use(Components);
 
 Vue.use(Service, {
-  baseServer: process.env.VUE_APP_BASE_SERVER || 'http://localhost:3001/api/',
+  baseServer: process.env.VUE_APP_BASE_SERVER,
   authToken: process.env.VUE_APP_AUTH_TOKEN || 'Bearer',
 });
 

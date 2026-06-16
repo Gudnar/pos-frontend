@@ -5,7 +5,7 @@ module.exports = {
     port: 8084,
     proxy: {
       '/api': {
-        target: process.env.VUE_APP_BASE_SERVER || 'http://localhost:3001',
+        target: process.env.VUE_APP_BASE_SERVER,
         changeOrigin: true,
       },
     },
