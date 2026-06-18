@@ -21,9 +21,34 @@
           <option value="RETIRADO">Retirado</option>
         </select>
       </div>
-      <div class="ide-field" style="min-width:220px;flex:2;">
-        <label>Buscar (producto, lote, interno)</label>
-        <input v-model="filtro.search" class="ide-input" placeholder="Buscar…" @input="buscarConDebounce" />
+      <div class="ide-field" style="min-width:260px;flex:2;position:relative;">
+        <label>Producto</label>
+        <div style="position:relative;">
+          <input
+            v-model="busquedaProd"
+            class="ide-input"
+            placeholder="Buscar por categoría, subcategoría o producto..."
+            autocomplete="off"
+            @input="onInputProd"
+            @focus="busquedaProd && (dropProdVisible = true)"
+            @blur="ocultarDropProd"
+            @keydown="onKeydownProd"
+          />
+          <button v-if="filtro.productoId || busquedaProd" class="inv-clear-btn" @mousedown.prevent="limpiarProd">✕</button>
+        </div>
+        <div v-if="dropProdVisible && filtrarProductosDrop.length" ref="dropProd" class="cp-prod-drop" style="position:absolute;top:100%;left:0;right:0;z-index:200;">
+          <div
+            v-for="(p, idx) in filtrarProductosDrop"
+            :key="p.id"
+            class="cp-drop-item"
+            :class="{ 'cp-drop-item--active': idx === dropProdIdx }"
+            @mousedown.prevent="seleccionarProducto(p)"
+          >
+            <div style="flex:1;min-width:0;">
+              <span v-if="p.categoriaNombre || p.subcategoriaNombre" class="cp-drop-path">{{ [p.categoriaNombre, p.subcategoriaNombre].filter(Boolean).join(' › ') }} › </span><span class="cp-drop-nombre">{{ p.nombre }}</span>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="ide-field" style="padding-top:18px;">
         <button class="ct-btn-cancel" @click="limpiar">Limpiar</button>
@@ -50,7 +75,12 @@
         </thead>
         <tbody>
           <tr v-for="l in lotes" :key="l.id" class="inv-tr">
-            <td style="font-weight:600;color:var(--t2);">{{ l.productoNombre || '—' }}</td>
+            <td class="inv-prod-cell">
+              <template v-if="rutaMap.get(l.productoId)">
+                <span class="inv-prod-path">{{ [rutaMap.get(l.productoId).categoriaNombre, rutaMap.get(l.productoId).subcategoriaNombre].filter(Boolean).join(' › ') }} ›&nbsp;</span><span class="inv-prod-nombre">{{ l.productoNombre || '—' }}</span>
+              </template>
+              <span v-else class="inv-prod-nombre">{{ l.productoNombre || '—' }}</span>
+            </td>
             <td class="inv-mono">{{ l.nroLote || '—' }}</td>
             <td class="inv-mono" style="color:var(--t4);">{{ l.loteInterno || '—' }}</td>
             <td style="color:var(--t3);font-size:11px;">{{ l.fechaIngreso || '—' }}</td>
@@ -137,16 +167,34 @@ export default {
   name: 'InventarioLotes',
   data: () => ({
     lotes: [], loading: false,
-    filtro: { sucursalId: '', estadoLote: 'ACTIVO', search: '' },
+    filtro: { sucursalId: '', estadoLote: 'ACTIVO', productoId: '' },
+    productos: [], rutaMap: new Map(),
+    busquedaProd: '', dropProdVisible: false, dropProdIdx: -1,
     modalLote: null, loadingDetalle: false,
-    debounceTimer: null,
   }),
   computed: {
     sucursales() { return this.$store.getters.sucursales || [] },
+    filtrarProductosDrop() {
+      const t = (this.busquedaProd || '').toLowerCase().trim()
+      if (!t) return []
+      const res = []
+      for (const p of this.productos) {
+        if (p.activo === false || p.estado === 'ELIMINADO') continue
+        if (
+          p.nombre.toLowerCase().includes(t) ||
+          (p.subcategoriaNombre && p.subcategoriaNombre.toLowerCase().includes(t)) ||
+          (p.categoriaNombre && p.categoriaNombre.toLowerCase().includes(t)) ||
+          (p.codigoBarras && p.codigoBarras.toLowerCase().includes(t)) ||
+          (p.codigoTienda && p.codigoTienda.toLowerCase().includes(t))
+        ) { res.push(p); if (res.length >= 20) break }
+      }
+      return res
+    },
   },
   created() {
     const s = this.$store.getters.sucursalActualId
     if (s) this.filtro.sucursalId = s
+    this.cargarProductos()
     this.cargar()
   },
   methods: {
@@ -154,21 +202,70 @@ export default {
       this.loading = true
       const f = this.filtro
       const parts = []
-      if (f.sucursalId)  parts.push(`sucursalId=${f.sucursalId}`)
-      if (f.estadoLote)  parts.push(`estadoLote=${f.estadoLote}`)
-      if (f.search)      parts.push(`search=${encodeURIComponent(f.search)}`)
+      if (f.sucursalId) parts.push(`sucursalId=${f.sucursalId}`)
+      if (f.estadoLote) parts.push(`estadoLote=${f.estadoLote}`)
+      if (f.productoId) {
+        const prod = this.productos.find(p => p.id === f.productoId)
+        if (prod) parts.push(`search=${encodeURIComponent(prod.nombre)}`)
+      }
       const qs = parts.length ? '?' + parts.join('&') : ''
       try {
         this.lotes = await this.$service.list(`lotes/todos${qs}`) || []
       } finally { this.loading = false }
     },
-    buscarConDebounce() {
-      clearTimeout(this.debounceTimer)
-      this.debounceTimer = setTimeout(() => this.cargar(), 400)
+    async cargarProductos() {
+      try {
+        const [prods, subs, cats] = await Promise.all([
+          this.$service.list('productos?soloActivos=true').catch(() => []),
+          this.$service.list('subcategorias-producto?soloActivos=true').catch(() => []),
+          this.$service.list('categorias-producto?soloActivos=true').catch(() => []),
+        ])
+        const subMap = new Map((subs || []).map(s => [s.id, s]))
+        const catMap = new Map((cats || []).map(c => [c.id, c]))
+        this.productos = (prods || []).map(p => {
+          const sub = subMap.get(p.subcategoriaId)
+          const cat = sub ? catMap.get(sub.categoriaId) : null
+          return { ...p, subcategoriaNombre: sub?.nombre || '', categoriaNombre: cat?.nombre || '' }
+        })
+        this.rutaMap = new Map(this.productos.map(p => [p.id, { categoriaNombre: p.categoriaNombre, subcategoriaNombre: p.subcategoriaNombre }]))
+      } catch { this.productos = [] }
     },
     limpiar() {
-      this.filtro = { sucursalId: '', estadoLote: 'ACTIVO', search: '' }
+      this.filtro = { sucursalId: '', estadoLote: 'ACTIVO', productoId: '' }
+      this.busquedaProd = ''; this.dropProdVisible = false; this.dropProdIdx = -1
       this.cargar()
+    },
+    limpiarProd() {
+      this.filtro.productoId = ''; this.busquedaProd = ''
+      this.dropProdVisible = false; this.dropProdIdx = -1
+      this.cargar()
+    },
+    onInputProd() { this.dropProdVisible = true; this.dropProdIdx = -1 },
+    ocultarDropProd() { setTimeout(() => { this.dropProdVisible = false; this.dropProdIdx = -1 }, 150) },
+    seleccionarProducto(p) {
+      this.filtro.productoId = p.id
+      this.busquedaProd = [p.categoriaNombre, p.subcategoriaNombre, p.nombre].filter(Boolean).join(' › ')
+      this.dropProdVisible = false; this.dropProdIdx = -1
+      this.cargar()
+    },
+    onKeydownProd(e) {
+      const items = this.filtrarProductosDrop
+      if (!this.dropProdVisible || !items.length) return
+      if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        this.dropProdIdx = this.dropProdIdx < items.length - 1 ? this.dropProdIdx + 1 : 0
+        this.$nextTick(() => { const el = this.$refs.dropProd?.children[this.dropProdIdx]; el?.scrollIntoView({ block: 'nearest' }) })
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        this.dropProdIdx = this.dropProdIdx > 0 ? this.dropProdIdx - 1 : items.length - 1
+        this.$nextTick(() => { const el = this.$refs.dropProd?.children[this.dropProdIdx]; el?.scrollIntoView({ block: 'nearest' }) })
+      } else if (e.key === 'Enter') {
+        e.preventDefault()
+        const sel = this.dropProdIdx >= 0 ? items[this.dropProdIdx] : (items.length === 1 ? items[0] : null)
+        if (sel) this.seleccionarProducto(sel)
+      } else if (e.key === 'Escape') {
+        this.dropProdVisible = false; this.dropProdIdx = -1
+      }
     },
     async verDetalle(lote) {
       this.modalLote = { lote: null, movimientos: [] }
@@ -234,4 +331,15 @@ export default {
 .ct-modal-body { padding:16px 18px; overflow:auto; }
 .ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid var(--b1); border-top-color:#6366f1; animation:spin .8s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
+.inv-prod-cell { max-width:300px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.inv-prod-path { font-size:11px; color:var(--t4); font-weight:500; }
+.inv-prod-nombre { font-size:12px; font-weight:700; color:var(--t2); }
+.inv-clear-btn { position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--t4); cursor:pointer; font-size:11px; padding:2px 4px; line-height:1; }
+.inv-clear-btn:hover { color:var(--t2); }
+.cp-prod-drop { background:var(--bg-s); border:1px solid var(--b1); border-radius:8px; box-shadow:0 8px 24px #0006; max-height:260px; overflow-y:auto; }
+.cp-drop-item { display:flex; align-items:center; gap:8px; padding:8px 12px; cursor:pointer; border-bottom:1px solid var(--b2); }
+.cp-drop-item:last-child { border-bottom:none; }
+.cp-drop-item:hover, .cp-drop-item--active { background:var(--bg-c); }
+.cp-drop-path { font-size:10px; color:var(--t4); }
+.cp-drop-nombre { font-size:12px; font-weight:600; color:var(--t2); }
 </style>

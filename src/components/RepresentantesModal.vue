@@ -134,11 +134,17 @@
               </div>
               <div class="ide-field">
                 <label>Teléfono</label>
-                <input v-model="form.telefono" class="ide-input" placeholder="+591 7XXXXXXX" />
+                <div style="display:flex;gap:6px;">
+                  <div style="position:relative;flex-shrink:0;">
+                    <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--t5);pointer-events:none;">+</span>
+                    <input v-model="form.telefonoCodigo" class="ide-input" style="width:66px;padding-left:20px;" placeholder="591" maxlength="5" />
+                  </div>
+                  <input v-model="form.telefonoNumero" class="ide-input" placeholder="Número de teléfono" />
+                </div>
               </div>
               <div class="ide-field">
-                <label>Email</label>
-                <input v-model="form.email" class="ide-input" type="email" placeholder="correo@empresa.com" />
+                <label>Email <span style="color:var(--t5);font-weight:400;">(opcional)</span></label>
+                <input v-model="form.email" class="ide-input" placeholder="correo@empresa.com" />
               </div>
 
               <!-- Solo al crear -->
@@ -211,7 +217,8 @@
 const emptyForm = () => ({
   nombre: '',
   cargo: '',
-  telefono: '',
+  telefonoCodigo: '591',
+  telefonoNumero: '',
   email: '',
   fechaInicio: new Date().toISOString().split('T')[0],
   reemplazarActual: false,
@@ -263,7 +270,19 @@ export default {
 
     abrirForm(rep = null) {
       this.editingRep = rep
-      this.form = rep ? { ...emptyForm(), ...rep } : emptyForm()
+      const base = rep ? { ...emptyForm(), ...rep } : emptyForm()
+      if (rep && rep.telefono) {
+        const clean = rep.telefono.startsWith('+') ? rep.telefono.slice(1) : rep.telefono
+        const m = clean.match(/^(\d{1,4})[\s\-.]+(.+)$/)
+        if (m) {
+          base.telefonoCodigo = m[1]
+          base.telefonoNumero = m[2].trim()
+        } else {
+          base.telefonoCodigo = '591'
+          base.telefonoNumero = rep.telefono
+        }
+      }
+      this.form = base
       this.formDialog = true
     },
 
@@ -272,13 +291,25 @@ export default {
         this.$message.error('El nombre es obligatorio')
         return
       }
+      const tel = (this.form.telefonoNumero || '').trim()
+      const codigo = (this.form.telefonoCodigo || '591').trim()
+      const payload = {
+        nombre: this.form.nombre,
+        cargo: this.form.cargo,
+        telefono: tel ? `+${codigo} ${tel}` : '',
+        email: this.form.email,
+        fechaInicio: this.form.fechaInicio,
+        reemplazarActual: this.form.reemplazarActual,
+        motivoCambio: this.form.motivoCambio,
+        notas: this.form.notas,
+      }
       this.saving = true
       try {
         if (this.editingRep) {
-          await this.$service.put(`${this.endpoint}/${this.editingRep.id}`, this.form)
+          await this.$service.put(`${this.endpoint}/${this.editingRep.id}`, payload)
           this.$message.success('Representante actualizado')
         } else {
-          await this.$service.post(this.endpoint, this.form)
+          await this.$service.post(this.endpoint, payload)
           this.$message.success('Representante agregado')
         }
         this.formDialog = false

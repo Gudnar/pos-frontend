@@ -58,7 +58,9 @@
         <tbody>
           <tr v-for="r in filasFiltradas" :key="r.productoId + (r.sucursalId||'')" class="inv-tr">
             <td class="inv-mono">{{ r.codigo || '—' }}</td>
-            <td style="font-weight:600;color:var(--t2);">{{ r.productoNombre || '—' }}</td>
+            <td class="inv-prod-cell">
+              <span v-if="rutaMap.get(r.productoId)" class="inv-prod-path">{{ [rutaMap.get(r.productoId).categoriaNombre, rutaMap.get(r.productoId).subcategoriaNombre].filter(Boolean).join(' › ') }} ›&nbsp;</span><span class="inv-prod-nombre">{{ r.productoNombre || '—' }}</span>
+            </td>
             <td style="text-align:right;font-weight:800;color:#4ade80;">{{ fmt(r.stockTotal) }}</td>
             <td style="text-align:center;color:var(--t3);">{{ r.nroLotes }}</td>
             <td style="text-align:right;color:var(--t4);">{{ r.precioCosto ? 'Bs ' + fmt(r.precioCosto) : '—' }}</td>
@@ -91,7 +93,7 @@
 export default {
   name: 'InventarioReporteGeneral',
   data: () => ({
-    filas: [], filasFiltradas: [], loading: false,
+    filas: [], filasFiltradas: [], loading: false, rutaMap: new Map(),
     filtro: { sucursalId: '' },
     busqueda: '',
   }),
@@ -110,8 +112,25 @@ export default {
     const s = this.$store.getters.sucursalActualId
     if (s) this.filtro.sucursalId = s
     this.cargar()
+    this.cargarRutaMap()
   },
   methods: {
+    async cargarRutaMap() {
+      try {
+        const [prods, subs, cats] = await Promise.all([
+          this.$service.list('productos?soloActivos=true').catch(() => []),
+          this.$service.list('subcategorias-producto?soloActivos=true').catch(() => []),
+          this.$service.list('categorias-producto?soloActivos=true').catch(() => []),
+        ])
+        const subMap = new Map((subs || []).map(s => [s.id, s]))
+        const catMap = new Map((cats || []).map(c => [c.id, c]))
+        this.rutaMap = new Map((prods || []).map(p => {
+          const sub = subMap.get(p.subcategoriaId)
+          const cat = sub ? catMap.get(sub.categoriaId) : null
+          return [p.id, { categoriaNombre: cat?.nombre || '', subcategoriaNombre: sub?.nombre || '' }]
+        }))
+      } catch { this.rutaMap = new Map() }
+    },
     async cargar() {
       this.loading = true
       const qs = this.filtro.sucursalId ? `?sucursalId=${this.filtro.sucursalId}` : ''
@@ -121,10 +140,16 @@ export default {
       } finally { this.loading = false }
     },
     filtrarLocal() {
-      const q = this.busqueda.toLowerCase()
-      this.filasFiltradas = q
-        ? this.filas.filter(r => r.productoNombre?.toLowerCase().includes(q) || r.codigo?.toLowerCase().includes(q))
-        : [...this.filas]
+      const q = this.busqueda.toLowerCase().trim()
+      if (!q) { this.filasFiltradas = [...this.filas]; return }
+      this.filasFiltradas = this.filas.filter(r => {
+        if (r.productoNombre?.toLowerCase().includes(q)) return true
+        if (r.codigo?.toLowerCase().includes(q)) return true
+        const ruta = this.rutaMap.get(r.productoId)
+        if (ruta?.categoriaNombre?.toLowerCase().includes(q)) return true
+        if (ruta?.subcategoriaNombre?.toLowerCase().includes(q)) return true
+        return false
+      })
     },
     limpiar() { this.filtro.sucursalId = ''; this.busqueda = ''; this.cargar() },
     fmt(v) { return Number(v || 0).toFixed(2) },
@@ -150,4 +175,7 @@ export default {
 .inv-mono { font-family:monospace; font-size:11px; color:#818cf8; }
 .ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid var(--b1); border-top-color:#6366f1; animation:spin .8s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
+.inv-prod-cell { max-width:280px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.inv-prod-path { font-size:10px; color:var(--t4); font-weight:500; }
+.inv-prod-nombre { font-size:12px; font-weight:700; color:var(--t2); }
 </style>

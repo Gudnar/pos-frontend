@@ -203,6 +203,9 @@ input, textarea, select { transition: background-color 0.25s, color 0.25s, borde
   overflow: hidden; box-shadow: 0 20px 60px #00000044;
   transition: background 0.25s;
 }
+.ct-modal--xl {
+  max-width: 1100px;
+}
 .ct-modal-header {
   display: flex; align-items: center; justify-content: space-between;
   padding: 16px 20px; border-bottom: 1px solid var(--b1);

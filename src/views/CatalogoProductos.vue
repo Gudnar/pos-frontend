@@ -348,6 +348,12 @@
           </div>
           <div class="ct-modal-body">
             <div class="ct-form-grid">
+              <div v-if="editandoProd" class="ide-field ct-form-full">
+                <label style="color:var(--t4);">Categoría / Subcategoría</label>
+                <div class="ide-input" style="background:var(--bg-e);color:var(--t4);cursor:default;user-select:none;">
+                  {{ selectedCat && selectedCat.nombre }} › {{ selectedSub && selectedSub.nombre }}
+                </div>
+              </div>
               <div class="ide-field ct-form-full">
                 <label>Nombre *</label>
                 <input v-model="prodForm.nombre" class="ide-input" placeholder="Nombre del producto" />
@@ -425,7 +431,13 @@
         <div class="ct-modal" style="max-width:640px;">
           <div class="ct-modal-header">
             <div>
-              <div style="font-weight:800;color:var(--t1);">{{ selectedProd && selectedProd.nombre }}</div>
+              <div style="font-weight:800;color:var(--t1);">
+                <span style="color:var(--t4);font-weight:400;">{{ selectedCat && selectedCat.nombre }}</span>
+                <span style="color:var(--t4);margin:0 6px;">›</span>
+                <span style="color:var(--t4);font-weight:400;">{{ selectedSub && selectedSub.nombre }}</span>
+                <span style="color:var(--t4);margin:0 6px;">›</span>
+                {{ selectedProd && selectedProd.nombre }}
+              </div>
               <div style="font-size:11px;color:var(--t4);">Gestión de precios</div>
             </div>
             <button class="ct-modal-close" @click="preciosModal = false">✕</button>

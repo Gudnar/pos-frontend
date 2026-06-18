@@ -64,7 +64,9 @@
           <tr v-for="(r, i) in datos" :key="r.productoId" class="inv-tr">
             <td style="color:var(--b3);font-size:11px;">{{ i + 1 }}</td>
             <td class="inv-mono">{{ r.codigo || '—' }}</td>
-            <td style="font-weight:600;color:var(--t2);">{{ r.productoNombre || '—' }}</td>
+            <td class="inv-prod-cell">
+              <span v-if="rutaMap.get(r.productoId)" class="inv-prod-path">{{ [rutaMap.get(r.productoId).categoriaNombre, rutaMap.get(r.productoId).subcategoriaNombre].filter(Boolean).join(' › ') }} ›&nbsp;</span><span class="inv-prod-nombre">{{ r.productoNombre || '—' }}</span>
+            </td>
             <td style="text-align:right;font-weight:800;">
               <div class="inv-bar-wrap">
                 <div class="inv-bar" :style="barWidth(r.totalMovimientos)"></div>
@@ -87,7 +89,7 @@
 export default {
   name: 'InventarioRotacion',
   data: () => ({
-    datos: [], loading: false,
+    datos: [], loading: false, rutaMap: new Map(),
     filtro: { sucursalId: '', fechaDesde: '', fechaHasta: '' },
   }),
   computed: {
@@ -104,8 +106,25 @@ export default {
     const hace30 = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10)
     this.filtro.fechaDesde = hace30; this.filtro.fechaHasta = hoy
     this.cargar()
+    this.cargarRutaMap()
   },
   methods: {
+    async cargarRutaMap() {
+      try {
+        const [prods, subs, cats] = await Promise.all([
+          this.$service.list('productos?soloActivos=true').catch(() => []),
+          this.$service.list('subcategorias-producto?soloActivos=true').catch(() => []),
+          this.$service.list('categorias-producto?soloActivos=true').catch(() => []),
+        ])
+        const subMap = new Map((subs || []).map(s => [s.id, s]))
+        const catMap = new Map((cats || []).map(c => [c.id, c]))
+        this.rutaMap = new Map((prods || []).map(p => {
+          const sub = subMap.get(p.subcategoriaId)
+          const cat = sub ? catMap.get(sub.categoriaId) : null
+          return [p.id, { categoriaNombre: cat?.nombre || '', subcategoriaNombre: sub?.nombre || '' }]
+        }))
+      } catch { this.rutaMap = new Map() }
+    },
     async cargar() {
       this.loading = true
       const f = this.filtro
@@ -150,4 +169,7 @@ export default {
 .inv-bar { height:6px; border-radius:3px; background:linear-gradient(90deg, #6366f1, #818cf8); min-width:2px; max-width:80px; transition:width .3s; }
 .ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid var(--b1); border-top-color:#6366f1; animation:spin .8s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
+.inv-prod-cell { max-width:280px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.inv-prod-path { font-size:10px; color:var(--t4); font-weight:500; }
+.inv-prod-nombre { font-size:12px; font-weight:700; color:var(--t2); }
 </style>

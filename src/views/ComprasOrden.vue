@@ -62,7 +62,7 @@
       <!-- ═══════════════════════ MODAL: NUEVA / EDITAR ORDEN ═══════════════════════ -->
       <transition name="modal-fade">
         <div v-if="dialog" class="ct-modal-backdrop" @click.self="dialog = false">
-          <div class="ct-modal" style="max-width:840px;">
+          <div class="ct-modal ct-modal--xl">
             <div class="ct-modal-header">
               <span>{{ editandoId ? 'Editar Orden — ' + (ordenActiva && ordenActiva.nroCompra) : 'Nueva Orden de Compra' }}</span>
               <button class="ct-modal-close" @click="dialog = false">✕</button>
@@ -91,6 +91,12 @@
                   <label>Nro Factura / Ref.</label>
                   <input v-model="form.nroFactura" class="ide-input" placeholder="FAC-001" />
                 </div>
+                <div class="ide-field">
+                  <label>Moneda *</label>
+                  <select v-model="form.moneda" class="ide-select">
+                    <option v-for="m in monedas" :key="m.id" :value="m.codigo">{{ m.codigo }} — {{ m.nombre }}</option>
+                  </select>
+                </div>
               </div>
               <div class="cp-section-label">Tránsito y Logística</div>
               <div class="ct-form-grid" style="margin-bottom:4px;">
@@ -117,7 +123,32 @@
               </div>
               <div style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
                 <span class="cp-section-label" style="margin:0;">Detalle de Productos</span>
-                <button class="cp-add-row-btn" @click="agregarFila()">+ Agregar</button>
+              </div>
+              <div class="cp-search-wrap" style="position:relative;margin-bottom:10px;">
+                <input
+                  ref="inputAdd"
+                  v-model="busquedaAdd"
+                  class="ide-input"
+                  placeholder="Buscar producto por nombre, categoría o código..."
+                  autocomplete="off"
+                  @input="onInputSearch"
+                  @keydown="onKeydownSearch"
+                  @blur="ocultarDropAdd"
+                />
+                <div v-if="dropAddVisible && filtrarProductosAdd.length" ref="dropAdd" class="cp-prod-drop" style="position:absolute;top:100%;left:0;right:0;z-index:200;">
+                  <div
+                    v-for="(p, idx) in filtrarProductosAdd"
+                    :key="p.id"
+                    class="cp-drop-item"
+                    :class="{ 'cp-drop-item--active': idx === dropAddIdx }"
+                    @mousedown.prevent="agregarDesdeSearch(p)"
+                  >
+                    <div style="flex:1;min-width:0;">
+                      <div class="cp-drop-nombre">{{ [p.categoriaNombre, p.subcategoriaNombre, p.nombre].filter(Boolean).join(' › ') }}</div>
+                    </div>
+                    <span v-if="p.codigoBarras || p.codigoTienda" class="cp-drop-code">{{ p.codigoBarras || p.codigoTienda }}</span>
+                  </div>
+                </div>
               </div>
               <div class="cp-table-wrap">
                 <table class="cp-table">
@@ -126,7 +157,8 @@
                       <th>Producto</th>
                       <th style="width:120px;">Unidad</th>
                       <th style="width:90px;">Cantidad</th>
-                      <th style="width:110px;">Precio Unit.</th>
+                      <th style="width:120px;">Total Compra</th>
+                      <th style="width:110px;">P. Unitario</th>
                       <th style="width:90px;">Desc.</th>
                       <th style="width:110px;">Subtotal</th>
                       <th style="width:28px;"></th>
@@ -134,36 +166,27 @@
                   </thead>
                   <tbody>
                     <tr v-if="!form.detalles.length">
-                      <td colspan="7" style="text-align:center;color:var(--b3);font-style:italic;padding:16px;">Agrega productos usando el botón de arriba</td>
+                      <td colspan="8" style="text-align:center;color:var(--b3);font-style:italic;padding:16px;">Busca y selecciona productos desde el campo de arriba</td>
                     </tr>
                     <tr v-for="(d, idx) in form.detalles" :key="idx">
-                      <td style="position:relative;min-width:240px;">
-                        <input v-model="d._busqueda" class="ide-input" :class="{ 'cp-prod-ok': d.productoId }" placeholder="Buscar por nombre, código..." autocomplete="off" @input="onBusqueda(d)" @focus="d._showDrop = !!d._busqueda" @blur="ocultarDrop(d)" />
-                        <div v-if="d.productoId && (d._categoriaNombre || d._subcategoriaNombre)" class="cp-sel-cats">
-                          <span class="cp-sel-breadcrumb">{{ [d._categoriaNombre, d._subcategoriaNombre].filter(Boolean).join(' ') }}</span>
-                        </div>
-                        <div v-if="d._showDrop" class="cp-prod-drop">
-                          <div v-if="!filtrarProductos(d._busqueda, d).length" class="cp-drop-empty">Sin resultados</div>
-                          <div v-for="p in filtrarProductos(d._busqueda, d)" :key="p.id" class="cp-drop-item" @mousedown.prevent="seleccionarProducto(d, p)">
-                            <div style="flex:1;min-width:0;">
-                              <div class="cp-drop-nombre">{{ [p.categoriaNombre, p.subcategoriaNombre, p.nombre].filter(Boolean).join(' ') }}</div>
-                            </div>
-                            <span v-if="p.codigoBarras || p.codigoTienda" class="cp-drop-code">{{ p.codigoBarras || p.codigoTienda }}</span>
-                          </div>
-                        </div>
+                      <td style="min-width:200px;">
+                        <span class="cp-prod-path">{{ d._busqueda || '—' }}</span>
                       </td>
                       <td><select v-model="d.unidadId" class="ide-select"><option value="">Base</option><option v-for="u in unidades" :key="u.id" :value="u.id">{{ u.nombre }}</option></select></td>
                       <td><input v-model.number="d.cantidad" class="ide-input" type="number" min="0.001" step="1" /></td>
-                      <td><input v-model.number="d.precioUnitario" class="ide-input" type="number" min="0" step="0.01" /></td>
+                      <td><input v-model.number="d.totalCompra" class="ide-input" type="number" min="0" step="0.01" placeholder="0.00" /></td>
+                      <td style="text-align:right;color:var(--t3);padding:6px 12px;font-size:12px;">
+                        {{ d.cantidad > 0 && d.totalCompra > 0 ? formatPU(d.totalCompra / d.cantidad) : '—' }}
+                      </td>
                       <td><input v-model.number="d.descuento" class="ide-input" type="number" min="0" step="0.01" /></td>
-                      <td style="font-size:12px;font-weight:700;color:var(--t2);padding:6px 12px;">Bs {{ formatMonto(d.cantidad * d.precioUnitario - (d.descuento || 0)) }}</td>
+                      <td style="font-size:12px;font-weight:700;color:var(--t2);padding:6px 12px;">{{ form.moneda || 'Bs' }} {{ formatMonto((Number(d.totalCompra) || 0) - (d.descuento || 0)) }}</td>
                       <td><button class="cp-del-row-btn" @click="form.detalles.splice(idx,1)">✕</button></td>
                     </tr>
                   </tbody>
                   <tfoot v-if="form.detalles.length">
                     <tr>
-                      <td colspan="5" style="text-align:right;font-size:12px;font-weight:700;color:var(--t3);padding:8px 12px;">Total:</td>
-                      <td style="font-size:14px;font-weight:800;color:var(--t1);padding:8px 12px;">Bs {{ formatMonto(totalForm) }}</td>
+                      <td colspan="6" style="text-align:right;font-size:12px;font-weight:700;color:var(--t3);padding:8px 12px;">Total:</td>
+                      <td style="font-size:14px;font-weight:800;color:var(--t1);padding:8px 12px;">{{ form.moneda || 'Bs' }} {{ formatMonto(totalForm) }}</td>
                       <td></td>
                     </tr>
                   </tfoot>
@@ -323,7 +346,8 @@
                 <div class="cp-info-item"><span>Proveedor</span><strong>{{ nombreProveedor(detalleActual.proveedorId) }}</strong></div>
                 <div class="cp-info-item"><span>Fecha Orden</span><strong>{{ detalleActual.fecha }}</strong></div>
                 <div class="cp-info-item"><span>Nro Factura</span><strong>{{ detalleActual.nroFactura || '—' }}</strong></div>
-                <div class="cp-info-item"><span>Total</span><strong>Bs {{ formatMonto(detalleActual.total) }}</strong></div>
+                <div class="cp-info-item"><span>Moneda</span><strong>{{ (detalleActual.detalles && detalleActual.detalles[0]?.moneda) || 'BOB' }}</strong></div>
+                <div class="cp-info-item"><span>Total</span><strong>{{ (detalleActual.detalles && detalleActual.detalles[0]?.moneda) || 'Bs' }} {{ formatMonto(detalleActual.total) }}</strong></div>
                 <div v-if="detalleActual.observaciones" class="cp-info-item" style="grid-column:span 2"><span>Observaciones</span><strong>{{ detalleActual.observaciones }}</strong></div>
               </div>
 
@@ -361,14 +385,15 @@
               <div style="font-size:11px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;margin-top:4px;">Productos</div>
               <div v-if="loadingDetalle" class="cp-loading"><div class="ct-spinner"></div></div>
               <table v-else class="cp-table" style="margin-bottom:16px;">
-                <thead><tr><th>Producto</th><th>Cant.</th><th>Precio</th><th>Desc.</th><th>Subtotal</th><th>Lote</th><th>Vencimiento</th></tr></thead>
+                <thead><tr><th>Producto</th><th>Cant.</th><th>Total Compra</th><th>P. Unitario</th><th>Desc.</th><th>Subtotal</th><th>Lote</th><th>Vencimiento</th></tr></thead>
                 <tbody>
                   <tr v-for="d in (detalleActual.detalles || [])" :key="d.id">
                     <td>{{ nombreProducto(d.productoId) }}</td>
                     <td>{{ d.cantidad }}</td>
-                    <td>Bs {{ formatMonto(d.precioUnitario) }}</td>
-                    <td>Bs {{ formatMonto(d.descuento) }}</td>
-                    <td>Bs {{ formatMonto(d.subtotal) }}</td>
+                    <td>{{ formatMonto(d.totalCompra != null ? d.totalCompra : d.subtotal) }}</td>
+                    <td>{{ formatPU((d.totalCompra != null ? Number(d.totalCompra) : Number(d.subtotal)) / Number(d.cantidad)) }}</td>
+                    <td>{{ formatMonto(d.descuento) }}</td>
+                    <td>{{ formatMonto(d.subtotal) }}</td>
                     <td>{{ d.nroLote || '—' }}</td>
                     <td>{{ d.fechaVencimiento || '—' }}</td>
                   </tr>
@@ -416,12 +441,12 @@ const emptyForm = () => ({
   proveedorId: '', sucursalId: '',
   fecha: new Date().toISOString().split('T')[0],
   nroFactura: '', fechaEnvio: '', fechaEstimadaLlegada: '',
-  nroGuiaRemision: '', transportista: '', observaciones: '', detalles: [],
+  nroGuiaRemision: '', transportista: '', observaciones: '', moneda: 'BOB', detalles: [],
 })
 const emptyDetalle = () => ({
-  id: null, productoId: '', _busqueda: '', _showDrop: false,
+  id: null, productoId: '', _busqueda: '',
   _categoriaNombre: '', _subcategoriaNombre: '', _categoriaColor: '#6366f1',
-  unidadId: '', cantidad: 1, precioUnitario: 0, descuento: 0,
+  unidadId: '', cantidad: 1, totalCompra: 0, descuento: 0,
 })
 
 export default {
@@ -435,7 +460,8 @@ export default {
       { v: 'FINALIZADO', l: 'Finalizado' },
       { v: 'ANULADA', l: 'Anuladas' },
     ],
-    proveedores: [], sucursales: [], productos: [], unidades: [],
+    proveedores: [], sucursales: [], productos: [], unidades: [], monedas: [],
+    busquedaAdd: '', dropAddVisible: false, dropAddIdx: -1,
     form: emptyForm(), saving: false, dialog: false, editandoId: null,
     recibirDialog: false, recibirForm: { fechaRecepcion: '', condicionMercancia: '', observacionesRecepcion: '' },
     finalizarDialog: false, finalizarForm: { detalles: [], observacionesFinalizacion: '' },
@@ -454,7 +480,25 @@ export default {
       return list
     },
     totalForm() {
-      return this.form.detalles.reduce((acc, d) => acc + (d.cantidad || 0) * (d.precioUnitario || 0) - (d.descuento || 0), 0)
+      return this.form.detalles.reduce((acc, d) => acc + (Number(d.totalCompra) || 0) - (d.descuento || 0), 0)
+    },
+    filtrarProductosAdd() {
+      const t = (this.busquedaAdd || '').toLowerCase().trim()
+      if (!t) return []
+      const usados = new Set(this.form.detalles.filter(d => d.productoId).map(d => d.productoId))
+      const res = []
+      for (const p of this.productos) {
+        if (usados.has(p.id)) continue
+        if (p.activo === false || p.estado === 'ELIMINADO') continue
+        if (
+          p.nombre.toLowerCase().includes(t) ||
+          (p.codigoBarras && p.codigoBarras.toLowerCase().includes(t)) ||
+          (p.codigoTienda && p.codigoTienda.toLowerCase().includes(t)) ||
+          (p.subcategoriaNombre && p.subcategoriaNombre.toLowerCase().includes(t)) ||
+          (p.categoriaNombre && p.categoriaNombre.toLowerCase().includes(t))
+        ) { res.push(p); if (res.length >= 20) break }
+      }
+      return res
     },
   },
   created() { this.cargar(); this.cargarCatalogos() },
@@ -465,17 +509,19 @@ export default {
       finally { this.loading = false }
     },
     async cargarCatalogos() {
-      const [pr, s, p, u, subs, cats] = await Promise.all([
+      const [pr, s, p, u, subs, cats, mons] = await Promise.all([
         this.$service.list('proveedores').catch(() => []),
         this.$service.list('sucursales').catch(() => []),
         this.$service.list('productos?soloActivos=true').catch(() => []),
         this.$service.list('unidades-medida').catch(() => []),
         this.$service.list('subcategorias-producto?soloActivos=true').catch(() => []),
         this.$service.list('categorias-producto?soloActivos=true').catch(() => []),
+        this.$service.list('logistica-monedas').catch(() => []),
       ])
       this.proveedores = pr || []
       this.sucursales = s || []
       this.unidades = u || []
+      this.monedas = (mons || []).filter(m => m.activo !== false)
       const subMap = new Map((subs || []).map(s => [s.id, s]))
       const catMap = new Map((cats || []).map(c => [c.id, c]))
       this.productos = (p || []).map(prod => {
@@ -486,8 +532,15 @@ export default {
     },
 
     // ── Nueva orden ───────────────────────────────────────────────────────────
-    abrirForm() { this.form = emptyForm(); this.editandoId = null; this.dialog = true },
-    agregarFila() { this.form.detalles.push(emptyDetalle()) },
+    abrirForm() {
+      this.form = emptyForm()
+      if (this.monedas.length) this.form.moneda = this.monedas[0].codigo
+      this.editandoId = null
+      this.busquedaAdd = ''
+      this.dropAddVisible = false
+      this.dropAddIdx = -1
+      this.dialog = true
+    },
 
     async abrirEditar(compra) {
       this.editandoId = null
@@ -504,19 +557,22 @@ export default {
       this.form.nroGuiaRemision = data.nroGuiaRemision || ''
       this.form.transportista = data.transportista || ''
       this.form.observaciones = data.observaciones || ''
+      this.form.moneda = (data.detalles && data.detalles[0]?.moneda) || this.monedas[0]?.codigo || 'BOB'
+      this.busquedaAdd = ''
+      this.dropAddVisible = false
+      this.dropAddIdx = -1
       this.form.detalles = (data.detalles || []).map(d => {
         const prod = this.productos.find(p => p.id === d.productoId) || {}
         return {
           id: d.id,
           productoId: d.productoId,
-          _busqueda: prod.nombre || d.productoId,
-          _showDrop: false,
+          _busqueda: [prod.categoriaNombre, prod.subcategoriaNombre, prod.nombre].filter(Boolean).join(' › ') || d.productoId,
           _categoriaNombre: prod.categoriaNombre || '',
           _subcategoriaNombre: prod.subcategoriaNombre || '',
           _categoriaColor: prod.categoriaColor || '#6366f1',
           unidadId: d.unidadId || '',
           cantidad: Number(d.cantidad),
-          precioUnitario: Number(d.precioUnitario),
+          totalCompra: d.totalCompra != null ? Number(d.totalCompra) : Number(d.precioUnitario) * Number(d.cantidad),
           descuento: Number(d.descuento) || 0,
         }
       })
@@ -528,9 +584,12 @@ export default {
       if (!this.form.sucursalId) return this.$message.error('Selecciona una sucursal')
       if (!this.form.detalles.length) return this.$message.error('Agrega al menos un producto')
       if (this.form.detalles.find(d => !d.productoId)) return this.$message.error('Todos los ítems deben tener un producto seleccionado')
-      const detalles = this.form.detalles.map(({ id, productoId, unidadId, cantidad, precioUnitario, descuento }) =>
-        ({ id, productoId, unidadId, cantidad, precioUnitario, descuento })
-      )
+      const monedaCompra = this.form.moneda || 'BOB'
+      const detalles = this.form.detalles.map(({ id, productoId, unidadId, cantidad, totalCompra, descuento }) => {
+        const tc = Number(totalCompra) || 0
+        const precioUnitario = cantidad > 0 ? tc / Number(cantidad) : 0
+        return { id, productoId, unidadId: unidadId || undefined, cantidad, precioUnitario, totalCompra: tc, descuento, moneda: monedaCompra }
+      })
       const payload = {
         ...this.form,
         fechaEnvio: this.form.fechaEnvio || undefined,
@@ -739,36 +798,63 @@ export default {
       if (w) { w.document.write(html); w.document.close() }
     },
 
-    // ── Autocomplete ──────────────────────────────────────────────────────────
-    filtrarProductos(q, d) {
-      if (!q || !q.trim()) return []
-      const t = q.toLowerCase()
-      const usados = new Set(this.form.detalles.filter(r => r !== d && r.productoId).map(r => r.productoId))
-      const res = []
-      for (const p of this.productos) {
-        if (usados.has(p.id)) continue
-        if (
-          p.nombre.toLowerCase().includes(t) ||
-          (p.codigoBarras && p.codigoBarras.toLowerCase().includes(t)) ||
-          (p.codigoTienda && p.codigoTienda.toLowerCase().includes(t)) ||
-          (p.codigoProveedor && p.codigoProveedor.toLowerCase().includes(t)) ||
-          (p.subcategoriaNombre && p.subcategoriaNombre.toLowerCase().includes(t)) ||
-          (p.categoriaNombre && p.categoriaNombre.toLowerCase().includes(t))
-        ) { res.push(p); if (res.length >= 20) break }
+    // ── Búsqueda global de productos ──────────────────────────────────────────
+    agregarDesdeSearch(p) {
+      if (this.form.detalles.find(d => d.productoId === p.id)) {
+        this.$message.error('Este producto ya está en la lista')
+        return
       }
-      return res
+      const path = [p.categoriaNombre, p.subcategoriaNombre, p.nombre].filter(Boolean).join(' › ')
+      const det = {
+        ...emptyDetalle(),
+        productoId: p.id,
+        _busqueda: path,
+        _categoriaNombre: p.categoriaNombre || '',
+        _subcategoriaNombre: p.subcategoriaNombre || '',
+        _categoriaColor: p.categoriaColor || '#6366f1',
+      }
+      if (this.monedas.length) det.moneda = this.monedas[0].codigo
+      this.form.detalles.push(det)
+      this.busquedaAdd = ''
+      this.dropAddVisible = false
+      this.dropAddIdx = -1
     },
-    seleccionarProducto(d, p) {
-      if (this.form.detalles.find(r => r !== d && r.productoId === p.id)) { this.$message.error('Este producto ya está en la lista'); return }
-      d.productoId = p.id; d._busqueda = p.nombre; d._showDrop = false
-      d._categoriaNombre = p.categoriaNombre || ''; d._subcategoriaNombre = p.subcategoriaNombre || ''; d._categoriaColor = p.categoriaColor || '#6366f1'
+    onInputSearch() {
+      this.dropAddVisible = !!this.busquedaAdd.trim()
+      this.dropAddIdx = -1
     },
-    onBusqueda(d) { d._showDrop = true; if (!d._busqueda) { d.productoId = ''; d._categoriaNombre = ''; d._subcategoriaNombre = '' } },
-    ocultarDrop(d) { setTimeout(() => { d._showDrop = false }, 150) },
+    onKeydownSearch(e) {
+      const list = this.filtrarProductosAdd
+      if (!list.length) return
+      if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        this.dropAddIdx = (this.dropAddIdx + 1) % list.length
+        this.$nextTick(() => { this.$refs.dropAdd?.children[this.dropAddIdx]?.scrollIntoView({ block: 'nearest' }) })
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        this.dropAddIdx = (this.dropAddIdx - 1 + list.length) % list.length
+        this.$nextTick(() => { this.$refs.dropAdd?.children[this.dropAddIdx]?.scrollIntoView({ block: 'nearest' }) })
+      } else if (e.key === 'Enter') {
+        e.preventDefault()
+        if (this.dropAddIdx >= 0 && list[this.dropAddIdx]) this.agregarDesdeSearch(list[this.dropAddIdx])
+        else if (list.length === 1) this.agregarDesdeSearch(list[0])
+      } else if (e.key === 'Escape') {
+        this.dropAddVisible = false
+        this.dropAddIdx = -1
+      }
+    },
+    ocultarDropAdd() {
+      setTimeout(() => { this.dropAddVisible = false; this.dropAddIdx = -1 }, 150)
+    },
 
     // ── Helpers ───────────────────────────────────────────────────────────────
+    formatPU(v) { return Number(v || 0).toFixed(3) },
     nombreProveedor(id) { return this.proveedores.find(p => p.id === id)?.nombre || '—' },
-    nombreProducto(id) { return this.productos.find(p => p.id === id)?.nombre || id },
+    nombreProducto(id) {
+      const p = this.productos.find(p => p.id === id)
+      if (!p) return id
+      return [p.categoriaNombre, p.subcategoriaNombre, p.nombre].filter(Boolean).join(' › ')
+    },
     formatMonto(v) { return Number(v || 0).toFixed(2) },
     formatFechaLog(v) {
       if (!v) return ''
@@ -862,6 +948,8 @@ export default {
 .cp-prod-drop { position:absolute; top:100%; left:0; right:0; z-index:200; background:var(--bg-e); border:1px solid var(--b4); border-radius:8px; max-height:260px; overflow-y:auto; box-shadow:0 8px 24px #00000066; margin-top:2px; }
 .cp-drop-item { display:flex; align-items:center; gap:8px; padding:7px 10px; cursor:pointer; }
 .cp-drop-item:hover { background:var(--bg-c); }
+.cp-drop-item--active { background:var(--bg-c); border-left:2px solid #6366f1; }
+.cp-prod-path { font-size:11px; color:var(--t3); font-weight:600; line-height:1.4; display:block; }
 .cp-drop-nombre { font-size:12px; font-weight:600; color:var(--t2); overflow:hidden; text-overflow:ellipsis; }
 .cp-drop-code { font-size:10px; color:var(--t5); font-family:monospace; flex-shrink:0; padding-top:1px; }
 .cp-drop-empty { padding:10px; font-size:11px; color:var(--b3); font-style:italic; text-align:center; }

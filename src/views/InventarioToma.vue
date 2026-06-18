@@ -76,7 +76,9 @@
           </thead>
           <tbody>
             <tr v-for="f in filas" :key="f.id" :class="['inv-tr', f.diferencia !== 0 ? (f.diferencia > 0 ? 'inv-tr--pos' : 'inv-tr--neg') : '']">
-              <td style="font-weight:600;color:var(--t2);">{{ f.productoNombre || '—' }}</td>
+              <td class="inv-prod-cell">
+                <span v-if="rutaMap.get(f.productoId)" class="inv-prod-path">{{ [rutaMap.get(f.productoId).categoriaNombre, rutaMap.get(f.productoId).subcategoriaNombre].filter(Boolean).join(' › ') }} ›&nbsp;</span><span class="inv-prod-nombre">{{ f.productoNombre || '—' }}</span>
+              </td>
               <td class="inv-mono">{{ f.nroLote || '—' }}</td>
               <td class="inv-mono" style="color:var(--t4);">{{ f.loteInterno || '—' }}</td>
               <td style="text-align:right;color:var(--t3);">{{ fmt(f.cantidadSistema) }}</td>
@@ -113,7 +115,7 @@ export default {
   name: 'InventarioToma',
   data: () => ({
     sucursalId: '', fechaToma: new Date().toISOString().slice(0, 10),
-    filas: [], loading: false, procesando: false,
+    filas: [], loading: false, procesando: false, rutaMap: new Map(),
   }),
   computed: {
     sucursales() { return this.$store.getters.sucursales || [] },
@@ -124,8 +126,25 @@ export default {
   created() {
     const s = this.$store.getters.sucursalActualId
     if (s) { this.sucursalId = s; this.cargarLotes() }
+    this.cargarRutaMap()
   },
   methods: {
+    async cargarRutaMap() {
+      try {
+        const [prods, subs, cats] = await Promise.all([
+          this.$service.list('productos?soloActivos=true').catch(() => []),
+          this.$service.list('subcategorias-producto?soloActivos=true').catch(() => []),
+          this.$service.list('categorias-producto?soloActivos=true').catch(() => []),
+        ])
+        const subMap = new Map((subs || []).map(s => [s.id, s]))
+        const catMap = new Map((cats || []).map(c => [c.id, c]))
+        this.rutaMap = new Map((prods || []).map(p => {
+          const sub = subMap.get(p.subcategoriaId)
+          const cat = sub ? catMap.get(sub.categoriaId) : null
+          return [p.id, { categoriaNombre: cat?.nombre || '', subcategoriaNombre: sub?.nombre || '' }]
+        }))
+      } catch { this.rutaMap = new Map() }
+    },
     async cargarLotes() {
       if (!this.sucursalId) return
       this.loading = true; this.filas = []
@@ -134,7 +153,7 @@ export default {
         this.filas = data.map(l => ({
           id: l.id,
           nroLote: l.nroLote, loteInterno: l.loteInterno,
-          productoNombre: l.productoNombre,
+          productoNombre: l.productoNombre, productoId: l.productoId,
           cantidadSistema: Number(l.cantidadActual),
           conteo: null, diferencia: null, motivo: 'Toma de inventario',
         }))
@@ -195,4 +214,7 @@ export default {
 .inv-conteo-input:focus { border-color:#6366f1; }
 .ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid var(--b1); border-top-color:#6366f1; animation:spin .8s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
+.inv-prod-cell { max-width:280px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.inv-prod-path { font-size:10px; color:var(--t4); font-weight:500; }
+.inv-prod-nombre { font-size:12px; font-weight:700; color:var(--t2); }
 </style>

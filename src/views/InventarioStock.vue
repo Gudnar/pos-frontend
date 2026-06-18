@@ -53,7 +53,9 @@
         <tbody>
           <tr v-for="r in filasFiltradas" :key="r.productoId + r.sucursalId" class="inv-tr">
             <td class="inv-mono">{{ r.codigo || '—' }}</td>
-            <td style="font-weight:600;color:var(--t2);">{{ r.nombre }}</td>
+            <td class="inv-prod-cell">
+              <span v-if="r.categoriaNombre || r.subcategoriaNombre" class="inv-prod-path">{{ [r.categoriaNombre, r.subcategoriaNombre].filter(Boolean).join(' › ') }} ›&nbsp;</span><span class="inv-prod-nombre">{{ r.nombre }}</span>
+            </td>
             <td style="text-align:right;font-weight:800;color:#4ade80;">{{ fmt(r.stockTotal) }}</td>
             <td style="text-align:center;color:var(--t3);">{{ r.nroLotes }}</td>
             <td>
@@ -94,14 +96,33 @@ export default {
       this.loading = true
       const params = this.filtro.sucursalId ? `?sucursalId=${this.filtro.sucursalId}` : ''
       try {
-        this.filas = await this.$service.list(`lotes/stock${params}`) || []
+        const [rows, prods, subs, cats] = await Promise.all([
+          this.$service.list(`lotes/stock${params}`).catch(() => []),
+          this.$service.list('productos?soloActivos=true').catch(() => []),
+          this.$service.list('subcategorias-producto?soloActivos=true').catch(() => []),
+          this.$service.list('categorias-producto?soloActivos=true').catch(() => []),
+        ])
+        const subMap = new Map((subs || []).map(s => [s.id, s]))
+        const catMap = new Map((cats || []).map(c => [c.id, c]))
+        const prodMap = new Map((prods || []).map(p => [p.id, p]))
+        this.filas = (rows || []).map(r => {
+          if (r.categoriaNombre || r.subcategoriaNombre) return r
+          const prod = prodMap.get(r.productoId)
+          const sub = prod ? subMap.get(prod.subcategoriaId) : null
+          const cat = sub ? catMap.get(sub.categoriaId) : null
+          return { ...r, subcategoriaNombre: sub?.nombre || '', categoriaNombre: cat?.nombre || '' }
+        })
         this.filtrarLocal()
       } finally { this.loading = false }
     },
     filtrarLocal() {
-      const q = this.busqueda.toLowerCase()
+      const q = this.busqueda.toLowerCase().trim()
       this.filasFiltradas = q
-        ? this.filas.filter(r => r.nombre?.toLowerCase().includes(q) || r.codigo?.toLowerCase().includes(q))
+        ? this.filas.filter(r =>
+            r.nombre?.toLowerCase().includes(q) ||
+            r.codigo?.toLowerCase().includes(q) ||
+            r.categoriaNombre?.toLowerCase().includes(q) ||
+            r.subcategoriaNombre?.toLowerCase().includes(q))
         : [...this.filas]
     },
     limpiar() {
@@ -135,6 +156,9 @@ export default {
 .inv-badge { font-size:9px; font-weight:700; background:var(--bg-c); color:var(--t3); padding:2px 7px; border-radius:4px; border:1px solid var(--b1); }
 .inv-venc { font-size:11px; color:var(--t2); }
 .inv-venc--warn { color:#fbbf24; font-weight:700; }
+.inv-prod-cell { max-width:320px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.inv-prod-path { font-size:11px; color:var(--t4); font-weight:500; }
+.inv-prod-nombre { font-size:12px; font-weight:700; color:var(--t2); }
 .ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid var(--b1); border-top-color:#6366f1; animation:spin .8s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
 </style>

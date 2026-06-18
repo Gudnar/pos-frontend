@@ -57,6 +57,7 @@
               <th>P.U. VENTA</th>
               <th v-if="orden.estadoOrden === 'CERRADO' && items.some(i => i.precioVentaConIva)">P.U.+IVA</th>
               <th v-if="orden.estadoOrden === 'CERRADO' && items.some(i => i.utilidadTonelada != null)">Util./TON</th>
+              <th v-if="orden.estadoOrden === 'CERRADO' && items.some(i => i.utilidadToneladaConIva != null)">Util./TON+IVA</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -83,6 +84,10 @@
               </td>
               <td v-if="orden.estadoOrden === 'CERRADO' && items.some(i => i.utilidadTonelada != null)">
                 <span v-if="item.utilidadTonelada != null" style="font-size:12px;font-weight:600;" :style="{ color: item.utilidadTonelada >= 0 ? '#60a5fa' : '#ef4444' }">{{ fmtNum(item.utilidadTonelada) }}</span>
+                <span v-else>—</span>
+              </td>
+              <td v-if="orden.estadoOrden === 'CERRADO' && items.some(i => i.utilidadToneladaConIva != null)">
+                <span v-if="item.utilidadToneladaConIva != null" style="font-size:12px;font-weight:600;" :style="{ color: item.utilidadToneladaConIva >= 0 ? '#a78bfa' : '#ef4444' }">{{ fmtNum(item.utilidadToneladaConIva) }}</span>
                 <span v-else>—</span>
               </td>
               <td class="ide-actions">

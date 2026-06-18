@@ -45,7 +45,9 @@
         </thead>
         <tbody>
           <tr v-for="l in porVencer" :key="l.loteId" class="inv-tr">
-            <td style="font-weight:600;color:var(--t2);">{{ l.productoNombre }}</td>
+            <td class="inv-prod-cell">
+              <span v-if="rutaMap.get(l.productoId)" class="inv-prod-path">{{ [rutaMap.get(l.productoId).categoriaNombre, rutaMap.get(l.productoId).subcategoriaNombre].filter(Boolean).join(' › ') }} ›&nbsp;</span><span class="inv-prod-nombre">{{ l.productoNombre }}</span>
+            </td>
             <td class="inv-mono">{{ l.nroLote || '—' }}</td>
             <td style="color:#fbbf24;font-weight:700;">{{ l.fechaVencimiento }}</td>
             <td style="text-align:center;">
@@ -75,7 +77,9 @@
         <tbody>
           <tr v-for="r in sinMovimiento" :key="r.productoId + r.sucursalId" class="inv-tr">
             <td class="inv-mono">{{ r.codigo || '—' }}</td>
-            <td style="font-weight:600;color:var(--t2);">{{ r.productoNombre }}</td>
+            <td class="inv-prod-cell">
+              <span v-if="rutaMap.get(r.productoId)" class="inv-prod-path">{{ [rutaMap.get(r.productoId).categoriaNombre, rutaMap.get(r.productoId).subcategoriaNombre].filter(Boolean).join(' › ') }} ›&nbsp;</span><span class="inv-prod-nombre">{{ r.productoNombre }}</span>
+            </td>
             <td style="text-align:right;color:var(--t3);">{{ fmt(r.stockTotal) }}</td>
             <td style="color:var(--t4);font-size:11px;">{{ r.ultimoMovimiento ? formatFecha(r.ultimoMovimiento) : 'Nunca' }}</td>
           </tr>
@@ -108,7 +112,9 @@
         <tbody>
           <tr v-for="r in stockBajo" :key="r.productoId + r.sucursalId" class="inv-tr">
             <td class="inv-mono">{{ r.codigo || '—' }}</td>
-            <td style="font-weight:600;color:var(--t2);">{{ r.nombre }}</td>
+            <td class="inv-prod-cell">
+              <span v-if="rutaMap.get(r.productoId)" class="inv-prod-path">{{ [rutaMap.get(r.productoId).categoriaNombre, rutaMap.get(r.productoId).subcategoriaNombre].filter(Boolean).join(' › ') }} ›&nbsp;</span><span class="inv-prod-nombre">{{ r.nombre }}</span>
+            </td>
             <td style="text-align:right;font-weight:800;color:#f87171;">{{ fmt(r.stockTotal) }}</td>
             <td style="text-align:center;color:var(--t3);">{{ r.nroLotes }}</td>
           </tr>
@@ -130,7 +136,7 @@ export default {
       { v: 'minimo', l: 'Stock Mínimo' },
     ],
     porVencer: [], sinMovimiento: [], allStock: [], stockBajo: [],
-    loading: false, loadingStock: false,
+    loading: false, loadingStock: false, rutaMap: new Map(),
     filtroSucursal: '', diasSinMovimiento: 30, stockMinimo: 5,
   }),
   computed: {
@@ -141,8 +147,25 @@ export default {
     if (s) this.filtroSucursal = s
     this.cargar()
     this.cargarStock()
+    this.cargarRutaMap()
   },
   methods: {
+    async cargarRutaMap() {
+      try {
+        const [prods, subs, cats] = await Promise.all([
+          this.$service.list('productos?soloActivos=true').catch(() => []),
+          this.$service.list('subcategorias-producto?soloActivos=true').catch(() => []),
+          this.$service.list('categorias-producto?soloActivos=true').catch(() => []),
+        ])
+        const subMap = new Map((subs || []).map(s => [s.id, s]))
+        const catMap = new Map((cats || []).map(c => [c.id, c]))
+        this.rutaMap = new Map((prods || []).map(p => {
+          const sub = subMap.get(p.subcategoriaId)
+          const cat = sub ? catMap.get(sub.categoriaId) : null
+          return [p.id, { categoriaNombre: cat?.nombre || '', subcategoriaNombre: sub?.nombre || '' }]
+        }))
+      } catch { this.rutaMap = new Map() }
+    },
     cambiarTab(v) { this.tab = v; this.cargar() },
     badgeCount(t) {
       if (t === 'vencer') return this.porVencer.length || null
@@ -220,4 +243,7 @@ export default {
 .inv-minimo-header { display:flex; align-items:center; gap:12px; padding:12px 16px; border-bottom:1px solid var(--b2); flex-shrink:0; }
 .ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid var(--b1); border-top-color:#6366f1; animation:spin .8s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
+.inv-prod-cell { max-width:280px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.inv-prod-path { font-size:10px; color:var(--t4); font-weight:500; }
+.inv-prod-nombre { font-size:12px; font-weight:700; color:var(--t2); }
 </style>
