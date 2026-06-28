@@ -36,7 +36,7 @@
             </div>
             <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;">
               <div style="text-align:right;">
-                <div class="cp-row-monto">Bs {{ formatMonto(c.total) }}</div>
+                <div class="cp-row-monto">{{ c.moneda || 'BS' }} {{ formatMonto(c.total) }}</div>
                 <span :class="badgeClass(c.estadoCompra)" style="font-size:9px;margin-top:3px;display:inline-block;">{{ labelEstado(c.estadoCompra) }}</span>
               </div>
               <!-- Edit: EN_TRANSITO or PENDIENTE -->
@@ -96,6 +96,10 @@
                   <select v-model="form.moneda" class="ide-select">
                     <option v-for="m in monedas" :key="m.id" :value="m.codigo">{{ m.codigo }} — {{ m.nombre }}</option>
                   </select>
+                </div>
+                <div v-if="esMonedaExtranjera" class="ide-field">
+                  <label>Tipo de Cambio (Bs por {{ form.moneda }}) *</label>
+                  <input v-model.number="form.tipoCambio" class="ide-input" type="number" min="0.000001" step="0.01" placeholder="Ej: 7.07" />
                 </div>
               </div>
               <div class="cp-section-label">Tránsito y Logística</div>
@@ -346,8 +350,8 @@
                 <div class="cp-info-item"><span>Proveedor</span><strong>{{ nombreProveedor(detalleActual.proveedorId) }}</strong></div>
                 <div class="cp-info-item"><span>Fecha Orden</span><strong>{{ detalleActual.fecha }}</strong></div>
                 <div class="cp-info-item"><span>Nro Factura</span><strong>{{ detalleActual.nroFactura || '—' }}</strong></div>
-                <div class="cp-info-item"><span>Moneda</span><strong>{{ (detalleActual.detalles && detalleActual.detalles[0]?.moneda) || 'BOB' }}</strong></div>
-                <div class="cp-info-item"><span>Total</span><strong>{{ (detalleActual.detalles && detalleActual.detalles[0]?.moneda) || 'Bs' }} {{ formatMonto(detalleActual.total) }}</strong></div>
+                <div class="cp-info-item"><span>Moneda</span><strong>{{ detalleActual.moneda || 'BS' }}<template v-if="detalleActual.tipoCambio && Number(detalleActual.tipoCambio) !== 1"> · TC {{ Number(detalleActual.tipoCambio).toFixed(4) }}</template></strong></div>
+                <div class="cp-info-item"><span>Total</span><strong>{{ detalleActual.moneda || 'BS' }} {{ formatMonto(detalleActual.total) }}<template v-if="detalleActual.tipoCambio && Number(detalleActual.tipoCambio) !== 1"> ≈ Bs {{ formatMonto(detalleActual.total * detalleActual.tipoCambio) }}</template></strong></div>
                 <div v-if="detalleActual.observaciones" class="cp-info-item" style="grid-column:span 2"><span>Observaciones</span><strong>{{ detalleActual.observaciones }}</strong></div>
               </div>
 
@@ -437,11 +441,12 @@
 </template>
 
 <script>
+const BOL_CODES = new Set(['BS', 'BOB', 'BOL'])
 const emptyForm = () => ({
   proveedorId: '', sucursalId: '',
   fecha: new Date().toISOString().split('T')[0],
   nroFactura: '', fechaEnvio: '', fechaEstimadaLlegada: '',
-  nroGuiaRemision: '', transportista: '', observaciones: '', moneda: 'BOB', detalles: [],
+  nroGuiaRemision: '', transportista: '', observaciones: '', moneda: 'BS', tipoCambio: 1, detalles: [],
 })
 const emptyDetalle = () => ({
   id: null, productoId: '', _busqueda: '',
@@ -479,6 +484,7 @@ export default {
       }
       return list
     },
+    esMonedaExtranjera() { return !BOL_CODES.has((this.form.moneda || '').toUpperCase()) },
     totalForm() {
       return this.form.detalles.reduce((acc, d) => acc + (Number(d.totalCompra) || 0) - (d.descuento || 0), 0)
     },
@@ -557,7 +563,8 @@ export default {
       this.form.nroGuiaRemision = data.nroGuiaRemision || ''
       this.form.transportista = data.transportista || ''
       this.form.observaciones = data.observaciones || ''
-      this.form.moneda = (data.detalles && data.detalles[0]?.moneda) || this.monedas[0]?.codigo || 'BOB'
+      this.form.moneda = data.moneda || (data.detalles && data.detalles[0]?.moneda) || this.monedas[0]?.codigo || 'BS'
+      this.form.tipoCambio = Number(data.tipoCambio) || 1
       this.busquedaAdd = ''
       this.dropAddVisible = false
       this.dropAddIdx = -1
@@ -598,6 +605,7 @@ export default {
         nroGuiaRemision: this.form.nroGuiaRemision || undefined,
         transportista: this.form.transportista || undefined,
         observaciones: this.form.observaciones || undefined,
+        tipoCambio: this.esMonedaExtranjera ? Number(this.form.tipoCambio) || 1 : 1,
       }
       this.saving = true
       try {

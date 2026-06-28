@@ -56,6 +56,7 @@
             <th>Factura</th>
             <th>Tipo</th>
             <th>Método</th>
+            <th>Fuente de Fondos</th>
             <th>Referencia</th>
             <th>Notas</th>
             <th style="text-align:right;">Monto</th>
@@ -75,14 +76,21 @@
             <td>
               <span class="cp-metodo">{{ p.metodoPago }}</span>
             </td>
+            <td>
+              <span v-if="p.fuenteNombre" class="cp-fuente-badge">{{ p.fuenteNombre }}</span>
+              <span v-else style="color:var(--b3);">—</span>
+            </td>
             <td style="color:var(--t4);">{{ p.referencia || '—' }}</td>
             <td style="color:var(--t4);max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" :title="p.notas">{{ p.notas || '—' }}</td>
-            <td style="text-align:right;font-weight:800;color:#4ade80;">Bs {{ formatMonto(p.monto) }}</td>
+            <td style="text-align:right;">
+              <div v-if="p.monedaCodigo && p.monedaCodigo !== 'BS'" style="font-size:10px;color:#f59e0b;font-weight:700;margin-bottom:1px;">{{ p.monedaCodigo }} {{ formatMonto(p.monto) }} × {{ Number(p.tipoCambio).toFixed(2) }}</div>
+              <div style="font-weight:800;color:#4ade80;">Bs {{ formatMonto(p.montoEnBs || p.monto) }}</div>
+            </td>
           </tr>
         </tbody>
         <tfoot>
           <tr>
-            <td colspan="8" style="text-align:right;font-size:11px;font-weight:700;color:var(--t4);padding:10px 12px;">Total:</td>
+            <td colspan="9" style="text-align:right;font-size:11px;font-weight:700;color:var(--t4);padding:10px 12px;">Total:</td>
             <td style="text-align:right;font-weight:800;color:#4ade80;padding:10px 12px;">Bs {{ formatMonto(totalPagado) }}</td>
           </tr>
         </tfoot>
@@ -102,7 +110,7 @@ export default {
   }),
   computed: {
     totalPagado() {
-      return this.pagos.reduce((acc, p) => acc + Number(p.monto || 0), 0)
+      return this.pagos.reduce((acc, p) => acc + Number(p.montoEnBs || p.monto || 0), 0)
     },
   },
   created() { this.cargar(); this.cargarProveedores() },
@@ -150,6 +158,7 @@ export default {
 .cp-tipo--ini { background:#f59e0b22; color:#fbbf24; border:1px solid #f59e0b33; }
 .cp-tipo--com { background:#6366f122; color:#818cf8; border:1px solid #6366f133; }
 .cp-metodo { font-size:10px; font-weight:700; background:var(--bg-c); color:var(--t3); padding:2px 7px; border-radius:4px; border:1px solid var(--b1); }
+.cp-fuente-badge { font-size:10px; font-weight:600; color:#818cf8; background:#6366f111; border:1px solid #6366f122; padding:2px 7px; border-radius:4px; white-space:nowrap; }
 .ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid var(--b1); border-top-color:#6366f1; animation:spin 0.8s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
 </style>
