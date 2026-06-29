@@ -3,7 +3,7 @@
 
     <!-- ═══ MODAL PRINCIPAL ═══ -->
     <transition name="modal-fade">
-      <div v-if="visible" class="rm-backdrop" @click.self="close">
+      <div v-if="visible" class="rm-backdrop">
         <div class="rm-modal">
 
           <div class="rm-header">
@@ -112,7 +112,7 @@
 
     <!-- ═══ FORMULARIO ═══ -->
     <transition name="modal-fade">
-      <div v-if="formDialog" class="rm-sub-backdrop" @click.self="formDialog = false">
+      <div v-if="formDialog" class="rm-sub-backdrop">
         <div class="rm-sub-modal">
           <div class="rm-header">
             <span>{{ editingRep ? 'Editar representante' : 'Nuevo representante' }}</span>
@@ -179,7 +179,7 @@
 
     <!-- ═══ DAR DE BAJA ═══ -->
     <transition name="modal-fade">
-      <div v-if="bajaDialog" class="rm-sub-backdrop" @click.self="bajaDialog = false">
+      <div v-if="bajaDialog" class="rm-sub-backdrop">
         <div class="rm-sub-modal" style="max-width:420px;">
           <div class="rm-header">
             <span>Dar de baja representante</span>

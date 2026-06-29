@@ -300,7 +300,7 @@
 
     <!-- ══ MODAL: Buscar cliente ══ -->
     <transition name="modal-fade">
-      <div v-if="clienteModal" class="pos-modal-backdrop" @click.self="clienteModal = false">
+      <div v-if="clienteModal" class="pos-modal-backdrop">
         <div class="pos-modal">
           <div class="pos-modal-header">
             <span>Buscar Cliente</span>
@@ -327,7 +327,7 @@
 
     <!-- ══ MODAL: Cobro ══ -->
     <transition name="modal-fade">
-      <div v-if="cobrarModal" class="pos-modal-backdrop" @click.self="cobrarModal = false">
+      <div v-if="cobrarModal" class="pos-modal-backdrop">
         <div class="pos-modal pco-modal">
           <div class="pos-modal-header">
             <span>Cobro de Venta</span>
@@ -425,7 +425,7 @@
 
     <!-- ══ MODAL: Ticket ══ -->
     <transition name="modal-fade">
-      <div v-if="ticketModal" class="pos-modal-backdrop" @click.self="ticketModal = false">
+      <div v-if="ticketModal" class="pos-modal-backdrop">
         <div class="pos-modal" style="max-width:340px;text-align:center;">
           <div class="pos-modal-header" style="justify-content:center;border:none;">
             <span>Venta Registrada</span>

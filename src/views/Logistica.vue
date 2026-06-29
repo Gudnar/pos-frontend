@@ -161,7 +161,7 @@
     </div>
 
     <!-- ── DIALOG ORDEN ───────────────────────────────────── -->
-    <div v-if="ordenDialog" class="ide-modal-overlay" @click.self="ordenDialog = false">
+    <div v-if="ordenDialog" class="ide-modal-overlay">
       <div class="ide-modal">
         <div class="ide-modal__header">
           <h3>{{ editandoOrden ? 'Editar Orden' : 'Nueva Orden de Importación' }}</h3>
@@ -227,7 +227,7 @@
     </div>
 
     <!-- ── DIALOG MONEDA ──────────────────────────────────── -->
-    <div v-if="monedaDialog" class="ide-modal-overlay" @click.self="monedaDialog = false">
+    <div v-if="monedaDialog" class="ide-modal-overlay">
       <div class="ide-modal ide-modal--sm">
         <div class="ide-modal__header">
           <h3>{{ editandoMoneda ? 'Editar Moneda' : 'Nueva Moneda' }}</h3>
@@ -264,7 +264,7 @@
     </div>
 
     <!-- ── DIALOG TIPO GASTO ──────────────────────────────── -->
-    <div v-if="tipoGastoDialog" class="ide-modal-overlay" @click.self="tipoGastoDialog = false">
+    <div v-if="tipoGastoDialog" class="ide-modal-overlay">
       <div class="ide-modal ide-modal--sm">
         <div class="ide-modal__header">
           <h3>{{ editandoTipoGasto ? 'Editar Tipo de Gasto' : 'Nuevo Tipo de Gasto' }}</h3>
@@ -296,7 +296,7 @@
       </div>
     </div>
     <!-- ── DIALOG PAÍS ──────────────────────────────────────── -->
-    <div v-if="paisDialog" class="ide-modal-overlay" @click.self="paisDialog = false">
+    <div v-if="paisDialog" class="ide-modal-overlay">
       <div class="ide-modal ide-modal--sm">
         <div class="ide-modal__header">
           <h3>{{ editandoPais ? 'Editar País' : 'Nuevo País' }}</h3>

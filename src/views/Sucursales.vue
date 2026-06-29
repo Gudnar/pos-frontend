@@ -40,7 +40,7 @@
 
     <!-- Modal -->
     <transition name="modal-fade">
-      <div v-if="dialog" class="ct-modal-backdrop" @click.self="dialog = false">
+      <div v-if="dialog" class="ct-modal-backdrop">
         <div class="ct-modal" style="max-width:480px;">
           <div class="ct-modal-header">
             <span>{{ editando ? 'Editar Sucursal' : 'Nueva Sucursal' }}</span>

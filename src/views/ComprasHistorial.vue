@@ -103,7 +103,7 @@
 
     <!-- Modal detalle -->
     <transition name="modal-fade">
-      <div v-if="detalleDialog && detalleActual" class="ct-modal-backdrop" @click.self="detalleDialog = false">
+      <div v-if="detalleDialog && detalleActual" class="ct-modal-backdrop">
         <div class="ct-modal" style="max-width:750px;">
           <div class="ct-modal-header">
             <span>{{ detalleActual.nroCompra }} — Detalle</span>

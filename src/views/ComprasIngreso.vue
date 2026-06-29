@@ -38,7 +38,7 @@
 
       <!-- Modal formulario -->
       <transition name="modal-fade">
-        <div v-if="dialog" class="ct-modal-backdrop" @click.self="dialog = false">
+        <div v-if="dialog" class="ct-modal-backdrop">
           <div class="ct-modal ct-modal--xl">
             <div class="ct-modal-header">
               <span>{{ editandoId ? 'Editar Ingreso Inicial' : 'Nuevo Ingreso Inicial de Stock' }}</span>
@@ -166,7 +166,7 @@
 
       <!-- Modal detalle -->
       <transition name="modal-fade">
-        <div v-if="detalleDialog && detalleActual" class="ct-modal-backdrop" @click.self="detalleDialog = false">
+        <div v-if="detalleDialog && detalleActual" class="ct-modal-backdrop">
           <div class="ct-modal" style="max-width:680px;">
             <div class="ct-modal-header">
               <span>{{ detalleActual.nroCompra }} — Ingreso Inicial</span>

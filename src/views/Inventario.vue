@@ -172,7 +172,7 @@
 
     <!-- ══ MODAL INGRESAR LOTE ══ -->
     <transition name="modal-fade">
-      <div v-if="ingresoModal" class="ct-modal-backdrop" @click.self="ingresoModal = false">
+      <div v-if="ingresoModal" class="ct-modal-backdrop">
         <div class="ct-modal" style="max-width:560px;">
           <div class="ct-modal-header">
             <span>Ingresar mercadería</span>
@@ -265,7 +265,7 @@
 
     <!-- ══ MODAL SALIDA / AJUSTE ══ -->
     <transition name="modal-fade">
-      <div v-if="movModal" class="ct-modal-backdrop" @click.self="movModal = false">
+      <div v-if="movModal" class="ct-modal-backdrop">
         <div class="ct-modal" style="max-width:420px;">
           <div class="ct-modal-header">
             <span>Registrar movimiento</span>
@@ -308,7 +308,7 @@
 
     <!-- ══ MODAL TRANSFERENCIA ══ -->
     <transition name="modal-fade">
-      <div v-if="transModal" class="ct-modal-backdrop" @click.self="transModal = false">
+      <div v-if="transModal" class="ct-modal-backdrop">
         <div class="ct-modal" style="max-width:420px;">
           <div class="ct-modal-header">
             <span>Transferir stock</span>
@@ -347,7 +347,7 @@
 
     <!-- ══ MODAL TRAZABILIDAD ══ -->
     <transition name="modal-fade">
-      <div v-if="trazModal" class="ct-modal-backdrop" @click.self="trazModal = false">
+      <div v-if="trazModal" class="ct-modal-backdrop">
         <div class="ct-modal" style="max-width:600px;">
           <div class="ct-modal-header">
             <span>Trazabilidad del Lote</span>

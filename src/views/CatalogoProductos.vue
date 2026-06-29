@@ -213,7 +213,7 @@
 
     <!-- ══ MODAL UNIDAD DE MEDIDA ══ -->
     <transition name="modal-fade">
-      <div v-if="unidadDialog" class="ct-modal-backdrop" @click.self="unidadDialog = false">
+      <div v-if="unidadDialog" class="ct-modal-backdrop">
         <div class="ct-modal" style="max-width:440px;">
           <div class="ct-modal-header">
             <span>{{ editandoUnidad ? 'Editar Unidad' : 'Nueva Unidad' }}</span>
@@ -273,7 +273,7 @@
 
     <!-- ══ MODAL CATEGORÍA ══ -->
     <transition name="modal-fade">
-      <div v-if="catDialog" class="ct-modal-backdrop" @click.self="catDialog = false">
+      <div v-if="catDialog" class="ct-modal-backdrop">
         <div class="ct-modal" style="max-width:420px;">
           <div class="ct-modal-header">
             <span>{{ editandoCat ? 'Editar Categoría' : 'Nueva Categoría' }}</span>
@@ -312,7 +312,7 @@
 
     <!-- ══ MODAL SUBCATEGORÍA ══ -->
     <transition name="modal-fade">
-      <div v-if="subDialog" class="ct-modal-backdrop" @click.self="subDialog = false">
+      <div v-if="subDialog" class="ct-modal-backdrop">
         <div class="ct-modal" style="max-width:420px;">
           <div class="ct-modal-header">
             <span>{{ editandoSub ? 'Editar Subcategoría' : 'Nueva Subcategoría' }}</span>
@@ -340,7 +340,7 @@
 
     <!-- ══ MODAL PRODUCTO ══ -->
     <transition name="modal-fade">
-      <div v-if="prodDialog" class="ct-modal-backdrop" @click.self="prodDialog = false">
+      <div v-if="prodDialog" class="ct-modal-backdrop">
         <div class="ct-modal">
           <div class="ct-modal-header">
             <span>{{ editandoProd ? 'Editar Producto' : 'Nuevo Producto' }}</span>
@@ -427,7 +427,7 @@
 
     <!-- ══ MODAL PRECIOS ══ -->
     <transition name="modal-fade">
-      <div v-if="preciosModal" class="ct-modal-backdrop" @click.self="preciosModal = false">
+      <div v-if="preciosModal" class="ct-modal-backdrop">
         <div class="ct-modal" style="max-width:640px;">
           <div class="ct-modal-header">
             <div>
@@ -624,7 +624,7 @@
 
     <!-- ══ MODAL PROMOCIÓN ══ -->
     <transition name="modal-fade">
-      <div v-if="promoDialog" class="ct-modal-backdrop" style="z-index:310;" @click.self="promoDialog = false">
+      <div v-if="promoDialog" class="ct-modal-backdrop" style="z-index:310;">
         <div class="ct-modal" style="max-width:480px;">
           <div class="ct-modal-header">
             <span>{{ editandoPromo ? 'Editar Promoción' : 'Nueva Promoción' }}</span>

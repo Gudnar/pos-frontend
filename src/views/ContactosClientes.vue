@@ -94,7 +94,7 @@
 
     <!-- Modal -->
     <transition name="modal-fade">
-      <div v-if="dialog" class="ct-modal-backdrop" @click.self="dialog = false">
+      <div v-if="dialog" class="ct-modal-backdrop">
         <div class="ct-modal">
           <div class="ct-modal-header">
             <span>{{ editando ? 'Editar Cliente' : 'Nuevo Cliente' }}</span>

@@ -75,7 +75,7 @@
     </div>
 
     <!-- ── Dialog crear/editar ── -->
-    <div v-if="dialog" class="esp-overlay" @click.self="cerrarDialog">
+    <div v-if="dialog" class="esp-overlay">
       <div class="esp-modal">
         <div class="esp-modal__header">
           <span>{{ editando ? 'Editar Especialista' : 'Nuevo Especialista' }}</span>
@@ -160,7 +160,7 @@
     </div>
 
     <!-- ── Confirm eliminar ── -->
-    <div v-if="confirmDelete" class="esp-overlay" @click.self="confirmDelete = null">
+    <div v-if="confirmDelete" class="esp-overlay">
       <div class="esp-modal esp-modal--sm">
         <div class="esp-modal__header">
           <span>Eliminar especialista</span>

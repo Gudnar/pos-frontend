@@ -192,7 +192,7 @@
 
     <!-- Modal crear/editar EMPRESA -->
     <transition name="modal-fade">
-      <div v-if="dialogEmpresa" class="ct-modal-backdrop" @click.self="cerrarDialogEmpresa">
+      <div v-if="dialogEmpresa" class="ct-modal-backdrop">
         <div class="ct-modal">
           <div class="ct-modal-header">
             <span>{{ editandoEmpresa ? 'Editar empresa' : 'Nueva empresa' }}</span>
@@ -264,7 +264,7 @@
 
     <!-- Modal crear/editar USUARIO -->
     <transition name="modal-fade">
-      <div v-if="dialogUsuario" class="ct-modal-backdrop" @click.self="cerrarDialogUsuario">
+      <div v-if="dialogUsuario" class="ct-modal-backdrop">
         <div class="ct-modal">
           <div class="ct-modal-header">
             <div>

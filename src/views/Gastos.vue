@@ -77,7 +77,7 @@
     </div>
 
     <!-- Dialog crear/editar -->
-    <div v-if="dialog" class="fin-overlay" @click.self="dialog = false">
+    <div v-if="dialog" class="fin-overlay">
       <div class="fin-dialog">
         <div class="fin-dialog-head">
           <span>{{ editandoId ? 'Editar Gasto' : 'Nuevo Gasto' }}</span>

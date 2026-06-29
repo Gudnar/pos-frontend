@@ -104,7 +104,7 @@
     </div>
 
     <!-- Modal trazabilidad -->
-    <div v-if="modalLote" class="ct-modal-bg" @click.self="modalLote = null">
+    <div v-if="modalLote" class="ct-modal-bg">
       <div class="ct-modal" style="width:640px;max-height:80vh;overflow:auto;">
         <div class="ct-modal-header">
           <span>Trazabilidad — {{ modalLote.lote?.loteInterno || 'Lote' }}</span>

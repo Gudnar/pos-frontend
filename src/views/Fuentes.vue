@@ -82,6 +82,13 @@
               <option value="TRANSFERENCIA">Transferencia</option>
               <option value="OTRO">Otro</option>
             </select>
+            <input
+              v-model="filtroConcepto"
+              class="ide-input mov-filter-concepto"
+              type="text"
+              placeholder="Buscar concepto..."
+              @input="onConceptoInput"
+            />
           </div>
           <div class="mov-toolbar__btns">
             <button class="ide-btn ide-btn--sm ide-btn--success" @click="abrirMovDialog('INGRESO')">+ Ingreso</button>
@@ -151,7 +158,7 @@
     </div>
 
     <!-- ── DIALOG FUENTE ──────────────────────────────────────── -->
-    <div v-if="fuenteDialog" class="ide-modal-overlay" @click.self="fuenteDialog = false">
+    <div v-if="fuenteDialog" class="ide-modal-overlay">
       <div class="ide-modal ide-modal--sm">
         <div class="ide-modal__header">
           <h3>{{ editandoFuente ? 'Editar Fuente' : 'Nueva Fuente de Fondos' }}</h3>
@@ -216,7 +223,7 @@
     </div>
 
     <!-- ── DIALOG MOVIMIENTO (ingreso/egreso) ────────────────── -->
-    <div v-if="movDialog" class="ide-modal-overlay" @click.self="movDialog = false">
+    <div v-if="movDialog" class="ide-modal-overlay">
       <div class="ide-modal ide-modal--sm">
         <div class="ide-modal__header">
           <h3>{{ editandoMov ? 'Editar Movimiento' : (movForm.tipo === 'INGRESO' ? 'Registrar Ingreso' : 'Registrar Egreso') }}</h3>
@@ -303,7 +310,7 @@
     </div>
 
     <!-- ── DIALOG TRANSFERENCIA ──────────────────────────────── -->
-    <div v-if="transfDialog" class="ide-modal-overlay" @click.self="transfDialog = false">
+    <div v-if="transfDialog" class="ide-modal-overlay">
       <div class="ide-modal ide-modal--sm">
         <div class="ide-modal__header">
           <h3>Transferencia entre Fuentes</h3>
@@ -373,7 +380,8 @@ export default {
     fuenteSeleccionada: null,
     monedas: [],
     movimientos: [], loadingMov: false,
-    filtroDesde: '', filtroHasta: '', filtroTipo: '', filtroCategoria: '',
+    filtroDesde: '', filtroHasta: '', filtroTipo: '', filtroCategoria: '', filtroConcepto: '',
+    conceptoTimer: null,
     // Dialogs
     fuenteDialog: false, editandoFuente: null, fuenteForm: {},
     movDialog: false, editandoMov: null, movForm: {},
@@ -448,7 +456,7 @@ export default {
     },
     async seleccionarFuente(f) {
       this.fuenteSeleccionada = f
-      this.filtroDesde = ''; this.filtroHasta = ''; this.filtroTipo = ''; this.filtroCategoria = ''
+      this.filtroDesde = ''; this.filtroHasta = ''; this.filtroTipo = ''; this.filtroCategoria = ''; this.filtroConcepto = ''
       await this.cargarMovimientos()
     },
     async cargarMovimientos() {
@@ -460,9 +468,15 @@ export default {
         if (this.filtroHasta) params.append('hasta', this.filtroHasta)
         if (this.filtroTipo) params.append('tipo', this.filtroTipo)
         if (this.filtroCategoria) params.append('categoria', this.filtroCategoria)
+        if (this.filtroConcepto.trim()) params.append('concepto', this.filtroConcepto.trim())
         const qs = params.toString()
         this.movimientos = await this.$service.list(`fuentes/${this.fuenteSeleccionada.id}/movimientos${qs ? '?' + qs : ''}`) || []
       } finally { this.loadingMov = false }
+    },
+
+    onConceptoInput() {
+      clearTimeout(this.conceptoTimer)
+      this.conceptoTimer = setTimeout(() => this.cargarMovimientos(), 350)
     },
 
     // ── Fuentes CRUD ─────────────────────────────────────────
@@ -637,6 +651,7 @@ export default {
 .mov-toolbar__btns { display: flex; gap: 6px; flex-shrink: 0; }
 .mov-filter-date { width: 140px; }
 .mov-filter-select { width: 160px; }
+.mov-filter-concepto { width: 180px; }
 
 .mov-body { flex: 1; overflow: auto; padding: 16px 24px 24px; }
 

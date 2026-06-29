@@ -208,7 +208,7 @@
 
     <!-- ── MODAL: ABRIR SESIÓN ────────────────────────────────── -->
     <transition name="modal-fade">
-      <div v-if="abrirModal" class="ct-modal-backdrop" @click.self="abrirModal = false">
+      <div v-if="abrirModal" class="ct-modal-backdrop">
         <div class="ct-modal" style="max-width:380px;">
           <div class="ct-modal-header">
             <span>Apertura de Caja</span>
@@ -247,7 +247,7 @@
 
     <!-- ── MODAL: CIERRE DE SESIÓN ────────────────────────────── -->
     <transition name="modal-fade">
-      <div v-if="cierreModal" class="ct-modal-backdrop" @click.self="cierreModal = false">
+      <div v-if="cierreModal" class="ct-modal-backdrop">
         <div class="ct-modal" style="max-width:420px;">
           <div class="ct-modal-header">
             <div>

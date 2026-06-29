@@ -61,7 +61,7 @@
 
       <!-- ═══════════════════════ MODAL: NUEVA / EDITAR ORDEN ═══════════════════════ -->
       <transition name="modal-fade">
-        <div v-if="dialog" class="ct-modal-backdrop" @click.self="dialog = false">
+        <div v-if="dialog" class="ct-modal-backdrop">
           <div class="ct-modal ct-modal--xl">
             <div class="ct-modal-header">
               <span>{{ editandoId ? 'Editar Orden — ' + (ordenActiva && ordenActiva.nroCompra) : 'Nueva Orden de Compra' }}</span>
@@ -207,7 +207,7 @@
 
       <!-- ═══════════════════════ MODAL: RECIBIR EN ALMACÉN ═══════════════════════ -->
       <transition name="modal-fade">
-        <div v-if="recibirDialog" class="ct-modal-backdrop" @click.self="recibirDialog = false">
+        <div v-if="recibirDialog" class="ct-modal-backdrop">
           <div class="ct-modal" style="max-width:500px;">
             <div class="ct-modal-header">
               <span>Recibir en Almacén — {{ ordenActiva && ordenActiva.nroCompra }}</span>
@@ -245,7 +245,7 @@
 
       <!-- ═══════════════════════ MODAL: FINALIZAR ═══════════════════════ -->
       <transition name="modal-fade">
-        <div v-if="finalizarDialog" class="ct-modal-backdrop" @click.self="finalizarDialog = false">
+        <div v-if="finalizarDialog" class="ct-modal-backdrop">
           <div class="ct-modal" style="max-width:780px;">
             <div class="ct-modal-header">
               <span>Finalizar Compra — {{ ordenActiva && ordenActiva.nroCompra }}</span>
@@ -286,7 +286,7 @@
 
       <!-- ═══════════════════════ MODAL: ANULAR ═══════════════════════ -->
       <transition name="modal-fade">
-        <div v-if="anularDialog" class="ct-modal-backdrop" @click.self="anularDialog = false">
+        <div v-if="anularDialog" class="ct-modal-backdrop">
           <div class="ct-modal" style="max-width:440px;">
             <div class="ct-modal-header">
               <span>Anular Orden — {{ ordenActiva && ordenActiva.nroCompra }}</span>
@@ -320,7 +320,7 @@
 
       <!-- ═══════════════════════ MODAL: VER DETALLE ═══════════════════════ -->
       <transition name="modal-fade">
-        <div v-if="detalleDialog && detalleActual" class="ct-modal-backdrop" @click.self="detalleDialog = false">
+        <div v-if="detalleDialog && detalleActual" class="ct-modal-backdrop">
           <div class="ct-modal" style="max-width:760px;">
             <div class="ct-modal-header">
               <div style="display:flex;align-items:center;gap:8px;">

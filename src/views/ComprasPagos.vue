@@ -96,7 +96,7 @@
 
     <!-- Modal pago -->
     <transition name="modal-fade">
-      <div v-if="pagoDialog" class="ct-modal-backdrop" @click.self="pagoDialog = false">
+      <div v-if="pagoDialog" class="ct-modal-backdrop">
         <div class="ct-modal" style="max-width:420px;">
           <div class="ct-modal-header">
             <span>Registrar Pago — {{ compraParaPago && compraParaPago.nroCompra }}</span>

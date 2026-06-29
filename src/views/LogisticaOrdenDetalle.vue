@@ -559,7 +559,7 @@
     </div>
 
     <!-- ── DIALOG ÍTEM ──────────────────────────────────────── -->
-    <div v-if="itemDialog" class="ide-modal-overlay" @click.self="itemDialog = false">
+    <div v-if="itemDialog" class="ide-modal-overlay">
       <div class="ide-modal">
         <div class="ide-modal__header">
           <h3>{{ editandoItem ? 'Editar Producto' : 'Agregar Producto' }}</h3>
@@ -615,7 +615,7 @@
     </div>
 
     <!-- ── DIALOG PAGO ──────────────────────────────────────── -->
-    <div v-if="pagoDialog" class="ide-modal-overlay" @click.self="pagoDialog = false">
+    <div v-if="pagoDialog" class="ide-modal-overlay">
       <div class="ide-modal ide-modal--sm">
         <div class="ide-modal__header">
           <h3>{{ editandoPago ? 'Editar Pago' : 'Registrar Pago al Proveedor' }}</h3>
@@ -737,7 +737,7 @@
     </div>
 
     <!-- ── DIALOG GASTO ─────────────────────────────────────── -->
-    <div v-if="gastoDialog" class="ide-modal-overlay" @click.self="gastoDialog = false">
+    <div v-if="gastoDialog" class="ide-modal-overlay">
       <div class="ide-modal ide-modal--sm">
         <div class="ide-modal__header">
           <h3>{{ editandoGasto ? 'Editar Gasto' : 'Registrar Gasto de Logística' }}</h3>
@@ -839,7 +839,7 @@
     </div>
 
     <!-- ── DIALOG CIERRE ────────────────────────────────────── -->
-    <div v-if="cierreDialog" class="ide-modal-overlay" @click.self="cierreDialog = false">
+    <div v-if="cierreDialog" class="ide-modal-overlay">
       <div class="ide-modal ide-modal--lg">
         <div class="ide-modal__header">
           <h3>Cerrar Orden — Configurar Precio Propuesto</h3>

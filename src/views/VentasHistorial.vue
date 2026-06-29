@@ -58,7 +58,7 @@
 
     <!-- ══ MODAL DETALLE ══ -->
     <transition name="modal-fade">
-      <div v-if="detalleModal" class="ct-modal-backdrop" @click.self="detalleModal = false">
+      <div v-if="detalleModal" class="ct-modal-backdrop">
         <div class="ct-modal" style="max-width:560px;">
           <div class="ct-modal-header">
             <span>{{ detalle && detalle.venta ? detalle.venta.nroVenta : '' }}</span>
