@@ -16,7 +16,6 @@ import Directives from '@/directives';
 import Util from '@/plugins/util';
 import Components from '@/plugins/component';
 import Service from '@/plugins/service';
-
 Vue.use(Message);
 Vue.use(Storage);
 Vue.use(Progress);
