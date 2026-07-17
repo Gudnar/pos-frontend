@@ -10,11 +10,32 @@
           <option v-for="s in sucursales" :key="s.id" :value="s.id">{{ s.nombre }}</option>
         </select>
       </div>
-      <div class="ide-field" style="min-width:220px;flex:2;">
+      <div class="ide-field" style="min-width:220px;flex:2;position:relative;">
         <label>Buscar producto</label>
-        <input v-model="busqueda" class="ide-input" placeholder="Nombre o código…" @input="filtrarLocal" />
+        <input
+          v-model="busqueda"
+          class="ide-input"
+          placeholder="Nombre o código…"
+          @input="actualizarSugerencias"
+          @keydown="onBusquedaKeydown"
+          @focus="dropdownAbierto = busqueda.length > 0"
+        />
+        <!-- Dropdown autocomplete -->
+        <div v-if="dropdownAbierto && productosFiltrados.length > 0" class="autocomplete-dropdown">
+          <div
+            v-for="(prod, idx) in productosFiltrados.slice(0, 8)"
+            :key="prod.productoId"
+            :class="['autocomplete-item', { 'autocomplete-item--active': idx === highlightIndex }]"
+            @click="seleccionarProducto(prod)"
+            @mouseenter="highlightIndex = idx"
+          >
+            <div class="autocomplete-item__path">{{ [prod.categoriaNombre, prod.subcategoriaNombre, prod.nombre].filter(Boolean).join(' › ') }}</div>
+            <div class="autocomplete-item__info">Stock: {{ fmt(prod.stockTotal) }}</div>
+          </div>
+        </div>
       </div>
       <div class="ide-field" style="padding-top:18px;">
+        <button class="ide-btn ide-btn--primary" @click="aplicarBusqueda" style="margin-right:8px;">🔍 Buscar</button>
         <button class="ct-btn-cancel" @click="limpiar">Limpiar</button>
       </div>
     </div>
@@ -80,11 +101,22 @@ export default {
     filas: [], filasFiltradas: [], loading: false,
     filtro: { sucursalId: '' },
     busqueda: '',
+    dropdownAbierto: false,
+    highlightIndex: -1,
   }),
   computed: {
     sucursales() { return this.$store.getters.sucursales || [] },
     totalLotes() { return this.filasFiltradas.reduce((a, r) => a + Number(r.nroLotes || 0), 0) },
     totalUnidades() { return this.filasFiltradas.reduce((a, r) => a + Number(r.stockTotal || 0), 0).toFixed(2) },
+    productosFiltrados() {
+      const q = this.busqueda.toLowerCase().trim()
+      if (!q) return []
+      return this.filas.filter(r =>
+        r.nombre?.toLowerCase().includes(q) ||
+        r.codigo?.toLowerCase().includes(q) ||
+        r.categoriaNombre?.toLowerCase().includes(q) ||
+        r.subcategoriaNombre?.toLowerCase().includes(q))
+    },
   },
   created() {
     const s = this.$store.getters.sucursalActualId
@@ -112,10 +144,15 @@ export default {
           const cat = sub ? catMap.get(sub.categoriaId) : null
           return { ...r, subcategoriaNombre: sub?.nombre || '', categoriaNombre: cat?.nombre || '' }
         })
-        this.filtrarLocal()
+        this.filasFiltradas = [...this.filas]
       } finally { this.loading = false }
     },
-    filtrarLocal() {
+    actualizarSugerencias() {
+      const q = this.busqueda.toLowerCase().trim()
+      this.dropdownAbierto = q.length > 0 && this.productosFiltrados.length > 0
+      this.highlightIndex = -1
+    },
+    aplicarBusqueda() {
       const q = this.busqueda.toLowerCase().trim()
       this.filasFiltradas = q
         ? this.filas.filter(r =>
@@ -124,9 +161,44 @@ export default {
             r.categoriaNombre?.toLowerCase().includes(q) ||
             r.subcategoriaNombre?.toLowerCase().includes(q))
         : [...this.filas]
+      this.dropdownAbierto = false
+      this.highlightIndex = -1
+    },
+    onBusquedaKeydown(e) {
+      if (!this.dropdownAbierto || this.productosFiltrados.length === 0) return
+      switch(e.key) {
+        case 'ArrowDown':
+          e.preventDefault()
+          this.highlightIndex = Math.min(this.highlightIndex + 1, Math.min(this.productosFiltrados.length - 1, 7))
+          break
+        case 'ArrowUp':
+          e.preventDefault()
+          this.highlightIndex = Math.max(this.highlightIndex - 1, -1)
+          break
+        case 'Enter':
+          e.preventDefault()
+          if (this.highlightIndex >= 0 && this.highlightIndex < this.productosFiltrados.length) {
+            this.seleccionarProducto(this.productosFiltrados[this.highlightIndex])
+          } else {
+            this.aplicarBusqueda()
+          }
+          break
+        case 'Escape':
+          e.preventDefault()
+          this.dropdownAbierto = false
+          this.highlightIndex = -1
+          break
+      }
+    },
+    seleccionarProducto(prod) {
+      this.busqueda = prod.nombre
+      this.aplicarBusqueda()
     },
     limpiar() {
-      this.filtro.sucursalId = ''; this.busqueda = ''
+      this.filtro.sucursalId = ''
+      this.busqueda = ''
+      this.dropdownAbierto = false
+      this.highlightIndex = -1
       this.cargar()
     },
     fmt(v) { return Number(v || 0).toFixed(2) },
@@ -161,4 +233,11 @@ export default {
 .inv-prod-nombre { font-size:12px; font-weight:700; color:var(--t2); }
 .ct-spinner { width:24px; height:24px; border-radius:50%; border:3px solid var(--b1); border-top-color:#6366f1; animation:spin .8s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
+/* Autocomplete dropdown */
+.autocomplete-dropdown { position:absolute; top:100%; left:0; right:0; margin-top:4px; background:var(--bg-s); border:1px solid var(--b1); border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.15); z-index:10; max-height:300px; overflow-y:auto; }
+.autocomplete-item { padding:10px 12px; cursor:pointer; border-bottom:1px solid var(--b2); transition:background-color 0.15s; }
+.autocomplete-item:last-child { border-bottom:none; }
+.autocomplete-item:hover, .autocomplete-item--active { background:var(--bg-c); }
+.autocomplete-item__path { font-size:12px; font-weight:600; color:var(--t2); margin-bottom:4px; word-break:break-word; }
+.autocomplete-item__info { font-size:11px; color:var(--t4); }
 </style>

@@ -2,18 +2,55 @@
   <div class="vh-root">
 
     <!-- Filtros -->
-    <div class="vh-filters">
-      <input v-model="filtros.fecha" class="ide-input" type="date" style="width:150px;" @change="cargar" />
-      <select v-model="filtros.estadoVenta" class="ide-select" style="width:140px;" @change="cargar">
-        <option value="">Todos los estados</option>
-        <option value="PAGADA">Pagada</option>
-        <option value="PENDIENTE">Pendiente</option>
-        <option value="ANULADA">Anulada</option>
-      </select>
-      <button class="cp-add-btn" @click="cargar">Actualizar</button>
-      <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
+    <div class="vh-filters-container">
+      <div class="vh-filters-row">
+        <div class="vh-filter-group">
+          <label>Desde:</label>
+          <input v-model="filtros.fechaDesde" class="ide-input" type="date" @change="cargar" />
+        </div>
+        <div class="vh-filter-group">
+          <label>Hasta:</label>
+          <input v-model="filtros.fechaHasta" class="ide-input" type="date" @change="cargar" />
+        </div>
+        <div class="vh-filter-group">
+          <label>Sucursal:</label>
+          <select v-model="filtros.sucursalId" class="ide-select" @change="cargar">
+            <option value="">Todas</option>
+            <option v-for="s in sucursales" :key="s.id" :value="s.id">{{ s.nombre }}</option>
+          </select>
+        </div>
+        <div class="vh-filter-group">
+          <label>Estado:</label>
+          <select v-model="filtros.estadoVenta" class="ide-select" @change="cargar">
+            <option value="">Todos</option>
+            <option value="PAGADA">Pagada</option>
+            <option value="PENDIENTE">Pendiente</option>
+            <option value="ANULADA">Anulada</option>
+          </select>
+        </div>
+        <div class="vh-filter-group">
+          <label>Saldo:</label>
+          <select v-model="filtros.conSaldo" class="ide-select" @change="cargar">
+            <option value="">Todos</option>
+            <option value="true">Con deuda</option>
+            <option value="false">Pagadas</option>
+          </select>
+        </div>
+      </div>
+      <div class="vh-filters-row">
+        <div class="vh-filter-group" style="flex:1;">
+          <label>Cliente:</label>
+          <input v-model="filtros.nombreCliente" class="ide-input" placeholder="Buscar cliente..." @change="cargar" />
+        </div>
+        <div style="display:flex;gap:8px;align-items:flex-end;padding-bottom:2px;">
+          <button class="cp-add-btn" @click="cargar">🔍 Aplicar</button>
+          <button class="cp-cancel-btn" @click="limpiarFiltros">Limpiar</button>
+        </div>
+      </div>
+      <div class="vh-summary">
         <span style="font-size:11px;color:var(--t5);">{{ ventas.length }} ventas</span>
         <span style="font-size:12px;font-weight:700;color:#6366f1;">Total: Bs. {{ formatNum(totalDia) }}</span>
+        <span v-if="totalSaldoPendiente > 0" style="font-size:12px;font-weight:700;color:#f97316;">Saldo pendiente: Bs. {{ formatNum(totalSaldoPendiente) }}</span>
       </div>
     </div>
 
@@ -81,14 +118,19 @@
                   <thead><tr style="color:var(--t5);font-size:10px;text-transform:uppercase;">
                     <th style="text-align:left;padding:4px 0;">Producto</th>
                     <th style="text-align:right;padding:4px 0;">Cant.</th>
-                    <th style="text-align:right;padding:4px 0;">P.Unit.</th>
+                    <th style="text-align:right;padding:4px 0;">Precio</th>
                     <th style="text-align:right;padding:4px 0;">Subtotal</th>
                   </tr></thead>
                   <tbody>
                     <tr v-for="d in detalle.detalles" :key="d.id" style="border-top:1px solid #0d1a2d;">
                       <td style="padding:6px 0;color:var(--scroll);">{{ d.nombreProducto }}</td>
                       <td style="text-align:right;color:var(--t3);">{{ formatCant(d.cantidad) }}</td>
-                      <td style="text-align:right;color:var(--t3);">{{ formatNum(d.precioUnitario) }}</td>
+                      <td style="text-align:right;color:var(--t3);font-size:11px;">
+                        <div>Bs. {{ formatNum(d.precioUnitario) }}</div>
+                        <div v-if="d.porcentajeFactura > 0" style="color:var(--t5);font-size:10px;">
+                          (+ IVA: Bs. {{ formatNum(d.precioUnitario * (1 + d.porcentajeFactura / 100)) }})
+                        </div>
+                      </td>
                       <td style="text-align:right;color:#6366f1;font-weight:600;">Bs. {{ formatNum(d.subtotal) }}</td>
                     </tr>
                   </tbody>
@@ -104,9 +146,25 @@
               </div>
             </template>
           </div>
-          <div class="ct-modal-footer">
-            <button class="ct-btn-cancel" @click="detalleModal = false">Cerrar</button>
-            <button v-if="detalle && detalle.venta && detalle.venta.estadoVenta !== 'ANULADA'" class="ct-btn-ok" style="background:#ef4444;" @click="anular(detalle.venta); detalleModal = false">Anular Venta</button>
+          <div class="ct-modal-footer" style="display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;">
+            <div style="display:flex;gap:8px;">
+              <button class="ct-btn-print" title="Imprimir nota de venta" @click="imprimirNotaVenta(detalle.venta)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path></svg>
+                Nota
+              </button>
+              <button class="ct-btn-print" title="Imprimir recibo" @click="imprimirRecibo(detalle.venta)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11H7.5A1.5 1.5 0 0 0 6 12.5v3A1.5 1.5 0 0 0 7.5 17H9"></path><path d="M15 11h1.5a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5H15"></path><line x1="12" y1="6" x2="12" y2="20"></line></svg>
+                Recibo
+              </button>
+              <button class="ct-btn-print" title="Imprimir ticket" @click="imprimirTicket(detalle.venta)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"></path><line x1="12" y1="9" x2="12" y2="15"></line><line x1="9" y1="12" x2="15" y2="12"></line></svg>
+                Ticket
+              </button>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button class="ct-btn-cancel" @click="detalleModal = false">Cerrar</button>
+              <button v-if="detalle && detalle.venta && detalle.venta.estadoVenta !== 'ANULADA'" class="ct-btn-ok" style="background:#ef4444;" @click="anular(detalle.venta); detalleModal = false">Anular Venta</button>
+            </div>
           </div>
         </div>
       </div>
@@ -119,27 +177,57 @@ export default {
   name: 'VentasHistorial',
   data: () => ({
     ventas: [], loading: false,
-    filtros: { fecha: new Date().toISOString().split('T')[0], estadoVenta: '' },
+    sucursales: [],
+    filtros: {
+      fechaDesde: new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0],
+      fechaHasta: new Date().toISOString().split('T')[0],
+      sucursalId: '',
+      estadoVenta: '',
+      nombreCliente: '',
+      conSaldo: '',
+    },
     detalleModal: false, detalle: null, loadingDetalle: false,
   }),
   computed: {
     sucursalActualId() { return this.$store.getters.sucursalActualId },
     totalDia() { return this.ventas.filter(v => v.estadoVenta !== 'ANULADA').reduce((s, v) => s + Number(v.total), 0) },
+    totalSaldoPendiente() { return this.ventas.filter(v => v.estadoVenta !== 'ANULADA').reduce((s, v) => s + Math.max(0, Number(v.total) - Number(v.montoPagado || 0)), 0) },
   },
-  mounted() { this.cargar() },
+  mounted() {
+    this.cargarSucursales()
+    this.cargar()
+  },
   watch: {
     sucursalActualId() { this.cargar() },
   },
   methods: {
+    async cargarSucursales() {
+      try {
+        this.sucursales = await this.$service.list('sucursales?soloActivas=true') || []
+      } catch (e) { console.error(e) }
+    },
     async cargar() {
       this.loading = true
       try {
         let url = 'ventas?'
-        if (this.sucursalActualId) url += `sucursalId=${this.sucursalActualId}&`
-        if (this.filtros.fecha) url += `fecha=${this.filtros.fecha}&`
+        const sucId = this.filtros.sucursalId || this.sucursalActualId
+        if (sucId) url += `sucursalId=${sucId}&`
+        if (this.filtros.fechaDesde) url += `fechaDesde=${this.filtros.fechaDesde}&`
+        if (this.filtros.fechaHasta) url += `fechaHasta=${this.filtros.fechaHasta}&`
         if (this.filtros.estadoVenta) url += `estadoVenta=${this.filtros.estadoVenta}&`
+        if (this.filtros.nombreCliente) url += `nombreCliente=${encodeURIComponent(this.filtros.nombreCliente)}&`
+        if (this.filtros.conSaldo) url += `conSaldo=${this.filtros.conSaldo}&`
         this.ventas = await this.$service.list(url) || []
       } finally { this.loading = false }
+    },
+    limpiarFiltros() {
+      this.filtros.fechaDesde = new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0]
+      this.filtros.fechaHasta = new Date().toISOString().split('T')[0]
+      this.filtros.sucursalId = ''
+      this.filtros.estadoVenta = ''
+      this.filtros.nombreCliente = ''
+      this.filtros.conSaldo = ''
+      this.cargar()
     },
     async abrirDetalle(v) {
       this.detalle = null
@@ -158,6 +246,189 @@ export default {
         } catch (e) { this.$message.error(e?.message || 'Error al anular') }
       })
     },
+    imprimirNotaVenta(venta) {
+      const w = window.open('', '_blank')
+      const detalles = this.detalle?.detalles || []
+      let html = `
+        <html>
+          <head>
+            <title>Nota de Venta ${venta.nroVenta}</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; }
+              h1 { text-align: center; font-size: 24px; margin: 0; }
+              .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px; }
+              .info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; font-size: 12px; }
+              table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12px; }
+              th, td { padding: 8px; border: 1px solid #ddd; text-align: left; }
+              th { background: #f5f5f5; font-weight: bold; }
+              .totales { margin-top: 20px; text-align: right; }
+              .total-final { font-size: 16px; font-weight: bold; margin-top: 10px; }
+              @media print { button { display: none; } }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <h1>NOTA DE VENTA</h1>
+              <p>Nro: ${venta.nroVenta}</p>
+            </div>
+            <div class="info">
+              <div><strong>Fecha:</strong> ${this.formatFecha(venta.fecha)}</div>
+              <div><strong>Cliente:</strong> ${venta.nombreCliente || '—'}</div>
+              <div><strong>Estado:</strong> ${venta.estadoVenta}</div>
+              <div><strong>Método:</strong> ${venta.metodoPago || '—'}</div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th style="text-align:right;">Cant.</th>
+                  <th style="text-align:right;">Precio</th>
+                  <th style="text-align:right;">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${detalles.map(d => `
+                  <tr>
+                    <td>${d.nombreProducto}</td>
+                    <td style="text-align:right;">${this.formatCant(d.cantidad)}</td>
+                    <td style="text-align:right;">Bs. ${this.formatNum(d.precioUnitario)}</td>
+                    <td style="text-align:right;">Bs. ${this.formatNum(d.subtotal)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+            <div class="totales">
+              <div>Subtotal: Bs. ${this.formatNum(venta.subtotal)}</div>
+              <div>Descuento: Bs. ${this.formatNum(venta.descuento)}</div>
+              <div class="total-final">TOTAL: Bs. ${this.formatNum(venta.total)}</div>
+            </div>
+            <button onclick="window.print()">Imprimir</button>
+          </body>
+        </html>
+      `
+      w.document.write(html)
+      w.document.close()
+    },
+    imprimirRecibo(venta) {
+      const w = window.open('', '_blank')
+      const detalles = this.detalle?.detalles || []
+      let html = `
+        <html>
+          <head>
+            <title>Recibo ${venta.nroVenta}</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; }
+              .recibo { max-width: 400px; margin: 0 auto; }
+              h1 { text-align: center; font-size: 18px; margin: 0; }
+              .header { text-align: center; margin-bottom: 15px; border-bottom: 1px solid #000; padding-bottom: 10px; }
+              .info { font-size: 11px; margin-bottom: 10px; }
+              table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 11px; }
+              th, td { padding: 5px; border: 1px solid #ddd; text-align: left; }
+              th { background: #f5f5f5; font-weight: bold; }
+              .totales { margin-top: 10px; font-size: 11px; }
+              .total-final { text-align: right; font-weight: bold; margin-top: 5px; font-size: 14px; }
+              @media print { button { display: none; } }
+            </style>
+          </head>
+          <body>
+            <div class="recibo">
+              <div class="header">
+                <h1>RECIBO</h1>
+                <p style="margin: 2px;">Nro: ${venta.nroVenta}</p>
+                <p style="margin: 2px;">Fecha: ${this.formatFecha(venta.fecha)}</p>
+              </div>
+              <div class="info">
+                <p style="margin: 2px;"><strong>Cliente:</strong> ${venta.nombreCliente || '—'}</p>
+                <p style="margin: 2px;"><strong>Pagado:</strong> Bs. ${this.formatNum(venta.montoPagado || 0)}</p>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Producto</th>
+                    <th style="text-align:right;">Subtotal</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${detalles.map(d => `
+                    <tr>
+                      <td style="font-size:10px;">${d.nombreProducto}</td>
+                      <td style="text-align:right;">Bs. ${this.formatNum(d.subtotal)}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+              <div class="totales">
+                <div style="text-align:right;">Subtotal: Bs. ${this.formatNum(venta.subtotal)}</div>
+                <div style="text-align:right;">Descuento: Bs. ${this.formatNum(venta.descuento)}</div>
+                <div class="total-final" style="text-align:right;">TOTAL: Bs. ${this.formatNum(venta.total)}</div>
+              </div>
+            </div>
+            <button onclick="window.print()">Imprimir</button>
+          </body>
+        </html>
+      `
+      w.document.write(html)
+      w.document.close()
+    },
+    imprimirTicket(venta) {
+      const w = window.open('', '_blank')
+      const detalles = this.detalle?.detalles || []
+      let html = `
+        <html>
+          <head>
+            <title>Ticket ${venta.nroVenta}</title>
+            <style>
+              body { font-family: 'Courier New', monospace; margin: 0; padding: 10px; }
+              .ticket { width: 280px; margin: 0 auto; font-size: 11px; }
+              h1 { text-align: center; margin: 5px 0; font-size: 14px; }
+              .header { text-align: center; border-bottom: 1px dashed #000; padding-bottom: 5px; margin-bottom: 5px; }
+              .line { text-align: center; font-size: 10px; }
+              table { width: 100%; margin: 5px 0; border-collapse: collapse; }
+              td { padding: 2px 0; }
+              .item { text-align: left; font-size: 10px; }
+              .price { text-align: right; font-size: 10px; }
+              .sep { border-top: 1px dashed #000; margin: 5px 0; }
+              .total { text-align: right; font-weight: bold; font-size: 12px; }
+              @media print { button { display: none; } }
+            </style>
+          </head>
+          <body>
+            <div class="ticket">
+              <div class="header">
+                <h1>TICKET DE CAJA</h1>
+                <div class="line">Nro: ${venta.nroVenta}</div>
+                <div class="line">${this.formatFecha(venta.fecha)}</div>
+              </div>
+              <div style="margin: 5px 0;">
+                ${detalles.map(d => `
+                  <div class="sep" style="border: none; margin: 3px 0;"></div>
+                  <div class="item">${d.nombreProducto}</div>
+                  <table>
+                    <tr>
+                      <td class="item">${this.formatCant(d.cantidad)} x Bs. ${this.formatNum(d.precioUnitario)}</td>
+                      <td class="price">Bs. ${this.formatNum(d.subtotal)}</td>
+                    </tr>
+                  </table>
+                `).join('')}
+              </div>
+              <div class="sep"></div>
+              <table>
+                <tr>
+                  <td>TOTAL:</td>
+                  <td class="total">Bs. ${this.formatNum(venta.total)}</td>
+                </tr>
+              </table>
+              <div style="text-align: center; font-size: 9px; margin-top: 10px;">
+                Gracias por su compra
+              </div>
+            </div>
+            <button onclick="window.print()" style="margin-top: 10px;">Imprimir</button>
+          </body>
+        </html>
+      `
+      w.document.write(html)
+      w.document.close()
+    },
     formatNum(v) { return Number(v || 0).toLocaleString('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) },
     formatCant(v) { const n = Number(v || 0); return n % 1 === 0 ? n.toString() : n.toFixed(3) },
     formatFecha(d) { if (!d) return ''; return new Date(d + 'T00:00:00').toLocaleDateString('es-BO', { day:'2-digit', month:'short', year:'numeric' }) },
@@ -167,7 +438,14 @@ export default {
 
 <style scoped>
 .vh-root { display:flex; flex-direction:column; height:100%; gap:10px; }
-.vh-filters { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:10px 14px; background:var(--bg-s); border:1px solid var(--b1); border-radius:12px; }
+.vh-filters-container { background:var(--bg-s); border:1px solid var(--b1); border-radius:12px; padding:12px 14px; }
+.vh-filters-row { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:8px; align-items:flex-end; }
+.vh-filter-group { display:flex; flex-direction:column; gap:4px; }
+.vh-filter-group label { font-size:10px; font-weight:600; color:var(--t4); text-transform:uppercase; letter-spacing:.4px; }
+.vh-filter-group input, .vh-filter-group select { width:140px; }
+.vh-summary { display:flex; gap:16px; padding-top:8px; border-top:1px solid var(--b1); font-size:12px; }
+.cp-cancel-btn { font-size:11px; font-weight:600; padding:5px 12px; border-radius:8px; background:var(--b1); color:var(--t4); border:1px solid var(--b0); cursor:pointer; }
+.cp-cancel-btn:hover { background:var(--b2); }
 .vh-table-wrap { flex:1; background:var(--bg-s); border:1px solid var(--b1); border-radius:12px; overflow:auto; }
 .vh-table { width:100%; border-collapse:collapse; font-size:12px; }
 .vh-table thead { background:var(--bg-n); position:sticky; top:0; }
@@ -207,6 +485,8 @@ export default {
 .ct-btn-cancel { padding:8px 16px; border-radius:8px; background:var(--b1); color:var(--t4); border:1px solid var(--b0); cursor:pointer; font-size:12px; }
 .ct-btn-ok { padding:8px 18px; border-radius:8px; background:#6366f1; color:#fff; border:none; cursor:pointer; font-size:12px; font-weight:600; }
 .ct-btn-ok:hover { background:#4f46e5; }
+.ct-btn-print { padding:8px 12px; border-radius:8px; background:#3b82f6; color:#fff; border:none; cursor:pointer; font-size:11px; font-weight:600; display:inline-flex; align-items:center; gap:4px; }
+.ct-btn-print:hover { background:#2563eb; }
 .modal-fade-enter-active, .modal-fade-leave-active { transition:opacity .2s; }
 .modal-fade-enter, .modal-fade-leave-to { opacity:0; }
 </style>

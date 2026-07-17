@@ -456,7 +456,7 @@
             <template v-else-if="preciosTab==='precios'">
               <!-- Escalas activas por tipo -->
               <div class="cp-price-types">
-                <div v-for="tipo in ['COSTO','VENTA','MAYORISTA']" :key="tipo" class="cp-price-type-card">
+                <div v-for="tipo in ['COSTO','VENTA','MAYORISTA','LOGISTICA']" :key="tipo" class="cp-price-type-card">
                   <div class="cp-price-type-label">{{ tipo }}</div>
                   <template v-if="escalaActivaPorTipo(tipo)">
                     <div v-for="t in escalaActivaPorTipo(tipo).tiers" :key="t.id" style="display:flex;justify-content:space-between;align-items:center;margin-top:3px;">

@@ -135,24 +135,30 @@
           placeholder="Búsqueda"
           autocomplete="off"
           @input="onSearchInput"
-          @keydown.enter.prevent="agregarPrimerResultado"
-          @keydown.esc="searchResultados = []"
+          @keydown.enter.prevent="onSearchKeyEnter"
+          @keydown.arrow-down.prevent="onSearchKeyDown"
+          @keydown.arrow-up.prevent="onSearchKeyUp"
+          @keydown.esc="onSearchKeyEscape"
+          @focus="searchDropdownOpen = searchQuery.length > 0"
         />
         <transition name="dropdown-fade">
-          <div v-if="searchResultados.length" class="pos-search-dropdown">
+          <div v-if="searchDropdownOpen && searchResultados.length" class="pos-search-dropdown">
             <div
-              v-for="p in searchResultados" :key="p.id"
-              class="pos-search-item"
+              v-for="(p, idx) in searchResultados"
+              :key="p.id"
+              :class="['pos-search-item', { 'pos-search-item--active': idx === searchHighlightIndex }]"
               @mousedown.prevent="agregarProducto(p)"
+              @mouseenter="searchHighlightIndex = idx"
             >
               <span class="pos-si-code">{{ p.codigoTienda || p.codigoBarras || '—' }}</span>
               <span class="pos-si-main">
-                <span class="pos-si-name">{{ p.nombre }}</span>
-                <span v-if="p.nombreCategoria || p.nombreSubcategoria" class="pos-si-breadcrumb">
-                  {{ [p.nombreCategoria, p.nombreSubcategoria].filter(Boolean).join(' ') }}
-                </span>
+                <span class="pos-si-path">{{ [p.nombreCategoria, p.nombreSubcategoria, p.nombre].filter(Boolean).join(' > ') }}</span>
               </span>
-              <span class="pos-si-price">{{ p.precio != null ? 'Bs ' + formatNum(p.precio) : 'S/P' }}</span>
+              <span class="pos-si-price">
+                <span v-if="p.precio != null">Bs {{ formatNum(p.precio) }}</span>
+                <span v-if="p.porcentajeFactura > 0" class="pos-si-price-iva">(+ IVA: Bs {{ formatNum(p.precio * (1 + p.porcentajeFactura / 100)) }})</span>
+                <span v-if="p.precio == null">S/P</span>
+              </span>
             </div>
           </div>
         </transition>
@@ -168,6 +174,7 @@
               <th class="pos-th" style="width:44px;">Nro</th>
               <th class="pos-th" style="width:110px;">Codigo</th>
               <th class="pos-th">Descripcion</th>
+              <th class="pos-th" style="width:140px;">Lotes</th>
               <th class="pos-th" style="width:170px;">Precios</th>
               <th class="pos-th" style="width:90px;">Cantidad</th>
               <th class="pos-th" style="width:110px;">Precio (Bs)</th>
@@ -177,7 +184,7 @@
           </thead>
           <tbody>
             <tr v-if="!detalle.length">
-              <td colspan="8" class="pos-td-empty">No hay productos agregados. Use el buscador para agregar productos.</td>
+              <td colspan="9" class="pos-td-empty">No hay productos agregados. Use el buscador para agregar productos.</td>
             </tr>
             <tr v-for="(item, idx) in detalle" :key="item._key" class="pos-tr">
               <!-- Nro -->
@@ -191,6 +198,21 @@
                 <span class="pos-desc-full">
                   {{ [item.nombreCategoria, item.nombreSubcategoria, item.nombre].filter(Boolean).join(' ') }}
                 </span>
+              </td>
+
+              <!-- Lotes disponibles -->
+              <td class="pos-td">
+                <div class="pos-lotes-cell">
+                  <select v-model="item.loteSeleccionado" class="pos-select pos-select--lote" @change="onLoteChange(item)">
+                    <option value="">Sin lote</option>
+                    <option v-for="lote in item.lotes" :key="lote.id" :value="lote.id">
+                      {{ lote.nroLote }} ({{ formatNum(lote.stock) }})
+                    </option>
+                  </select>
+                  <div v-if="item.loteSeleccionado" class="pos-lote-info">
+                    <span class="pos-lote-label">{{ getLoteLabel(item) }}</span>
+                  </div>
+                </div>
               </td>
 
               <!-- Precios: tiers según SF/CF activo -->
@@ -209,7 +231,7 @@
                       :checked="item.tierIdx === tidx"
                       @change="onTierChange(item, tidx)"
                     />
-                    <span class="pos-precio-lbl">{{ etiquetaTier(tier) }}</span>
+                    <span class="pos-precio-lbl">{{ etiquetaTier(tier, item.porcentajeFactura) }}</span>
                   </label>
                   <span v-if="tiersActivos(item).length > 1" class="pos-precio-auto">
                     ⚡ Precio automático según cantidad
@@ -486,6 +508,8 @@ export default {
     searchModes: ['descripcion'],
     searchQuery: '',
     searchResultados: [],
+    searchDropdownOpen: false,
+    searchHighlightIndex: -1,
     loadingSearch: false,
     productos: [],
 
@@ -591,13 +615,17 @@ export default {
 
     onSearchInput() {
       clearTimeout(searchTimeout)
-      if (!this.searchQuery.trim()) { this.searchResultados = []; return }
+      if (!this.searchQuery.trim()) {
+        this.searchResultados = []
+        this.searchDropdownOpen = false
+        return
+      }
       searchTimeout = setTimeout(() => this.buscarProductos(), 200)
     },
 
     buscarProductos() {
       const q = this.searchQuery.toLowerCase().trim()
-      if (!q) { this.searchResultados = []; return }
+      if (!q) { this.searchResultados = []; this.searchDropdownOpen = false; return }
 
       this.searchResultados = this.productos.filter(p => {
         if (this.searchModes.includes('descripcion')) {
@@ -610,10 +638,32 @@ export default {
         if (this.searchModes.includes('cod_barras') && p.codigoBarras?.toLowerCase().includes(q)) return true
         return false
       }).slice(0, 12)
+
+      this.searchDropdownOpen = this.searchResultados.length > 0
+      this.searchHighlightIndex = -1
     },
 
-    agregarPrimerResultado() {
-      if (this.searchResultados.length) this.agregarProducto(this.searchResultados[0])
+    onSearchKeyDown() {
+      if (!this.searchDropdownOpen || this.searchResultados.length === 0) return
+      this.searchHighlightIndex = Math.min(this.searchHighlightIndex + 1, this.searchResultados.length - 1)
+    },
+
+    onSearchKeyUp() {
+      if (!this.searchDropdownOpen || this.searchResultados.length === 0) return
+      this.searchHighlightIndex = Math.max(this.searchHighlightIndex - 1, -1)
+    },
+
+    onSearchKeyEnter() {
+      if (this.searchHighlightIndex >= 0 && this.searchHighlightIndex < this.searchResultados.length) {
+        this.agregarProducto(this.searchResultados[this.searchHighlightIndex])
+      } else if (this.searchResultados.length) {
+        this.agregarProducto(this.searchResultados[0])
+      }
+    },
+
+    onSearchKeyEscape() {
+      this.searchDropdownOpen = false
+      this.searchHighlightIndex = -1
     },
 
     agregarProducto(prod) {
@@ -637,13 +687,14 @@ export default {
       const tierIdx = 0
       const precioBase = tiersActivos[0]?.precio ?? 0
 
-      this.detalle.push({
+      const nuevoItem = {
         _key: ++_keyCounter,
         productoId: prod.id,
         codigoTienda: prod.codigoTienda || prod.codigoBarras || '',
         nombre: prod.nombre,
         nombreCategoria: prod.nombreCategoria || null,
         nombreSubcategoria: prod.nombreSubcategoria || null,
+        porcentajeFactura: prod.porcentajeFactura || 0,
         tiersSF,
         tiersCF,
         tipoPrecio: tipoPrecioActual,
@@ -652,7 +703,14 @@ export default {
         precioUnitario: precioBase,
         descuentoPct: 0,
         total: precioBase,
-      })
+        lotes: [],
+        loteSeleccionado: '',
+      }
+
+      this.detalle.push(nuevoItem)
+
+      // Cargar lotes disponibles
+      this.cargarLotes(nuevoItem)
 
       this.$nextTick(() => this.$refs.searchInput?.focus())
     },
@@ -664,12 +722,18 @@ export default {
         : (item.tiersSF || [])
     },
 
-    // Etiqueta del tier: "Cant. 1-100: Bs 8,00" o "Cant. 101+: Bs 7,50"
-    etiquetaTier(tier) {
+    // Etiqueta del tier: "Cant. 1-100: Bs 8,00 (+ IVA: Bs 8,96)" o "Cant. 101+: Bs 7,50"
+    etiquetaTier(tier, porcentajeFactura = 0) {
       const rango = tier.cantidadMax != null
         ? `Cant. ${tier.cantidadMin}-${tier.cantidadMax}`
         : `Cant. ${tier.cantidadMin}+`
-      return `${rango}: Bs ${this.formatNum(tier.precio)}`
+      const precioSinIva = this.formatNum(tier.precio)
+      if (porcentajeFactura > 0) {
+        const precioConIva = tier.precio * (1 + porcentajeFactura / 100)
+        const precioConIvaFormato = this.formatNum(precioConIva)
+        return `${rango}: Bs ${precioSinIva} (+ IVA: Bs ${precioConIvaFormato})`
+      }
+      return `${rango}: Bs ${precioSinIva}`
     },
 
     // Al hacer click en un tier radio
@@ -700,6 +764,63 @@ export default {
 
     quitarLinea(idx) {
       this.detalle.splice(idx, 1)
+    },
+
+    async cargarLotes(item) {
+      try {
+        const sucursalId = this.form.sucursalId || (this.$store.getters.sucursalActualId || '')
+        const lotes = await this.$service.list(`lotes/producto/${item.productoId}?sucursalId=${sucursalId}`) || []
+        // Agregar información de stock y precios del lote
+        const lotesConDetalles = await Promise.all(lotes.map(async lote => {
+          try {
+            const detalles = await this.$service.get(`lotes/${lote.id}/stock`)
+            return {
+              ...lote,
+              stock: detalles?.datos?.stock || 0,
+              precioVentaSF: detalles?.datos?.precioVentaSF || null,
+              precioVentaCF: detalles?.datos?.precioVentaCF || null,
+            }
+          } catch (e) {
+            return { ...lote, stock: 0, precioVentaSF: null, precioVentaCF: null }
+          }
+        }))
+        this.$set(item, 'lotes', lotesConDetalles.filter(l => Number(l.stock) > 0))
+      } catch (e) {
+        console.error('Error cargando lotes:', e)
+      }
+    },
+
+    async onLoteChange(item) {
+      if (item.loteSeleccionado) {
+        const lote = item.lotes.find(l => l.id === item.loteSeleccionado)
+        if (lote) {
+          this.$set(item, 'loteSeleccionado', lote.id)
+
+          // Si el lote tiene precio específico configurado, usarlo
+          const tipoPrecio = this.form.tipoPrecio === 'CF' ? 'CF' : 'SF'
+          const precioLote = tipoPrecio === 'CF' ? lote.precioVentaCF : lote.precioVentaSF
+
+          if (precioLote && Number(precioLote) > 0) {
+            item.precioUnitario = Number(precioLote)
+            this.recalcularLinea(item)
+          }
+        }
+      } else {
+        // Si deselecciona lote, volver al precio del tier actual
+        const tiers = this.tiersActivos(item)
+        if (tiers.length > 0) {
+          const tierIdx = item.tierIdx >= 0 ? item.tierIdx : 0
+          item.precioUnitario = tiers[tierIdx].precio
+          this.recalcularLinea(item)
+        }
+      }
+    },
+
+    getLoteLabel(item) {
+      if (!item.loteSeleccionado) return ''
+      const lote = item.lotes.find(l => l.id === item.loteSeleccionado)
+      if (!lote) return ''
+      return `${lote.nroLote} - Stock: ${this.formatNum(lote.stock)}`
     },
 
     // ── Pagos ────────────────────────────────────────────────────────────
@@ -991,6 +1112,10 @@ export default {
 }
 .pos-select:focus { border-color: #6366f1; }
 .pos-select--sm { padding: 4px 6px; font-size: 11px; width: 100%; }
+.pos-lotes-cell { display: flex; flex-direction: column; gap: 4px; }
+.pos-select--lote { width: 120px; padding: 5px 6px; font-size: 11px; }
+.pos-lote-info { font-size: 10px; color: var(--t4); padding: 0 6px; }
+.pos-lote-label { font-weight: 600; color: #6366f1; }
 
 /* ── Radio buttons ───────────────────────────────────────────────────── */
 .pos-radio-group {
@@ -1033,11 +1158,10 @@ export default {
   cursor: pointer; transition: background .1s; border-bottom: 1px solid var(--b2);
 }
 .pos-search-item:last-child { border-bottom: none; }
-.pos-search-item:hover { background: var(--bg-c); }
+.pos-search-item:hover, .pos-search-item--active { background: var(--bg-c); }
 .pos-si-code { font-size: 10px; color: var(--t5); font-family: monospace; width: 80px; flex-shrink: 0; }
 .pos-si-main { flex: 1; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
-.pos-si-name { font-size: 12px; color: var(--t2); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pos-si-breadcrumb { font-size: 10px; color: var(--t5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pos-si-path { font-size: 11px; color: var(--t2); word-break: break-word; }
 .pos-si-price { font-size: 12px; font-weight: 700; color: #6366f1; flex-shrink: 0; }
 .dropdown-fade-enter-active, .dropdown-fade-leave-active { transition: opacity .15s; }
 .dropdown-fade-enter, .dropdown-fade-leave-to { opacity: 0; }
