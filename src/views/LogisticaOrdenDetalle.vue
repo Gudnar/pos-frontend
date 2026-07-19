@@ -102,19 +102,19 @@
       <!-- ── SUB-TAB PAGOS ─────────────────────────────────── -->
       <div v-show="subTab === 'pagos'" class="det-panel">
         <div class="det-panel__toolbar">
-          <div class="pago-estado" v-if="totalOrdenBase">
+          <div class="pago-estado" v-if="orden">
             <div class="pago-estado__item">
-              <span class="pago-estado__label">Total a pagar</span>
-              <span class="pago-estado__val">{{ fmtNum(totalOrdenBase) }}</span>
+              <span class="pago-estado__label">Deuda Inicial</span>
+              <span class="pago-estado__val" style="color:#ef4444;">{{ fmtNum(totalOrdenBase) }}</span>
             </div>
-            <div class="pago-estado__sep">|</div>
+            <div class="pago-estado__sep">→</div>
             <div class="pago-estado__item">
               <span class="pago-estado__label">Pagado</span>
               <span class="pago-estado__val pago-estado__val--pagado">{{ fmtNum(totalPagosBase) }}</span>
             </div>
-            <div class="pago-estado__sep">|</div>
+            <div class="pago-estado__sep">→</div>
             <div class="pago-estado__item">
-              <span class="pago-estado__label">Pendiente</span>
+              <span class="pago-estado__label">Saldo Pendiente</span>
               <span class="pago-estado__val" :class="totalPendientePagos > 0 ? 'pago-estado__val--pendiente' : 'pago-estado__val--saldado'">
                 {{ totalPendientePagos > 0 ? fmtNum(totalPendientePagos) : '✓ Saldado' }}
               </span>
@@ -129,37 +129,82 @@
           </div>
           <button class="ide-btn ide-btn--primary ide-btn--sm" :disabled="orden.estadoOrden === 'CERRADO'" @click="abrirPagoDialog()">+ Registrar Pago</button>
         </div>
-        <div v-if="!pagos.length" class="ide-empty">No hay pagos registrados.</div>
-        <table v-else class="ide-table">
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Monto</th>
-              <th>T.C.</th>
-              <th>Equivalente Base</th>
-              <th>Método</th>
-              <th>Referencia</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="p in pagos" :key="p.id">
-              <td>{{ p.fechaPago }}</td>
-              <td>
-                <span class="monto-con-moneda">{{ fmtNum(p.monto) }}</span>
-                <span class="moneda-chip">{{ monedaNombre(p.monedaId) }}</span>
-              </td>
-              <td style="color:var(--t4);">{{ fmtNum6(p.tipoCambio) }}</td>
-              <td><strong>{{ fmtNum(Number(p.monto) * Number(p.tipoCambio)) }}</strong></td>
-              <td>{{ p.metodoPago }}</td>
-              <td>{{ p.referencia || '—' }}</td>
-              <td class="ide-actions">
-                <button class="ide-btn ide-btn--sm" :disabled="orden.estadoOrden === 'CERRADO'" @click="abrirPagoDialog(p)">Editar</button>
-                <button class="ide-btn ide-btn--sm ide-btn--danger" :disabled="orden.estadoOrden === 'CERRADO'" @click="eliminarPago(p)">✕</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+
+        <!-- Historial detallado de deuda -->
+        <div v-if="pagos.length" style="margin-top:20px;">
+          <h4 style="padding:0 24px;margin:0 0 12px 0;font-size:13px;font-weight:700;color:var(--t2);">Historial de Deuda del Proveedor</h4>
+          <table class="ide-table" style="margin:0 24px;">
+            <thead>
+              <tr>
+                <th>Paso</th>
+                <th>Fecha</th>
+                <th>Concepto</th>
+                <th>Monto Pagado</th>
+                <th>Saldo Anterior</th>
+                <th>Saldo Posterior</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="background:var(--bg-n);font-weight:600;">
+                <td style="text-align:center;">0</td>
+                <td>—</td>
+                <td style="color:#ef4444;">Deuda Inicial</td>
+                <td>—</td>
+                <td style="text-align:right;">—</td>
+                <td style="text-align:right;color:#ef4444;">{{ fmtNum(totalOrdenBase) }}</td>
+              </tr>
+              <tr v-for="(p, idx) in pagos" :key="p.id" style="background:idx % 2 === 0 ? 'transparent' : 'var(--bg-n)';">
+                <td style="text-align:center;font-weight:600;">{{ idx + 1 }}</td>
+                <td>{{ p.fechaPago }}</td>
+                <td>
+                  <span style="font-weight:600;">Pago</span>
+                  <span style="font-size:11px;color:var(--t4);">{{ monedaNombre(p.monedaId) }} {{ fmtNum(p.monto) }} @ {{ fmtNum6(p.tipoCambio) }}</span>
+                </td>
+                <td style="text-align:right;font-weight:600;color:#22c55e;">{{ fmtNum(Number(p.monto) * Number(p.tipoCambio)) }}</td>
+                <td style="text-align:right;color:#ef4444;font-weight:600;">{{ fmtNum(saldoAnteriorPago(idx)) }}</td>
+                <td style="text-align:right;font-weight:600;" :class="saldoPosteriorPago(idx) > 0 ? 'pago-estado__val--pendiente' : 'pago-estado__val--saldado'">
+                  {{ saldoPosteriorPago(idx) > 0 ? fmtNum(saldoPosteriorPago(idx)) : '✓ Saldado' }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Tabla de pagos registrados -->
+        <div style="margin-top:20px;">
+          <h4 style="padding:0 24px;margin:0 0 12px 0;font-size:13px;font-weight:700;color:var(--t2);">Pagos Registrados</h4>
+          <div v-if="!pagos.length" class="ide-empty">No hay pagos registrados.</div>
+          <table v-else class="ide-table" style="margin:0 24px;">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Monto</th>
+                <th>T.C.</th>
+                <th>Equivalente Base</th>
+                <th>Método</th>
+                <th>Referencia</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="p in pagos" :key="p.id">
+                <td>{{ p.fechaPago }}</td>
+                <td>
+                  <span class="monto-con-moneda">{{ fmtNum(p.monto) }}</span>
+                  <span class="moneda-chip">{{ monedaNombre(p.monedaId) }}</span>
+                </td>
+                <td style="color:var(--t4);">{{ fmtNum6(p.tipoCambio) }}</td>
+                <td><strong>{{ fmtNum(Number(p.monto) * Number(p.tipoCambio)) }}</strong></td>
+                <td>{{ p.metodoPago }}</td>
+                <td>{{ p.referencia || '—' }}</td>
+                <td class="ide-actions">
+                  <button class="ide-btn ide-btn--sm" :disabled="orden.estadoOrden === 'CERRADO'" @click="abrirPagoDialog(p)">Editar</button>
+                  <button class="ide-btn ide-btn--sm ide-btn--danger" :disabled="orden.estadoOrden === 'CERRADO'" @click="eliminarPago(p)">✕</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <!-- ── SUB-TAB GASTOS ────────────────────────────────── -->
@@ -421,7 +466,7 @@
           <button class="ide-modal__close" @click="pagoDialog = false">✕</button>
         </div>
         <!-- Resumen estado de cuenta -->
-        <div v-if="totalOrdenBase" class="pago-dialog-resumen">
+        <div v-if="orden" class="pago-dialog-resumen">
           <div class="pago-dialog-resumen__row">
             <div class="pago-dialog-resumen__item">
               <div class="pago-dialog-resumen__label">Total orden</div>
@@ -1755,6 +1800,26 @@ export default {
         this.$message.success('Gasto eliminado.')
         await this.cargarTodo()
       })
+    },
+
+    // ── Saldo Proveedor ──────────────────────────────────
+    saldoAnteriorPago(pagoIdx) {
+      if (pagoIdx === 0) {
+        return this.totalOrdenBase
+      }
+      // Suma de pagos anteriores + este pago
+      let pagosAnteriores = 0
+      for (let i = 0; i < pagoIdx; i++) {
+        pagosAnteriores += Number(this.pagos[i].monto) * Number(this.pagos[i].tipoCambio)
+      }
+      return this.totalOrdenBase - pagosAnteriores
+    },
+    saldoPosteriorPago(pagoIdx) {
+      let pagosAcumulados = 0
+      for (let i = 0; i <= pagoIdx; i++) {
+        pagosAcumulados += Number(this.pagos[i].monto) * Number(this.pagos[i].tipoCambio)
+      }
+      return Math.max(0, this.totalOrdenBase - pagosAcumulados)
     },
   },
 }
