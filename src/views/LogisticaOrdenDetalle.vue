@@ -116,25 +116,28 @@
           <div class="pago-estado" v-if="orden">
             <div class="pago-estado__item">
               <span class="pago-estado__label">Deuda Inicial</span>
-              <span class="pago-estado__val" style="color:#ef4444;">{{ fmtNum(totalOrdenBase) }}</span>
+              <span class="pago-estado__val" style="color:#ef4444;">{{ fmtNum(totalOrdenCompra) }}</span>
+              <span class="pago-estado__moneda">{{ monedaNombre(monedaCompraId) }}</span>
             </div>
             <div class="pago-estado__sep">→</div>
             <div class="pago-estado__item">
               <span class="pago-estado__label">Pagado</span>
-              <span class="pago-estado__val pago-estado__val--pagado">{{ fmtNum(totalPagosBase) }}</span>
+              <span class="pago-estado__val pago-estado__val--pagado">{{ fmtNum(totalPagosCompra) }}</span>
+              <span class="pago-estado__moneda">{{ monedaNombre(monedaCompraId) }}</span>
             </div>
             <div class="pago-estado__sep">→</div>
             <div class="pago-estado__item">
               <span class="pago-estado__label">Saldo Pendiente</span>
-              <span class="pago-estado__val" :class="totalPendientePagos > 0 ? 'pago-estado__val--pendiente' : 'pago-estado__val--saldado'">
-                {{ totalPendientePagos > 0 ? fmtNum(totalPendientePagos) : '✓ Saldado' }}
+              <span class="pago-estado__val" :class="totalPendientePagosCompra > 0 ? 'pago-estado__val--pendiente' : 'pago-estado__val--saldado'">
+                {{ totalPendientePagosCompra > 0 ? fmtNum(totalPendientePagosCompra) : '✓ Saldado' }}
               </span>
+              <span class="pago-estado__moneda">{{ monedaNombre(monedaCompraId) }}</span>
             </div>
-            <div class="pago-barra" :title="`${porcentajePagado.toFixed(1)}% pagado`">
-              <div class="pago-barra__fill" :style="{ width: porcentajePagado + '%' }"></div>
+            <div class="pago-barra" :title="`${porcentajePagadoCompra.toFixed(1)}% pagado`">
+              <div class="pago-barra__fill" :style="{ width: porcentajePagadoCompra + '%' }"></div>
             </div>
             <div v-if="Object.keys(totalPagosPorMoneda).length" class="monedas-breakdown">
-              <span class="monedas-breakdown__label">Por moneda:</span>
+              <span class="monedas-breakdown__label">Por moneda origen:</span>
               <span v-for="(tot, cod) in totalPagosPorMoneda" :key="cod" class="moneda-breakdown-chip">{{ cod }} {{ fmtNum(tot) }}</span>
             </div>
           </div>
@@ -1354,6 +1357,35 @@ export default {
       const tc = Number(this.pagoForm.tipoCambio) || 0
       return m * tc
     },
+    tipoCambioCompra() {
+      if (!this.items.length) return 1
+      const firstItem = this.items[0]
+      return Number(firstItem.tipoCambio) || 1
+    },
+    monedaCompraId() {
+      if (!this.items.length) return null
+      return this.items[0].monedaCompraId || null
+    },
+    totalPagosCompra() {
+      if (!this.pagos.length) return 0
+      return this.pagos.reduce((sum, p) => {
+        const monto = Number(p.monto) || 0
+        const tipoCambioPago = Number(p.tipoCambio) || 1
+        const montoBase = monto * tipoCambioPago
+        const montoCompra = montoBase / this.tipoCambioCompra
+        return sum + montoCompra
+      }, 0)
+    },
+    totalOrdenCompra() {
+      return Number(this.orden?.totalProductosMonedaCompra) || this.totalProductosCompra
+    },
+    totalPendientePagosCompra() {
+      return Math.max(0, this.totalOrdenCompra - this.totalPagosCompra)
+    },
+    porcentajePagadoCompra() {
+      if (!this.totalOrdenCompra) return 0
+      return Math.min(100, (this.totalPagosCompra / this.totalOrdenCompra) * 100)
+    },
   },
   watch: {
     'gastoForm.tipoGastoId'(nuevoTipoId) {
@@ -2113,6 +2145,7 @@ export default {
 .pago-estado__val--pagado { color: #4ade80; }
 .pago-estado__val--pendiente { color: #fb923c; }
 .pago-estado__val--saldado { color: #4ade80; }
+.pago-estado__moneda { font-size: 9px; color: var(--t4); text-transform: uppercase; letter-spacing: .3px; font-weight: 600; }
 .pago-estado__sep { color: var(--b0); font-size: 18px; align-self: center; }
 
 /* ── Barra de progreso de pago ───────────────────────────────────────── */
