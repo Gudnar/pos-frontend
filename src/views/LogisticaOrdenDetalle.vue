@@ -36,7 +36,7 @@
       <!-- ── SUB-TAB PRODUCTOS ─────────────────────────────── -->
       <div v-show="subTab === 'items'" class="det-panel">
         <div class="det-panel__toolbar">
-          <div class="det-summary" v-if="orden.totalProductosMonedaBase">
+          <div class="det-summary" v-if="orden">
             <span>Total compra: <strong>{{ fmtNum(orden.totalProductosMonedaCompra) }}</strong></span>
             <span>Total base: <strong>{{ fmtNum(orden.totalProductosMonedaBase) }}</strong></span>
             <span>Unidades: <strong>{{ orden.unidadesTotales }}</strong></span>
@@ -94,6 +94,13 @@
                 <button class="ide-btn ide-btn--sm" :disabled="orden.estadoOrden === 'CERRADO'" @click="abrirItemDialog(item)">Editar</button>
                 <button class="ide-btn ide-btn--sm ide-btn--danger" :disabled="orden.estadoOrden === 'CERRADO'" @click="eliminarItem(item)">✕</button>
               </td>
+            </tr>
+            <!-- Fila de totales -->
+            <tr style="background:var(--bg-n);border-top:2px solid var(--b1);font-weight:700;">
+              <td colspan="5" style="text-align:right;padding-right:12px;">TOTAL COMPRA</td>
+              <td style="text-align:right;color:#6366f1;font-size:13px;">{{ fmtNum(totalProductosCalculado) }}</td>
+              <td colspan="5"></td>
+              <td></td>
             </tr>
           </tbody>
         </table>
@@ -611,6 +618,13 @@
             <input v-model.number="gastoForm.monto" class="ide-input" type="number" min="0" step="0.01" />
           </div>
           <div class="ide-field">
+            <label>Cantidad</label>
+            <input v-model.number="gastoForm.cantidad" class="ide-input" type="number" min="1" step="1" placeholder="1" />
+            <div v-if="gastoForm.cantidad > 1" style="font-size:11px;color:var(--t4);margin-top:4px;">
+              Total: {{ fmtNum(gastoForm.monto * (gastoForm.cantidad || 1)) }}
+            </div>
+          </div>
+          <div class="ide-field">
             <label>{{ gastoForm.monedaId ? `T.C.: 1 ${monedaNombre(gastoForm.monedaId)} = ? base` : 'Tipo de Cambio *' }}</label>
             <input v-model.number="gastoForm.tipoCambio" class="ide-input" type="number" min="0" step="0.000001"
               :readonly="gastoTcCadena" :class="{ 'ide-input--readonly': gastoTcCadena }" />
@@ -647,10 +661,12 @@
           <div class="ide-field ide-field--full" v-if="gastoForm.monto && gastoForm.tipoCambio">
             <div class="ide-preview-calc ide-preview-calc--conversion">
               <span class="preview-moneda">{{ fmtNum(gastoForm.monto) }} <span class="preview-cod">{{ monedaNombre(gastoForm.monedaId) }}</span></span>
+              <span v-if="gastoForm.cantidad > 1" class="preview-op">×</span>
+              <span v-if="gastoForm.cantidad > 1" class="preview-moneda">{{ gastoForm.cantidad }}</span>
               <span class="preview-op">×</span>
               <span>{{ fmtNum6(gastoForm.tipoCambio) }}</span>
               <span class="preview-op">=</span>
-              <strong>{{ fmtNum(gastoForm.monto * gastoForm.tipoCambio) }}</strong>
+              <strong>{{ fmtNum(gastoForm.monto * gastoForm.tipoCambio * (gastoForm.cantidad || 1)) }}</strong>
               <span class="preview-base-label">[base]</span>
             </div>
           </div>
@@ -1209,6 +1225,9 @@ export default {
         ? Number(first.precioUnitarioMonedaBase)
         : first.costoUnitParaPrecio
     },
+    totalProductosCalculado() {
+      return this.items.reduce((sum, item) => sum + Number(item.subtotalMonedaBase ?? 0), 0)
+    },
     previewItemsDirecto() {
       const iva = Number(this.tasaIvaOrden || 0) / 100
       const margen = Number(this.margenSugerido || 0) / 100
@@ -1296,7 +1315,7 @@ export default {
       return this.pagos.reduce((s, p) => s + Number(p.monto) * Number(p.tipoCambio), 0)
     },
     totalGastosBase() {
-      return this.gastos.reduce((s, g) => s + Number(g.monto) * Number(g.tipoCambio), 0)
+      return this.gastos.reduce((s, g) => s + Number(g.monto) * (Number(g.cantidad) || 1) * Number(g.tipoCambio), 0)
     },
     totalPagosPorMoneda() {
       const m = {}
@@ -1310,12 +1329,12 @@ export default {
       const m = {}
       for (const g of this.gastos) {
         const cod = this.monedaNombre(g.monedaId)
-        m[cod] = (m[cod] || 0) + Number(g.monto)
+        m[cod] = (m[cod] || 0) + Number(g.monto) * (Number(g.cantidad) || 1)
       }
       return m
     },
     totalOrdenBase() {
-      return Number(this.orden?.totalProductosMonedaBase ?? 0)
+      return this.totalProductosCalculado || Number(this.orden?.totalProductosMonedaBase ?? 0)
     },
     totalPendientePagos() {
       return Math.max(0, this.totalOrdenBase - this.totalPagosBase)
@@ -1328,6 +1347,16 @@ export default {
       const m = Number(this.pagoForm.monto) || 0
       const tc = Number(this.pagoForm.tipoCambio) || 0
       return m * tc
+    },
+  },
+  watch: {
+    'gastoForm.tipoGastoId'(nuevoTipoId) {
+      if (nuevoTipoId && !this.editandoGasto) {
+        const tipoGasto = this.tiposGasto.find(t => t.id === nuevoTipoId)
+        if (tipoGasto) {
+          this.gastoForm.descripcion = tipoGasto.nombre
+        }
+      }
     },
   },
   created() {
@@ -1751,8 +1780,8 @@ export default {
       this.editandoGasto = g
       this.gastoTcCadena = false; this.gastoTc1 = ''; this.gastoTc2 = ''
       this.gastoForm = g
-        ? { tipoGastoId: g.tipoGastoId || '', descripcion: g.descripcion, monedaId: g.monedaId, monto: Number(g.monto), tipoCambio: Number(g.tipoCambio), fechaGasto: g.fechaGasto, pais: g.pais || '', comprobante: g.comprobante || '', observaciones: g.observaciones || '', fuenteId: g.fuenteId || '' }
-        : { tipoGastoId: '', descripcion: '', monedaId: '', monto: 0, tipoCambio: 1, fechaGasto: '', pais: this.orden?.paisOrigen || '', comprobante: '', observaciones: '', fuenteId: '' }
+        ? { tipoGastoId: g.tipoGastoId || '', descripcion: g.descripcion, monedaId: g.monedaId, monto: Number(g.monto), cantidad: g.cantidad || 1, tipoCambio: Number(g.tipoCambio), fechaGasto: g.fechaGasto, pais: g.pais || '', comprobante: g.comprobante || '', observaciones: g.observaciones || '', fuenteId: g.fuenteId || '' }
+        : { tipoGastoId: '', descripcion: '', monedaId: '', monto: 0, cantidad: 1, tipoCambio: 1, fechaGasto: '', pais: this.orden?.paisOrigen || '', comprobante: '', observaciones: '', fuenteId: '' }
       this.gastoDialog = true
     },
     recalcTcGasto() {
@@ -1769,7 +1798,7 @@ export default {
       if (this.gastoForm.fuenteId) {
         const fuente = this.fuentes.find(f => f.id === this.gastoForm.fuenteId)
         if (fuente && fuente.saldoActual != null) {
-          const montoNativo = Number(this.gastoForm.monto) * Number(this.gastoForm.tipoCambio)
+          const montoNativo = Number(this.gastoForm.monto) * (Number(this.gastoForm.cantidad) || 1) * Number(this.gastoForm.tipoCambio)
           if (montoNativo > fuente.saldoActual + 0.001) {
             return this.$message.error(
               `Saldo insuficiente en "${fuente.nombre}". Disponible: ${this.fmtNum(fuente.saldoActual)} — Requerido: ${this.fmtNum(montoNativo)}`
