@@ -639,17 +639,17 @@
             </div>
             <div v-if="gastoTcCadena" class="tc-doble-inline">
               <div class="tc-doble-campo">
-                <span class="tc-doble-hint">{{ monedaNombre(gastoForm.monedaId) || 'moneda' }} → inter.</span>
-                <input v-model.number="gastoTc1" class="ide-input tc-doble-input" type="number" min="0" step="0.000001" placeholder="0.001050" @input="recalcTcGasto" />
+                <span class="tc-doble-hint">{{ monedaNombre(gastoForm.monedaId) || 'moneda' }} = ? inter. (ej. 920 CLP = 1 USD)</span>
+                <input v-model.number="gastoTc1" class="ide-input tc-doble-input" type="number" min="0" step="0.01" placeholder="920" @input="recalcTcGasto" />
               </div>
-              <span class="tc-doble-op">×</span>
+              <span class="tc-doble-op">÷</span>
               <div class="tc-doble-campo">
-                <span class="tc-doble-hint">inter. → base</span>
-                <input v-model.number="gastoTc2" class="ide-input tc-doble-input" type="number" min="0" step="0.000001" placeholder="10.13" @input="recalcTcGasto" />
+                <span class="tc-doble-hint">1 inter. = ? base (ej. 1 USD = 10.57 BOB)</span>
+                <input v-model.number="gastoTc2" class="ide-input tc-doble-input" type="number" min="0" step="0.000001" placeholder="10.57" @input="recalcTcGasto" />
               </div>
               <div v-if="gastoTc1 && gastoTc2" class="tc-doble-result">
                 <span class="tc-doble-hint">TC efectivo</span>
-                <strong>{{ fmtNum6(gastoTc1 * gastoTc2) }}</strong>
+                <strong>{{ fmtNum6(gastoTc2 / gastoTc1) }}</strong>
               </div>
             </div>
           </div>
@@ -664,11 +664,28 @@
               <option v-for="p in paisesConfig" :key="p.id" :value="p.nombre">{{ p.nombre }}</option>
             </select>
           </div>
-          <div class="ide-field ide-field--full" v-if="gastoForm.monto && gastoForm.tipoCambio">
+          <div v-if="gastoTcCadena && gastoTc1 && gastoTc2" class="ide-field ide-field--full">
+            <div class="ide-preview-calc ide-preview-calc--conversion" style="flex-direction:column;align-items:flex-start;gap:10px;">
+              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                <span class="preview-moneda">{{ fmtNum(gastoForm.monto * (gastoForm.cantidad || 1)) }} <span class="preview-cod">{{ monedaNombre(gastoForm.monedaId) }}</span></span>
+                <span class="preview-op">÷</span>
+                <span>{{ fmtNum6(gastoTc1) }}</span>
+                <span class="preview-op">=</span>
+                <strong style="color:#f97316;">{{ fmtNum6((gastoForm.monto * (gastoForm.cantidad || 1)) / gastoTc1) }} inter.</strong>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                <strong style="color:#f97316;">{{ fmtNum6((gastoForm.monto * (gastoForm.cantidad || 1)) / gastoTc1) }} inter.</strong>
+                <span class="preview-op">×</span>
+                <span>{{ fmtNum6(gastoTc2) }}</span>
+                <span class="preview-op">=</span>
+                <strong style="color:#6366f1;">{{ fmtNum((gastoForm.monto * (gastoForm.cantidad || 1) / gastoTc1) * gastoTc2) }}</strong>
+                <span class="preview-base-label">[base]</span>
+              </div>
+            </div>
+          </div>
+          <div v-else-if="gastoForm.monto && gastoForm.tipoCambio && !gastoTcCadena" class="ide-field ide-field--full">
             <div class="ide-preview-calc ide-preview-calc--conversion">
-              <span class="preview-moneda">{{ fmtNum(gastoForm.monto) }} <span class="preview-cod">{{ monedaNombre(gastoForm.monedaId) }}</span></span>
-              <span v-if="gastoForm.cantidad > 1" class="preview-op">×</span>
-              <span v-if="gastoForm.cantidad > 1" class="preview-moneda">{{ gastoForm.cantidad }}</span>
+              <span class="preview-moneda">{{ fmtNum(gastoForm.monto * (gastoForm.cantidad || 1)) }} <span class="preview-cod">{{ monedaNombre(gastoForm.monedaId) }}</span></span>
               <span class="preview-op">×</span>
               <span>{{ fmtNum6(gastoForm.tipoCambio) }}</span>
               <span class="preview-op">=</span>
@@ -1370,6 +1387,11 @@ export default {
       if (!this.pagos.length) return 0
       return this.pagos.reduce((sum, p) => {
         const monto = Number(p.monto) || 0
+        // Si el pago está en la misma moneda de compra, sumar directamente
+        if (p.monedaId === this.monedaCompraId) {
+          return sum + monto
+        }
+        // Si está en otra moneda, convertir a base y luego a compra
         const tipoCambioPago = Number(p.tipoCambio) || 1
         const montoBase = monto * tipoCambioPago
         const montoCompra = montoBase / this.tipoCambioCompra
@@ -1824,7 +1846,7 @@ export default {
     },
     recalcTcGasto() {
       if (this.gastoTc1 && this.gastoTc2) {
-        this.gastoForm.tipoCambio = Number(this.gastoTc1) * Number(this.gastoTc2)
+        this.gastoForm.tipoCambio = Number(this.gastoTc2) / Number(this.gastoTc1)
       }
     },
     async guardarGasto() {
