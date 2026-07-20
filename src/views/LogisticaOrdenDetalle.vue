@@ -1374,6 +1374,18 @@ export default {
       const tc = Number(this.pagoForm.tipoCambio) || 0
       return m * tc
     },
+    pagoActualCompra() {
+      const m = Number(this.pagoForm.monto) || 0
+      // Si el pago es en la moneda de compra, retornar el monto directamente
+      if (this.pagoForm.monedaId === this.monedaCompraId) {
+        return m
+      }
+      // Si es en otra moneda, convertir a base y luego a compra
+      const tc = Number(this.pagoForm.tipoCambio) || 0
+      const montoBase = m * tc
+      const montoCompra = montoBase / this.tipoCambioCompra
+      return montoCompra
+    },
     tipoCambioCompra() {
       if (!this.items.length) return 1
       const firstItem = this.items[0]
@@ -1789,14 +1801,20 @@ export default {
       if (!this.pagoForm.monto || this.pagoForm.monto <= 0) return this.$message.error('El monto debe ser mayor a 0.')
       if (!this.pagoForm.tipoCambio || this.pagoForm.tipoCambio <= 0) return this.$message.error('El tipo de cambio debe ser mayor a 0.')
       if (!this.pagoForm.fechaPago) return this.$message.error('La fecha de pago es obligatoria.')
-      if (this.totalOrdenBase > 0) {
-        const pagoAnteriorBase = this.editandoPago
-          ? Number(this.editandoPago.monto) * Number(this.editandoPago.tipoCambio)
-          : 0
-        const disponible = this.totalPendientePagos + pagoAnteriorBase
-        if (this.pagoActualBase > disponible + 0.01) {
+      if (this.totalOrdenCompra > 0) {
+        let pagoAnteriorCompra = 0
+        if (this.editandoPago) {
+          if (this.editandoPago.monedaId === this.monedaCompraId) {
+            pagoAnteriorCompra = Number(this.editandoPago.monto)
+          } else {
+            const montoBase = Number(this.editandoPago.monto) * Number(this.editandoPago.tipoCambio)
+            pagoAnteriorCompra = montoBase / this.tipoCambioCompra
+          }
+        }
+        const disponible = this.totalPendientePagosCompra + pagoAnteriorCompra
+        if (this.pagoActualCompra > disponible + 0.01) {
           return this.$message.error(
-            `El pago excede el monto pendiente. Disponible: ${this.fmtNum(disponible)} — Este pago: ${this.fmtNum(this.pagoActualBase)}`
+            `El pago excede el monto pendiente. Disponible: ${this.fmtNum(disponible)} ${this.monedaNombre(this.monedaCompraId)} — Este pago: ${this.fmtNum(this.pagoActualCompra)} ${this.monedaNombre(this.monedaCompraId)}`
           )
         }
       }
