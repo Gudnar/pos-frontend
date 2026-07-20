@@ -329,12 +329,14 @@
           <div class="traz-card" v-if="trazabilidad.gastos.length">
             <h4>Gastos de Logística</h4>
             <table class="ide-table">
-              <thead><tr><th>Tipo</th><th>Descripción</th><th>Monto</th><th>Moneda</th><th>T.C.</th><th>Monto Base</th></tr></thead>
+              <thead><tr><th>Tipo</th><th>Descripción</th><th>Monto</th><th>Cantidad</th><th>Total Monto</th><th>Moneda</th><th>T.C.</th><th>Monto Base</th></tr></thead>
               <tbody>
                 <tr v-for="g in trazabilidad.gastos" :key="g.id">
                   <td>{{ tipoGastoNombre(g.tipoGastoId) }}</td>
                   <td>{{ g.descripcion }}</td>
                   <td>{{ fmtNum(g.monto) }}</td>
+                  <td style="text-align:center;">{{ g.cantidad || 1 }}</td>
+                  <td><strong>{{ fmtNum(g.monto * (g.cantidad || 1)) }}</strong></td>
                   <td>{{ monedaNombre(g.monedaId) }}</td>
                   <td>{{ fmtNum6(g.tipoCambio) }}</td>
                   <td><strong>{{ fmtNum(g.montoMonedaBase) }}</strong></td>
