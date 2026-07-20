@@ -240,6 +240,8 @@
               <th>País</th>
               <th>Fecha</th>
               <th>Monto</th>
+              <th>Cantidad</th>
+              <th>Total Monto</th>
               <th>T.C.</th>
               <th>Equivalente Base</th>
               <th>Acciones</th>
@@ -257,8 +259,10 @@
                 <span class="monto-con-moneda">{{ fmtNum(g.monto) }}</span>
                 <span class="moneda-chip">{{ monedaNombre(g.monedaId) }}</span>
               </td>
+              <td style="text-align:center;">{{ g.cantidad || 1 }}</td>
+              <td><strong>{{ fmtNum(g.monto * (g.cantidad || 1)) }}</strong></td>
               <td style="color:var(--t4);">{{ fmtNum6(g.tipoCambio) }}</td>
-              <td><strong>{{ fmtNum(Number(g.monto) * Number(g.tipoCambio)) }}</strong></td>
+              <td><strong>{{ fmtNum(Number(g.monto) * (Number(g.cantidad) || 1) * Number(g.tipoCambio)) }}</strong></td>
               <td class="ide-actions">
                 <button class="ide-btn ide-btn--sm" :disabled="orden.estadoOrden === 'CERRADO'" @click="abrirGastoDialog(g)">Editar</button>
                 <button class="ide-btn ide-btn--sm ide-btn--danger" :disabled="orden.estadoOrden === 'CERRADO'" @click="eliminarGasto(g)">✕</button>
