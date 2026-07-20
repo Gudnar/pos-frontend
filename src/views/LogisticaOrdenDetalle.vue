@@ -50,6 +50,7 @@
               <th>Producto / Descripción</th>
               <th>Cantidad</th>
               <th>Precio Unit. Compra</th>
+              <th>Subtotal Compra</th>
               <th>T.C.</th>
               <th>Precio Unit. Base</th>
               <th>Subtotal Base</th>
@@ -69,6 +70,7 @@
               </td>
               <td>{{ item.cantidadUnidades }}</td>
               <td>{{ fmtNum(item.precioUnitarioMonedaCompra) }}</td>
+              <td><strong>{{ fmtNum(item.precioUnitarioMonedaCompra * item.cantidadUnidades) }}</strong></td>
               <td>{{ fmtNum6(item.tipoCambio) }}</td>
               <td>{{ fmtNum(item.precioUnitarioMonedaBase) }}</td>
               <td><strong>{{ fmtNum(item.subtotalMonedaBase) }}</strong></td>
@@ -97,7 +99,9 @@
             </tr>
             <!-- Fila de totales -->
             <tr style="background:var(--bg-n);border-top:2px solid var(--b1);font-weight:700;">
-              <td colspan="5" style="text-align:right;padding-right:12px;">TOTAL COMPRA</td>
+              <td colspan="3" style="text-align:right;padding-right:12px;">TOTAL COMPRA</td>
+              <td style="text-align:right;color:#f97316;font-size:13px;">{{ fmtNum(totalProductosCompra) }}</td>
+              <td colspan="2"></td>
               <td style="text-align:right;color:#6366f1;font-size:13px;">{{ fmtNum(totalProductosCalculado) }}</td>
               <td colspan="5"></td>
               <td></td>
@@ -185,9 +189,10 @@
             <thead>
               <tr>
                 <th>Fecha</th>
-                <th>Monto</th>
+                <th>Moneda Origen</th>
+                <th>Monto Origen</th>
                 <th>T.C.</th>
-                <th>Equivalente Base</th>
+                <th>Monto Base</th>
                 <th>Método</th>
                 <th>Referencia</th>
                 <th>Acciones</th>
@@ -196,12 +201,10 @@
             <tbody>
               <tr v-for="p in pagos" :key="p.id">
                 <td>{{ p.fechaPago }}</td>
-                <td>
-                  <span class="monto-con-moneda">{{ fmtNum(p.monto) }}</span>
-                  <span class="moneda-chip">{{ monedaNombre(p.monedaId) }}</span>
-                </td>
-                <td style="color:var(--t4);">{{ fmtNum6(p.tipoCambio) }}</td>
-                <td><strong>{{ fmtNum(Number(p.monto) * Number(p.tipoCambio)) }}</strong></td>
+                <td><span class="moneda-chip">{{ monedaNombre(p.monedaId) }}</span></td>
+                <td style="text-align:right;"><strong>{{ fmtNum(p.monto) }}</strong></td>
+                <td style="color:var(--t4);text-align:center;">{{ fmtNum6(p.tipoCambio) }}</td>
+                <td style="text-align:right;"><strong style="color:#6366f1;">{{ fmtNum(Number(p.monto) * Number(p.tipoCambio)) }}</strong></td>
                 <td>{{ p.metodoPago }}</td>
                 <td>{{ p.referencia || '—' }}</td>
                 <td class="ide-actions">
@@ -1227,6 +1230,9 @@ export default {
     },
     totalProductosCalculado() {
       return this.items.reduce((sum, item) => sum + Number(item.subtotalMonedaBase ?? 0), 0)
+    },
+    totalProductosCompra() {
+      return this.items.reduce((sum, item) => sum + Number(item.precioUnitarioMonedaCompra ?? 0) * Number(item.cantidadUnidades ?? 0), 0)
     },
     previewItemsDirecto() {
       const iva = Number(this.tasaIvaOrden || 0) / 100
