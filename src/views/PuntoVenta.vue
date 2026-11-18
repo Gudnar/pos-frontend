@@ -171,15 +171,15 @@
         <table class="pos-table">
           <thead>
             <tr>
-              <th class="pos-th" style="width:44px;">Nro</th>
-              <th class="pos-th" style="width:110px;">Codigo</th>
-              <th class="pos-th">Descripcion</th>
-              <th class="pos-th" style="width:140px;">Lotes</th>
-              <th class="pos-th" style="width:170px;">Precios</th>
-              <th class="pos-th" style="width:90px;">Cantidad</th>
-              <th class="pos-th" style="width:110px;">Precio (Bs)</th>
-              <th class="pos-th" style="width:110px;">P/ Total</th>
-              <th class="pos-th" style="width:36px;"></th>
+              <th class="pos-th" style="width:40px;">Nro</th>
+              <th class="pos-th" style="min-width:220px;">Descripción</th>
+              <th class="pos-th" style="min-width:200px;">Lotes</th>
+              <th class="pos-th" style="min-width:170px;">Precios</th>
+              <th class="pos-th pos-th--accent" style="width:80px;">Cantidad</th>
+              <th class="pos-th pos-th--accent" style="width:96px;">Precio (Bs)</th>
+              <th class="pos-th pos-th--accent" style="width:100px;">P. Total</th>
+              <th class="pos-th pos-th--util" style="width:100px;">Utilidades</th>
+              <th class="pos-th pos-th--accent" style="width:40px;"></th>
             </tr>
           </thead>
           <tbody>
@@ -190,53 +190,44 @@
               <!-- Nro -->
               <td class="pos-td pos-td--center pos-td--nro">{{ idx + 1 }}</td>
 
-              <!-- Código -->
-              <td class="pos-td pos-td--code">{{ item.codigoTienda || '—' }}</td>
-
-              <!-- Descripción: categoría subcategoría nombre -->
+              <!-- Descripción -->
               <td class="pos-td">
-                <span class="pos-desc-full">
-                  {{ [item.nombreCategoria, item.nombreSubcategoria, item.nombre].filter(Boolean).join(' ') }}
-                </span>
-              </td>
-
-              <!-- Lotes disponibles -->
-              <td class="pos-td">
-                <div class="pos-lotes-cell">
-                  <select v-model="item.loteSeleccionado" class="pos-select pos-select--lote" @change="onLoteChange(item)">
-                    <option value="">Sin lote</option>
-                    <option v-for="lote in item.lotes" :key="lote.id" :value="lote.id">
-                      {{ lote.nroLote }} ({{ formatNum(lote.stock) }})
-                    </option>
-                  </select>
-                  <div v-if="item.loteSeleccionado" class="pos-lote-info">
-                    <span class="pos-lote-label">{{ getLoteLabel(item) }}</span>
-                  </div>
+                <div class="pos-kv">
+                  <div v-if="item.nombreCategoria"><b>CATEGORÍA:</b> {{ item.nombreCategoria }}</div>
+                  <div v-if="item.nombreSubcategoria"><b>SUBCATEGORÍA:</b> {{ item.nombreSubcategoria }}</div>
+                  <div><b>DESCRIPCIÓN:</b> {{ item.nombre }}</div>
+                  <div v-if="item.codigoTienda"><b>CÓDIGO:</b> {{ item.codigoTienda }}</div>
+                  <div v-if="item.unidadMedida"><b>UDM:</b> {{ item.unidadMedida }}</div>
+                  <div><b>STOCK ACTUAL:</b> {{ item.cargandoLotes ? '…' : formatCant(stockActual(item)) }}</div>
                 </div>
               </td>
 
-              <!-- Precios: tiers según SF/CF activo -->
+              <!-- Lotes: un botón por lote, el elegido queda resaltado -->
               <td class="pos-td">
-                <div class="pos-precios-list">
-                  <label
-                    v-for="(tier, tidx) in tiersActivos(item)"
-                    :key="tidx"
-                    class="pos-precio-radio"
-                    :class="{ 'pos-precio-radio--active': item.tierIdx === tidx }"
-                  >
-                    <input
-                      type="radio"
-                      :name="'tier-' + item._key"
-                      :value="tidx"
-                      :checked="item.tierIdx === tidx"
-                      @change="onTierChange(item, tidx)"
-                    />
-                    <span class="pos-precio-lbl">{{ etiquetaTier(tier, item.porcentajeFactura) }}</span>
-                  </label>
-                  <span v-if="tiersActivos(item).length > 1" class="pos-precio-auto">
-                    ⚡ Precio automático según cantidad
-                  </span>
-                  <span v-if="!tiersActivos(item).length" class="pos-precio-sinprecio">Sin precio</span>
+                <div v-if="item.cargandoLotes" class="ct-spinner" style="width:16px;height:16px;"></div>
+                <div v-else-if="!item.lotes.length" class="pos-lote-vacio">Sin lotes con stock</div>
+                <div v-else class="pos-lotes-cell">
+                  <button
+                    v-for="lote in item.lotes" :key="lote.id"
+                    type="button"
+                    :class="['pos-lote-btn', { 'pos-lote-btn--active': item.loteSeleccionado === lote.id }]"
+                    :title="`Stock: ${formatCant(lote.stock)}`"
+                    @click="seleccionarLote(item, lote.id)"
+                  >{{ etiquetaLote(lote) }}</button>
+                </div>
+              </td>
+
+              <!-- Precios del lote elegido -->
+              <td class="pos-td">
+                <div class="pos-kv">
+                  <div v-if="loteActual(item)"><b>STOCK:</b> {{ formatCant(loteActual(item).stock) }}</div>
+                  <div><b>P. UNI:</b> {{ costoUnitario(item) != null ? formatNum(costoUnitario(item)) : '—' }}</div>
+                  <div><b>P. VENTA:</b> {{ precioVenta(item) != null ? formatNum(precioVenta(item)) : 'Sin precio' }}</div>
+                  <div v-if="precioVentaIva(item) != null"><b>P. VENTA + IVA:</b> {{ formatNum(precioVentaIva(item)) }}</div>
+                  <template v-if="costoUnitario(item) != null">
+                    <div v-if="precioVenta(item) != null" title="Utilidad por tonelada (1000 unidades)"><b>UTILIDAD:</b> {{ formatNum(utilidadTonelada(precioVenta(item), item)) }}</div>
+                    <div v-if="precioVentaIva(item) != null" title="Utilidad por tonelada (1000 unidades)"><b>UTILIDAD + IVA:</b> {{ formatNum(utilidadTonelada(precioVentaIva(item), item)) }}</div>
+                  </template>
                 </div>
               </td>
 
@@ -244,10 +235,16 @@
               <td class="pos-td">
                 <input
                   v-model.number="item.cantidad"
-                  class="pos-input pos-input--qty"
+                  :class="['pos-input', 'pos-input--qty', { 'pos-input--error': excedeStock(item) }]"
+                  :title="excedeStock(item) ? `Supera el stock total (${formatCant(stockActual(item))})` : ''"
                   type="number" min="0.001" step="1"
-                  @input="recalcularLinea(item)"
+                  @input="onCantidadChange(item)"
                 />
+                <div
+                  v-if="!excedeStock(item) && asignacionLotes(item).length > 1"
+                  class="pos-qty-lotes"
+                  :title="asignacionLotes(item).map(a => `${etiquetaLote(a.lote)}: ${formatCant(a.cantidad)}`).join('\n')"
+                >Usa {{ asignacionLotes(item).length }} lotes</div>
               </td>
 
               <!-- Precio unitario -->
@@ -261,7 +258,14 @@
               </td>
 
               <!-- Total -->
-              <td class="pos-td pos-td--total">Bs {{ formatNum(item.total) }}</td>
+              <td class="pos-td"><div class="pos-readonly">{{ formatNum(item.total) }}</div></td>
+
+              <!-- Utilidad de la línea -->
+              <td class="pos-td">
+                <div :class="['pos-readonly', { 'pos-readonly--neg': utilidadLinea(item) < 0 }]">
+                  {{ utilidadLinea(item) != null ? formatNum(utilidadLinea(item)) : '—' }}
+                </div>
+              </td>
 
               <!-- Eliminar -->
               <td class="pos-td pos-td--center">
@@ -269,11 +273,15 @@
               </td>
             </tr>
           </tbody>
+          <tfoot v-if="detalle.length">
+            <tr>
+              <td colspan="6" class="pos-tf-label">TOTAL (Bs)</td>
+              <td class="pos-td"><div class="pos-readonly pos-readonly--strong">{{ totalFormateado }}</div></td>
+              <td class="pos-td"><div :class="['pos-readonly', 'pos-readonly--strong', { 'pos-readonly--neg': totalUtilidades < 0 }]">{{ formatNum(totalUtilidades) }}</div></td>
+              <td class="pos-td"></td>
+            </tr>
+          </tfoot>
         </table>
-      </div>
-      <div class="pos-total-bar">
-        <span class="pos-total-label">Total:</span>
-        <span class="pos-total-value">{{ totalFormateado }}</span>
       </div>
     </div>
 
@@ -456,11 +464,14 @@
             <div style="font-size:48px;color:#22c55e;margin-bottom:8px;">✓</div>
             <div style="font-size:16px;font-weight:700;color:#4ade80;">¡Venta exitosa!</div>
             <div v-if="ultimaVenta" style="margin-top:12px;">
-              <div style="font-size:22px;font-weight:800;color:#818cf8;">{{ ultimaVenta.numeroComprobante || ultimaVenta.id }}</div>
+              <div style="font-size:22px;font-weight:800;color:#818cf8;">{{ ultimaVenta.nroVenta }}</div>
+              <div v-if="ultimaVenta.estadoVenta === 'PENDIENTE'" style="font-size:12px;color:#f59e0b;margin-top:4px;">Saldo pendiente: Bs {{ formatNum(Number(ultimaVenta.total) - Number(ultimaVenta.montoPagado || 0)) }}</div>
+              <div v-if="Number(ultimaVenta.cambio) > 0" style="font-size:12px;color:#4ade80;margin-top:4px;">Cambio: Bs {{ formatNum(ultimaVenta.cambio) }}</div>
               <div style="font-size:13px;color:var(--t4);margin-top:6px;">Total: <strong style="color:var(--t2);">Bs {{ formatNum(ultimaVenta.total) }}</strong></div>
             </div>
           </div>
           <div class="pos-modal-footer" style="justify-content:center;">
+            <button v-if="ultimaVenta" class="pos-btn-secondary" @click="imprimirRecibo(ultimaVenta)">Imprimir recibo</button>
             <button class="pos-btn-primary" style="min-width:160px;" @click="nuevaVenta">Nueva Venta</button>
           </div>
         </div>
@@ -471,10 +482,13 @@
 </template>
 
 <script>
+import { htmlNotaVenta, escribirDocumento, abrirVentanaPendiente } from '@/common/impresion-venta'
+
 let searchTimeout = null
 
 const emptyForm = () => ({
   codigoCliente: '',
+  contactoClienteId: '',
   sucursalId: '',
   fecha: new Date().toISOString().split('T')[0],
   tipoOperacion: 'VENTA',
@@ -544,25 +558,20 @@ export default {
   }),
 
   watch: {
-    'form.tipoPrecio'(nuevoTipo) {
-      for (const item of this.detalle) {
-        item.tipoPrecio = nuevoTipo === 'CF' ? 'CF' : 'SF'
-        // Usar CF si existe, sino caer en SF
-        const tiers = (nuevoTipo === 'CF' && item.tiersCF && item.tiersCF.length)
-          ? item.tiersCF
-          : (item.tiersSF || [])
-        const tier = tiers[item.tierIdx] || tiers[0]
-        if (tier) {
-          item.precioUnitario = tier.precio
-          item.total = Number(item.cantidad || 0) * tier.precio
-        }
-      }
+    'form.tipoPrecio'() {
+      for (const item of this.detalle) this.aplicarPrecioSugerido(item)
+    },
+    'form.sucursalId'() {
+      for (const item of this.detalle) this.cargarLotes(item)
     },
   },
 
   computed: {
     subtotal() {
       return this.detalle.reduce((s, i) => s + (i.total || 0), 0)
+    },
+    totalUtilidades() {
+      return this.detalle.reduce((s, i) => s + (this.utilidadLinea(i) || 0), 0)
     },
     totalFormateado() {
       return this.formatNum(this.subtotal)
@@ -669,23 +678,16 @@ export default {
     agregarProducto(prod) {
       this.searchQuery = ''
       this.searchResultados = []
+      this.searchDropdownOpen = false
 
-      const tipoPrecioActual = this.form.tipoPrecio === 'CF' ? 'CF' : 'SF'
-      const tiersSF = prod.tiersSF || (prod.precio != null ? [{ cantidadMin: 1, cantidadMax: null, precio: prod.precio }] : [])
-      const tiersCF = prod.tiersCF || []
-
-      // Buscar si ya está en el detalle → incrementar cantidad
+      // Si ya está en el detalle → incrementar cantidad
       const existente = this.detalle.find(i => i.productoId === prod.id)
       if (existente) {
-        existente.cantidad += 1
-        this.recalcularLinea(existente)
+        existente.cantidad = Number(existente.cantidad || 0) + 1
+        this.onCantidadChange(existente)
         this.$nextTick(() => this.$refs.searchInput?.focus())
         return
       }
-
-      const tiersActivos = tipoPrecioActual === 'CF' && tiersCF.length ? tiersCF : tiersSF
-      const tierIdx = 0
-      const precioBase = tiersActivos[0]?.precio ?? 0
 
       const nuevoItem = {
         _key: ++_keyCounter,
@@ -694,133 +696,142 @@ export default {
         nombre: prod.nombre,
         nombreCategoria: prod.nombreCategoria || null,
         nombreSubcategoria: prod.nombreSubcategoria || null,
-        porcentajeFactura: prod.porcentajeFactura || 0,
-        tiersSF,
-        tiersCF,
-        tipoPrecio: tipoPrecioActual,
-        tierIdx,
+        unidadMedida: prod.unidadMedida || null,
+        porcentajeFactura: Number(prod.porcentajeFactura || 0),
+        tiersSF: prod.tiersSF || (prod.precio != null ? [{ cantidadMin: 1, cantidadMax: null, precio: prod.precio }] : []),
+        tiersCF: prod.tiersCF || [],
         cantidad: 1,
-        precioUnitario: precioBase,
-        descuentoPct: 0,
-        total: precioBase,
+        precioUnitario: 0,
+        total: 0,
         lotes: [],
         loteSeleccionado: '',
+        cargandoLotes: true,
       }
-
       this.detalle.push(nuevoItem)
-
-      // Cargar lotes disponibles
+      this.aplicarPrecioSugerido(nuevoItem)
       this.cargarLotes(nuevoItem)
-
       this.$nextTick(() => this.$refs.searchInput?.focus())
     },
 
-    // Devuelve los tiers activos según el tipo global SF/CF del formulario
-    tiersActivos(item) {
-      return this.form.tipoPrecio === 'CF' && item.tiersCF && item.tiersCF.length
-        ? item.tiersCF
-        : (item.tiersSF || [])
-    },
-
-    // Etiqueta del tier: "Cant. 1-100: Bs 8,00 (+ IVA: Bs 8,96)" o "Cant. 101+: Bs 7,50"
-    etiquetaTier(tier, porcentajeFactura = 0) {
-      const rango = tier.cantidadMax != null
-        ? `Cant. ${tier.cantidadMin}-${tier.cantidadMax}`
-        : `Cant. ${tier.cantidadMin}+`
-      const precioSinIva = this.formatNum(tier.precio)
-      if (porcentajeFactura > 0) {
-        const precioConIva = tier.precio * (1 + porcentajeFactura / 100)
-        const precioConIvaFormato = this.formatNum(precioConIva)
-        return `${rango}: Bs ${precioSinIva} (+ IVA: Bs ${precioConIvaFormato})`
+    async cargarLotes(item) {
+      this.$set(item, 'cargandoLotes', true)
+      try {
+        const sucursalId = this.form.sucursalId || this.$store.getters.sucursalActualId || ''
+        const lotes = await this.$service.list(`lotes/pos/${item.productoId}${sucursalId ? `?sucursalId=${sucursalId}` : ''}`) || []
+        this.$set(item, 'lotes', lotes)
+        // Mantener el lote elegido si sigue disponible; si no, el primero (orden de salida FEFO/FIFO)
+        if (!lotes.some(l => l.id === item.loteSeleccionado)) item.loteSeleccionado = lotes[0]?.id || ''
+        this.aplicarPrecioSugerido(item)
+      } catch (e) {
+        this.$set(item, 'lotes', [])
+      } finally {
+        item.cargandoLotes = false
       }
-      return `${rango}: Bs ${precioSinIva}`
     },
 
-    // Al hacer click en un tier radio
-    onTierChange(item, tierIdx) {
-      item.tierIdx = tierIdx
-      const tiers = this.tiersActivos(item)
-      const tier = tiers[tierIdx]
-      if (tier) { item.precioUnitario = tier.precio; this.recalcularLinea(item) }
+    seleccionarLote(item, loteId) {
+      item.loteSeleccionado = loteId
+      this.aplicarPrecioSugerido(item)
+    },
+
+    loteActual(item) {
+      return item.lotes.find(l => l.id === item.loteSeleccionado) || null
+    },
+
+    etiquetaLote(lote) {
+      const nro = lote.nroLote || lote.loteInterno || 's/n'
+      return lote.proveedor ? `${lote.proveedor} - Lote Nro ${nro}` : `Lote Nro ${nro}`
+    },
+
+    stockActual(item) {
+      return item.lotes.reduce((s, l) => s + Number(l.stock || 0), 0)
+    },
+
+    // La cantidad puede usar todo el stock: primero el lote elegido y luego los demás en orden de salida
+    excedeStock(item) {
+      return item.lotes.length > 0 && Number(item.cantidad || 0) > this.stockActual(item) + 1e-9
+    },
+
+    asignacionLotes(item) {
+      const elegido = this.loteActual(item)
+      const orden = elegido ? [elegido, ...item.lotes.filter(l => l.id !== elegido.id)] : item.lotes
+      const asignacion = []
+      let restante = Number(item.cantidad || 0)
+      for (const lote of orden) {
+        if (restante <= 0) break
+        const usar = Math.min(restante, Number(lote.stock || 0))
+        if (usar > 0) { asignacion.push({ lote, cantidad: usar }); restante -= usar }
+      }
+      return asignacion
+    },
+
+    // Tier de precio del producto que corresponde a la cantidad
+    tierPorCantidad(tiers, cantidad) {
+      if (!tiers.length) return null
+      const qty = Number(cantidad || 1)
+      return tiers.find(t => qty >= t.cantidadMin && (t.cantidadMax == null || qty <= t.cantidadMax)) || tiers[tiers.length - 1]
+    },
+
+    // P. VENTA: precio del lote; si el lote no tiene, el del producto según cantidad
+    precioVenta(item) {
+      const lote = this.loteActual(item)
+      if (lote && lote.precioVentaSF > 0) return Number(lote.precioVentaSF)
+      const tier = this.tierPorCantidad(item.tiersSF, item.cantidad)
+      return tier ? Number(tier.precio) : null
+    },
+
+    // P. VENTA + IVA: precio CF del lote → tier CF del producto → P. VENTA + % factura
+    precioVentaIva(item) {
+      const lote = this.loteActual(item)
+      if (lote && lote.precioVentaCF > 0) return Number(lote.precioVentaCF)
+      const tier = this.tierPorCantidad(item.tiersCF, item.cantidad)
+      if (tier) return Number(tier.precio)
+      const pv = this.precioVenta(item)
+      return pv != null && item.porcentajeFactura > 0 ? Number((pv * (1 + item.porcentajeFactura / 100)).toFixed(2)) : null
+    },
+
+    costoUnitario(item) {
+      const lote = this.loteActual(item)
+      return lote && lote.costoUnitario != null ? Number(lote.costoUnitario) : null
+    },
+
+    utilidadTonelada(precio, item) {
+      return (Number(precio) - this.costoUnitario(item)) * 1000
+    },
+
+    // Utilidad con el costo real de cada lote que se usará
+    utilidadLinea(item) {
+      const asignacion = this.asignacionLotes(item)
+      if (!asignacion.length || asignacion.some(a => a.lote.costoUnitario == null)) {
+        const costo = this.costoUnitario(item)
+        return costo == null ? null : (Number(item.precioUnitario || 0) - costo) * Number(item.cantidad || 0)
+      }
+      const precio = Number(item.precioUnitario || 0)
+      return asignacion.reduce((s, a) => s + (precio - Number(a.lote.costoUnitario)) * a.cantidad, 0)
+    },
+
+    aplicarPrecioSugerido(item) {
+      const precio = this.form.tipoPrecio === 'CF'
+        ? (this.precioVentaIva(item) ?? this.precioVenta(item))
+        : this.precioVenta(item)
+      item.precioUnitario = precio != null ? precio : 0
+      this.recalcularLinea(item)
+    },
+
+    onCantidadChange(item) {
+      // Con precios escalonados por cantidad (y sin precio propio del lote) se ajusta el precio
+      const lote = this.loteActual(item)
+      const tienePrecioLote = lote && (lote.precioVentaSF > 0 || lote.precioVentaCF > 0)
+      if (!tienePrecioLote && (item.tiersSF.length > 1 || item.tiersCF.length > 1)) this.aplicarPrecioSugerido(item)
+      else this.recalcularLinea(item)
     },
 
     recalcularLinea(item) {
-      const tiers = this.tiersActivos(item)
-      if (tiers.length > 1) {
-        const qty = Number(item.cantidad || 1)
-        const idx = tiers.findIndex(t =>
-          qty >= t.cantidadMin && (t.cantidadMax == null || qty <= t.cantidadMax),
-        )
-        const matchIdx = idx >= 0 ? idx : tiers.length - 1
-        if (matchIdx !== item.tierIdx) {
-          item.tierIdx = matchIdx
-          item.precioUnitario = tiers[matchIdx].precio
-        }
-      }
-      item.total = Number(item.cantidad || 0) * Number(item.precioUnitario || 0)
-      // Forzar reactividad en Vue 2
-      this.$set(item, 'total', item.total)
+      this.$set(item, 'total', Number(item.cantidad || 0) * Number(item.precioUnitario || 0))
     },
 
     quitarLinea(idx) {
       this.detalle.splice(idx, 1)
-    },
-
-    async cargarLotes(item) {
-      try {
-        const sucursalId = this.form.sucursalId || (this.$store.getters.sucursalActualId || '')
-        const lotes = await this.$service.list(`lotes/producto/${item.productoId}?sucursalId=${sucursalId}`) || []
-        // Agregar información de stock y precios del lote
-        const lotesConDetalles = await Promise.all(lotes.map(async lote => {
-          try {
-            const detalles = await this.$service.get(`lotes/${lote.id}/stock`)
-            return {
-              ...lote,
-              stock: detalles?.datos?.stock || 0,
-              precioVentaSF: detalles?.datos?.precioVentaSF || null,
-              precioVentaCF: detalles?.datos?.precioVentaCF || null,
-            }
-          } catch (e) {
-            return { ...lote, stock: 0, precioVentaSF: null, precioVentaCF: null }
-          }
-        }))
-        this.$set(item, 'lotes', lotesConDetalles.filter(l => Number(l.stock) > 0))
-      } catch (e) {
-        console.error('Error cargando lotes:', e)
-      }
-    },
-
-    async onLoteChange(item) {
-      if (item.loteSeleccionado) {
-        const lote = item.lotes.find(l => l.id === item.loteSeleccionado)
-        if (lote) {
-          this.$set(item, 'loteSeleccionado', lote.id)
-
-          // Si el lote tiene precio específico configurado, usarlo
-          const tipoPrecio = this.form.tipoPrecio === 'CF' ? 'CF' : 'SF'
-          const precioLote = tipoPrecio === 'CF' ? lote.precioVentaCF : lote.precioVentaSF
-
-          if (precioLote && Number(precioLote) > 0) {
-            item.precioUnitario = Number(precioLote)
-            this.recalcularLinea(item)
-          }
-        }
-      } else {
-        // Si deselecciona lote, volver al precio del tier actual
-        const tiers = this.tiersActivos(item)
-        if (tiers.length > 0) {
-          const tierIdx = item.tierIdx >= 0 ? item.tierIdx : 0
-          item.precioUnitario = tiers[tierIdx].precio
-          this.recalcularLinea(item)
-        }
-      }
-    },
-
-    getLoteLabel(item) {
-      if (!item.loteSeleccionado) return ''
-      const lote = item.lotes.find(l => l.id === item.loteSeleccionado)
-      if (!lote) return ''
-      return `${lote.nroLote} - Stock: ${this.formatNum(lote.stock)}`
     },
 
     // ── Pagos ────────────────────────────────────────────────────────────
@@ -891,6 +902,7 @@ export default {
       this.form.celular = c.celular || ''
       this.form.correo = c.correo || c.email || ''
       this.form.codigoCliente = c.codigo || String(c.id)
+      this.form.contactoClienteId = c.id
       this.clienteModal = false
     },
 
@@ -904,23 +916,46 @@ export default {
 
     // ── Guardar / Cobrar ─────────────────────────────────────────────────
 
-    async guardarVenta() {
-      if (!this.detalle.length) return
-      if (!this.form.sucursalId) return this.$message.error('Selecciona una sucursal')
-      this.saving = true
-      try {
-        const payload = this.buildPayload('PENDIENTE')
-        await this.$service.post('ventas/borrador', payload)
-        this.$message.success('Venta guardada como pendiente')
-        this.nuevaVenta()
-      } catch (e) {
-        this.$message.error(e?.message || 'Error al guardar la venta')
-      } finally { this.saving = false }
+    // Validaciones comunes antes de registrar
+    validarVenta() {
+      if (!this.detalle.length) return false
+      if (!this.form.sucursalId) { this.$message.error('Selecciona una sucursal'); return false }
+      if (this.form.tipoOperacion === 'COTIZACION') {
+        this.$message.error('Una cotización no se registra como venta. Cambia a VENTA para cobrar o guardar.')
+        return false
+      }
+      const invalida = this.detalle.find(i => !(Number(i.cantidad) > 0) || !(Number(i.precioUnitario) > 0))
+      if (invalida) { this.$message.error(`Revisa cantidad y precio de "${invalida.nombre}"`); return false }
+      const sinStock = this.detalle.find(i => this.excedeStock(i))
+      if (sinStock) { this.$message.error(`La cantidad de "${sinStock.nombre}" supera el stock disponible (${this.formatCant(this.stockActual(sinStock))})`); return false }
+      return true
+    },
+
+    // GUARDAR: registra la venta sin cobro; todo el total queda como deuda del cliente
+    guardarVenta() {
+      if (!this.validarVenta()) return
+      if (!this.form.nombreCliente && !this.form.contactoClienteId) {
+        return this.$message.error('Indica el cliente: la venta quedará como deuda a su nombre')
+      }
+      this.$confirm(`Se registrará la venta sin cobro y Bs ${this.formatNum(this.subtotal)} quedarán como deuda de ${this.form.nombreCliente || 'el cliente'}. ¿Continuar?`, async () => {
+        this.saving = true
+        const w = abrirVentanaPendiente()
+        try {
+          const venta = await this.$service.post('ventas/borrador', this.buildPayload())
+          if (venta) {
+            this.ultimaVenta = venta
+            this.ticketModal = true
+            this.cargarProductos()
+            this.imprimirRecibo(venta, w)
+          } else if (w) w.close()
+        } catch (e) {
+          if (w) w.close()
+        } finally { this.saving = false }
+      })
     },
 
     cobrarVenta() {
-      if (!this.detalle.length) return
-      if (!this.form.sucursalId) return this.$message.error('Selecciona una sucursal')
+      if (!this.validarVenta()) return
       if (!this.cajaAbierta) return this.$message.error('Caja no abierta. Debe abrir la caja primero.')
       this.registrarDeuda = false
       // Auto-seleccionar Efectivo con el total si no hay ningún método activo
@@ -932,56 +967,79 @@ export default {
     },
 
     async confirmarCobro() {
+      const adelanto = this.pagoActivos.find(m => m.value === 'ADELANTO')
+      if (adelanto && Number(adelanto.monto) > 0 && !adelanto.adelantoId) return this.$message.error('Selecciona el adelanto a aplicar')
+      if (this.saldoPendiente > 0.01 && !this.registrarDeuda) return this.$message.error('Completa el pago o regístralo como deuda')
+      if (this.registrarDeuda && this.saldoPendiente > 0.01 && !this.form.nombreCliente && !this.form.contactoClienteId) {
+        return this.$message.error('Indica el cliente para registrar la deuda')
+      }
       this.cobrando = true
+      const w = abrirVentanaPendiente()
       try {
-        const pagos = this.pagoActivos.map(m => ({
-          metodoPago: m.value,
-          monto: Number(m.monto) || 0,
-          referencia: m.referencia || undefined,
-          adelantoId: m.value === 'ADELANTO' ? m.adelantoId : undefined,
-        }))
-        const estado = (this.registrarDeuda && this.saldoPendiente > 0.01) ? 'PENDIENTE' : 'COMPLETADA'
-        const payload = { ...this.buildPayload(estado), pagos }
-        if (estado === 'PENDIENTE' && this.saldoPendiente > 0.01) {
-          payload.tipoVenta = payload.tipoVenta || 'CREDITO'
+        const payload = {
+          ...this.buildPayload(),
+          registrarDeuda: this.registrarDeuda && this.saldoPendiente > 0.01,
+          pagos: this.pagoActivos
+            .filter(m => Number(m.monto) > 0)
+            .map(m => ({
+              metodoPago: m.value,
+              monto: Number(m.monto),
+              referencia: m.referencia || undefined,
+              adelantoId: m.value === 'ADELANTO' ? m.adelantoId : undefined,
+            })),
         }
-        const result = await this.$service.post('ventas/cobrar', payload)
-        this.ultimaVenta = result
-        this.cobrarModal = false
-        this.ticketModal = true
+        const venta = await this.$service.post('ventas/cobrar', payload)
+        if (venta) {
+          this.ultimaVenta = venta
+          this.cobrarModal = false
+          this.ticketModal = true
+          this.cargarProductos()
+          this.verificarCaja()
+          this.imprimirRecibo(venta, w)
+        } else if (w) w.close()
       } catch (e) {
-        this.$message.error(e?.message || 'Error al procesar el cobro')
+        if (w) w.close()
       } finally { this.cobrando = false }
     },
 
-    buildPayload(estado) {
-      const adelantoMetodo = this.metodosPago.find(m => m.value === 'ADELANTO' && m.activo)
+    // Recibo (nota de venta) con el diálogo de impresión abierto automáticamente.
+    // `ventana` se abre en el mismo clic para que el navegador no la bloquee.
+    async imprimirRecibo(venta, ventana = null) {
+      const w = ventana || abrirVentanaPendiente()
+      if (!w) return this.$message.error('Permite las ventanas emergentes para imprimir el recibo')
+      try {
+        const d = await this.$service.get(`ventas/${venta.id}/impresion`)
+        if (d) escribirDocumento(w, htmlNotaVenta(d), { autoImprimir: true })
+        else w.close()
+      } catch (e) {
+        w.close()
+      }
+    },
+
+    buildPayload() {
+      const esUuid = v => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v || '')
+      const observaciones = [
+        this.form.glosa,
+        this.form.nombreFactura && this.form.nombreFactura !== this.form.nombreCliente ? `Factura a: ${this.form.nombreFactura}` : '',
+        this.form.complemento ? `Complemento: ${this.form.complemento}` : '',
+        this.form.tipoComprobante ? `Comprobante: ${this.form.tipoComprobante}` : '',
+        this.form.fechaLimitePago ? `Fecha límite de pago: ${this.form.fechaLimitePago}` : '',
+        this.form.correo ? `Correo: ${this.form.correo}` : '',
+      ].filter(Boolean).join(' · ')
       return {
         sucursalId: this.form.sucursalId,
-        estado,
         tipoOperacion: this.form.tipoOperacion,
-        tipoComprobante: this.form.tipoComprobante,
-        tipoPrecio: this.form.tipoPrecio,
-        tipoVenta: this.form.tipoVenta,
-        fechaVenta: this.form.fecha,
-        fechaLimitePago: this.form.fechaLimitePago || undefined,
-        compradorNitCi: this.form.nitCi || undefined,
-        compradorComplemento: this.form.complemento || undefined,
-        compradorNombre: this.form.nombreFactura || this.form.nombreCliente || undefined,
-        nombreCliente: this.form.nombreCliente || undefined,
-        celular: this.form.celular || undefined,
-        correo: this.form.correo || undefined,
-        glosa: this.form.glosa || undefined,
-        total: this.subtotal,
-        adelantoId: adelantoMetodo?.adelantoId || undefined,
-        montoAdelanto: adelantoMetodo ? Number(adelantoMetodo.monto) || undefined : undefined,
-        detalle: this.detalle.map(i => ({
+        fecha: this.form.fecha || undefined,
+        contactoClienteId: esUuid(this.form.contactoClienteId) ? this.form.contactoClienteId : undefined,
+        nombreCliente: this.form.nombreCliente || this.form.nombreFactura || undefined,
+        nitCi: this.form.nitCi || undefined,
+        telefonoCliente: this.form.celular || undefined,
+        observaciones: observaciones || undefined,
+        detalles: this.detalle.map(i => ({
           productoId: i.productoId,
-          nombre: i.nombre,
-          cantidad: i.cantidad,
-          precioUnitario: i.precioUnitario,
-          tipoPrecio: i.tipoPrecio,
-          subtotal: i.total,
+          loteId: i.loteSeleccionado || undefined,
+          cantidad: Number(i.cantidad),
+          precioUnitario: Number(i.precioUnitario),
         })),
       }
     },
@@ -1006,6 +1064,11 @@ export default {
 
     generarPDF() {
       this.$message.error('PDF disponible solo en ventas completadas')
+    },
+
+    formatCant(v) {
+      const n = Number(v || 0)
+      return n % 1 === 0 ? n.toLocaleString('es-BO') : n.toLocaleString('es-BO', { maximumFractionDigits: 3 })
     },
 
     formatNum(v) {
@@ -1112,10 +1175,7 @@ export default {
 }
 .pos-select:focus { border-color: #6366f1; }
 .pos-select--sm { padding: 4px 6px; font-size: 11px; width: 100%; }
-.pos-lotes-cell { display: flex; flex-direction: column; gap: 4px; }
-.pos-select--lote { width: 120px; padding: 5px 6px; font-size: 11px; }
-.pos-lote-info { font-size: 10px; color: var(--t4); padding: 0 6px; }
-.pos-lote-label { font-weight: 600; color: #6366f1; }
+.pos-lotes-cell { display: flex; flex-wrap: wrap; gap: 4px; align-items: flex-start; }
 
 /* ── Radio buttons ───────────────────────────────────────────────────── */
 .pos-radio-group {
@@ -1196,17 +1256,35 @@ export default {
 }
 .pos-tr:hover .pos-td { background: var(--b2); }
 
-/* Descripción completa en una sola línea */
-.pos-desc-full { font-size: 12px; font-weight: 600; color: var(--t2); }
+/* Bloques etiqueta: valor (descripción y precios) */
+.pos-kv { display: flex; flex-direction: column; gap: 1px; font-size: 11px; color: var(--t3); line-height: 1.45; }
+.pos-kv b { color: var(--t2); font-weight: 700; }
 
-/* Radio precios */
-.pos-precios-list { display: flex; flex-direction: column; gap: 4px; }
-.pos-precio-radio { display: flex; align-items: center; gap: 6px; cursor: pointer; }
-.pos-precio-radio input[type="radio"] { accent-color: #6366f1; cursor: pointer; width: 13px; height: 13px; flex-shrink: 0; }
-.pos-precio-lbl { font-size: 11px; color: var(--t4); font-weight: 500; }
-.pos-precio-radio--active .pos-precio-lbl { color: #6366f1; font-weight: 700; }
-.pos-precio-auto { font-size: 10px; color: #eab308; font-style: italic; margin-top: 2px; }
-.pos-precio-sinprecio { font-size: 10px; color: #f87171; font-style: italic; }
+/* Encabezados con acento como en el formato de referencia */
+.pos-th--accent { background: #0f766e; color: #fff; }
+.pos-th--util { background: #059669; color: #fff; white-space: normal; }
+.pos-table thead .pos-th:not(.pos-th--accent):not(.pos-th--util) { background: #115e59; color: #fff; }
+
+/* Lotes */
+.pos-lote-btn {
+  padding: 4px 8px; border-radius: 5px; font-size: 11px; text-align: left;
+  border: 1px solid #0f766e; background: transparent; color: #14b8a6; cursor: pointer;
+  transition: background .12s, color .12s;
+}
+.pos-lote-btn:hover { background: #0f766e22; }
+.pos-lote-btn--active { background: #0f766e; color: #fff; font-weight: 700; }
+.pos-lote-vacio { font-size: 11px; color: #f87171; font-style: italic; }
+
+/* Celdas de solo lectura y totales */
+.pos-readonly {
+  padding: 5px 8px; border-radius: 6px; background: var(--b2); border: 1px solid var(--b1);
+  text-align: right; font-size: 12px; color: var(--t2); min-width: 70px;
+}
+.pos-readonly--strong { font-weight: 800; }
+.pos-readonly--neg { color: #f87171; }
+.pos-tf-label { text-align: right; padding: 10px; font-size: 12px; font-weight: 800; color: var(--t2); }
+.pos-input--error { border-color: #ef4444 !important; color: #f87171; }
+.pos-qty-lotes { font-size: 10px; color: #14b8a6; margin-top: 3px; text-align: center; cursor: help; white-space: nowrap; }
 
 /* Inputs tabla */
 .pos-input--qty { width: 68px; text-align: center; padding: 5px 6px; font-size: 12px; font-weight: 600; }

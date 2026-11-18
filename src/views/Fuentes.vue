@@ -77,6 +77,7 @@
               <option value="PAGO_PROVEEDOR">Pago proveedor</option>
               <option value="GASTO_LOGISTICA">Gasto logística</option>
               <option value="INGRESO_VENTA">Ingreso venta</option>
+              <option value="COMISION_VENTA">Comisión venta</option>
               <option value="RETIRO">Retiro</option>
               <option value="DEPOSITO">Depósito</option>
               <option value="TRANSFERENCIA">Transferencia</option>
@@ -435,7 +436,7 @@ export default {
       return 'ide-chip--blue'
     },
     labelCategoria(c) {
-      const map = { PAGO_PROVEEDOR: 'Pago proveedor', GASTO_LOGISTICA: 'Gasto logística', INGRESO_VENTA: 'Ingreso venta', RETIRO: 'Retiro', DEPOSITO: 'Depósito', TRANSFERENCIA: 'Transferencia', OTRO: 'Otro' }
+      const map = { PAGO_PROVEEDOR: 'Pago proveedor', GASTO_LOGISTICA: 'Gasto logística', INGRESO_VENTA: 'Ingreso venta', COMISION_VENTA: 'Comisión venta', RETIRO: 'Retiro', DEPOSITO: 'Depósito', TRANSFERENCIA: 'Transferencia', OTRO: 'Otro' }
       return map[c] || c
     },
     esIngreso(tipo) {
