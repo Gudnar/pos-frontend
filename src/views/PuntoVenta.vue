@@ -27,6 +27,16 @@
       </div>
     </div>
 
+    <!-- ── Conversión de cotización ──────────────────────────────────────── -->
+    <div v-if="cotizacionOrigen" class="pos-cot-banner">
+      <span>
+        Convirtiendo la cotización <strong>{{ cotizacionOrigen.nro }}</strong> en venta.
+        <template v-if="cotizacionOrigen.vencida"> Está <strong>vencida</strong>: revisa precios.</template>
+        Revisa precios y stock antes de cobrar; la cotización se conserva tal como fue emitida.
+      </span>
+      <button class="pos-btn-secondary" @click="nuevaVenta()">Cancelar conversión</button>
+    </div>
+
     <!-- ── Formulario cabecera ────────────────────────────────────────── -->
     <div class="pos-form-section">
       <div class="pos-form-grid">
@@ -51,7 +61,11 @@
           <label>Opciones</label>
           <div class="pos-radio-group">
             <label class="pos-radio"><input type="radio" v-model="form.tipoOperacion" value="VENTA" /> VENTA</label>
-            <label class="pos-radio"><input type="radio" v-model="form.tipoOperacion" value="COTIZACION" /> COTIZACIÓN</label>
+            <label class="pos-radio" :style="cotizacionOrigen ? 'opacity:.4' : ''"><input type="radio" v-model="form.tipoOperacion" value="COTIZACION" :disabled="!!cotizacionOrigen" /> COTIZACIÓN</label>
+          </div>
+          <div v-if="form.tipoOperacion === 'COTIZACION'" class="pos-valida-hasta">
+            <span>Válida hasta</span>
+            <input v-model="form.validoHasta" class="pos-input" type="date" :min="form.fecha" />
           </div>
         </div>
 
@@ -253,7 +267,7 @@
                   v-model.number="item.precioUnitario"
                   class="pos-input pos-input--num"
                   type="number" min="0" step="0.01"
-                  @input="recalcularLinea(item)"
+                  @input="item.precioManual = true; recalcularLinea(item)"
                 />
               </td>
 
@@ -309,6 +323,17 @@
         </div>
 
         <button
+          v-if="form.tipoOperacion === 'COTIZACION'"
+          class="pos-btn-cotizar"
+          :disabled="saving || !detalle.length"
+          @click="guardarCotizacion"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
+          {{ saving ? 'Guardando...' : 'GUARDAR COTIZACIÓN' }}
+        </button>
+
+        <template v-else>
+        <button
           class="pos-btn-guardar"
           :disabled="saving || !detalle.length"
           @click="guardarVenta"
@@ -325,6 +350,7 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
           {{ cobrando ? 'Procesando...' : 'COBRAR' }}
         </button>
+        </template>
       </div>
     </div>
 
@@ -458,10 +484,19 @@
       <div v-if="ticketModal" class="pos-modal-backdrop">
         <div class="pos-modal" style="max-width:340px;text-align:center;">
           <div class="pos-modal-header" style="justify-content:center;border:none;">
-            <span>Venta Registrada</span>
+            <span>{{ ultimaCotizacion ? 'Cotización Registrada' : 'Venta Registrada' }}</span>
           </div>
           <div class="pos-modal-body" style="padding:24px;">
             <div style="font-size:48px;color:#22c55e;margin-bottom:8px;">✓</div>
+            <template v-if="ultimaCotizacion">
+              <div style="font-size:16px;font-weight:700;color:#4ade80;">¡Cotización guardada!</div>
+              <div style="margin-top:12px;">
+                <div style="font-size:22px;font-weight:800;color:#818cf8;">{{ ultimaCotizacion.nroCotizacion }}</div>
+                <div v-if="ultimaCotizacion.validoHasta" style="font-size:12px;color:var(--t4);margin-top:4px;">Válida hasta {{ ultimaCotizacion.validoHasta }}</div>
+                <div style="font-size:13px;color:var(--t4);margin-top:6px;">Total: <strong style="color:var(--t2);">Bs {{ formatNum(ultimaCotizacion.total) }}</strong></div>
+              </div>
+            </template>
+            <template v-else>
             <div style="font-size:16px;font-weight:700;color:#4ade80;">¡Venta exitosa!</div>
             <div v-if="ultimaVenta" style="margin-top:12px;">
               <div style="font-size:22px;font-weight:800;color:#818cf8;">{{ ultimaVenta.nroVenta }}</div>
@@ -469,10 +504,12 @@
               <div v-if="Number(ultimaVenta.cambio) > 0" style="font-size:12px;color:#4ade80;margin-top:4px;">Cambio: Bs {{ formatNum(ultimaVenta.cambio) }}</div>
               <div style="font-size:13px;color:var(--t4);margin-top:6px;">Total: <strong style="color:var(--t2);">Bs {{ formatNum(ultimaVenta.total) }}</strong></div>
             </div>
+            </template>
           </div>
           <div class="pos-modal-footer" style="justify-content:center;">
-            <button v-if="ultimaVenta" class="pos-btn-secondary" @click="imprimirRecibo(ultimaVenta)">Imprimir recibo</button>
-            <button class="pos-btn-primary" style="min-width:160px;" @click="nuevaVenta">Nueva Venta</button>
+            <button v-if="ultimaCotizacion" class="pos-btn-secondary" @click="imprimirCotizacion(ultimaCotizacion)">Imprimir cotización</button>
+            <button v-else-if="ultimaVenta" class="pos-btn-secondary" @click="imprimirRecibo(ultimaVenta)">Imprimir recibo</button>
+            <button class="pos-btn-primary" style="min-width:160px;" @click="nuevaVenta()">{{ ultimaCotizacion ? 'Nueva operación' : 'Nueva Venta' }}</button>
           </div>
         </div>
       </div>
@@ -482,7 +519,7 @@
 </template>
 
 <script>
-import { htmlNotaVenta, escribirDocumento, abrirVentanaPendiente } from '@/common/impresion-venta'
+import { htmlNotaVenta, htmlCotizacion, escribirDocumento, abrirVentanaPendiente } from '@/common/impresion-venta'
 
 let searchTimeout = null
 
@@ -492,6 +529,7 @@ const emptyForm = () => ({
   sucursalId: '',
   fecha: new Date().toISOString().split('T')[0],
   tipoOperacion: 'VENTA',
+  validoHasta: '',
   nitCi: '',
   complemento: '',
   tipoComprobante: 'FACTURA',
@@ -551,6 +589,9 @@ export default {
     cobrarModal: false,
     ticketModal: false,
     ultimaVenta: null,
+    ultimaCotizacion: null,
+    // Cotización que se está convirtiendo en venta ({ id, nro, vencida })
+    cotizacionOrigen: null,
 
     saving: false,
     cobrando: false,
@@ -563,6 +604,14 @@ export default {
     },
     'form.sucursalId'() {
       for (const item of this.detalle) this.cargarLotes(item)
+    },
+    'form.tipoOperacion'(tipo) {
+      // Validez por defecto de una cotización: 7 días
+      if (tipo === 'COTIZACION' && !this.form.validoHasta) {
+        const d = new Date(`${this.form.fecha || new Date().toISOString().split('T')[0]}T00:00:00`)
+        d.setDate(d.getDate() + 7)
+        this.form.validoHasta = d.toISOString().split('T')[0]
+      }
     },
   },
 
@@ -587,10 +636,11 @@ export default {
     },
   },
 
-  created() {
-    this.cargarSucursales()
-    this.cargarProductos()
+  async created() {
     this.verificarCaja()
+    await Promise.all([this.cargarSucursales(), this.cargarProductos()])
+    // Viene desde el historial con "Convertir en venta"
+    if (this.$route.query.cotizacion) this.cargarCotizacion(this.$route.query.cotizacion)
   },
 
   mounted() {
@@ -689,6 +739,12 @@ export default {
         return
       }
 
+      this.crearItem(prod)
+      this.$nextTick(() => this.$refs.searchInput?.focus())
+    },
+
+    // Agrega una línea nueva (aunque el producto ya esté: una cotización puede traerlo con varios lotes)
+    crearItem(prod) {
       const nuevoItem = {
         _key: ++_keyCounter,
         productoId: prod.id,
@@ -706,11 +762,13 @@ export default {
         lotes: [],
         loteSeleccionado: '',
         cargandoLotes: true,
+        // true cuando el precio lo fijó el usuario o la cotización: no se recalcula solo
+        precioManual: false,
       }
       this.detalle.push(nuevoItem)
       this.aplicarPrecioSugerido(nuevoItem)
       this.cargarLotes(nuevoItem)
-      this.$nextTick(() => this.$refs.searchInput?.focus())
+      return this.detalle[this.detalle.length - 1]
     },
 
     async cargarLotes(item) {
@@ -731,6 +789,7 @@ export default {
 
     seleccionarLote(item, loteId) {
       item.loteSeleccionado = loteId
+      item.precioManual = false
       this.aplicarPrecioSugerido(item)
     },
 
@@ -811,6 +870,7 @@ export default {
     },
 
     aplicarPrecioSugerido(item) {
+      if (item.precioManual) return this.recalcularLinea(item)
       const precio = this.form.tipoPrecio === 'CF'
         ? (this.precioVentaIva(item) ?? this.precioVenta(item))
         : this.precioVenta(item)
@@ -920,10 +980,7 @@ export default {
     validarVenta() {
       if (!this.detalle.length) return false
       if (!this.form.sucursalId) { this.$message.error('Selecciona una sucursal'); return false }
-      if (this.form.tipoOperacion === 'COTIZACION') {
-        this.$message.error('Una cotización no se registra como venta. Cambia a VENTA para cobrar o guardar.')
-        return false
-      }
+      if (this.form.tipoOperacion === 'COTIZACION') return false
       const invalida = this.detalle.find(i => !(Number(i.cantidad) > 0) || !(Number(i.precioUnitario) > 0))
       if (invalida) { this.$message.error(`Revisa cantidad y precio de "${invalida.nombre}"`); return false }
       const sinStock = this.detalle.find(i => this.excedeStock(i))
@@ -945,6 +1002,7 @@ export default {
           if (venta) {
             this.ultimaVenta = venta
             this.ticketModal = true
+            this.cotizacionOrigen = null
             this.cargarProductos()
             this.imprimirRecibo(venta, w)
           } else if (w) w.close()
@@ -993,6 +1051,7 @@ export default {
           this.ultimaVenta = venta
           this.cobrarModal = false
           this.ticketModal = true
+          this.cotizacionOrigen = null
           this.cargarProductos()
           this.verificarCaja()
           this.imprimirRecibo(venta, w)
@@ -1000,6 +1059,89 @@ export default {
       } catch (e) {
         if (w) w.close()
       } finally { this.cobrando = false }
+    },
+
+    // ── Cotizaciones ─────────────────────────────────────────────────────
+
+    async guardarCotizacion() {
+      if (!this.detalle.length) return
+      if (!this.form.sucursalId) return this.$message.error('Selecciona una sucursal')
+      const invalida = this.detalle.find(i => !(Number(i.cantidad) > 0) || !(Number(i.precioUnitario) > 0))
+      if (invalida) return this.$message.error(`Revisa cantidad y precio de "${invalida.nombre}"`)
+      if (this.form.validoHasta && this.form.fecha && this.form.validoHasta < this.form.fecha) {
+        return this.$message.error('La fecha de validez no puede ser anterior a la fecha de la cotización')
+      }
+      this.saving = true
+      const w = abrirVentanaPendiente()
+      try {
+        const cot = await this.$service.post('cotizaciones', {
+          ...this.buildPayload(),
+          cotizacionId: undefined,
+          validoHasta: this.form.validoHasta || undefined,
+          tipoPrecio: this.form.tipoPrecio,
+        })
+        if (cot) {
+          this.ultimaCotizacion = cot
+          this.ticketModal = true
+          this.imprimirCotizacion(cot, w)
+        } else if (w) w.close()
+      } catch (e) {
+        if (w) w.close()
+      } finally { this.saving = false }
+    },
+
+    async imprimirCotizacion(cot, ventana = null) {
+      const w = ventana || abrirVentanaPendiente()
+      if (!w) return this.$message.error('Permite las ventanas emergentes para imprimir la cotización')
+      try {
+        const d = await this.$service.get(`cotizaciones/${cot.id}/impresion`)
+        if (d) escribirDocumento(w, htmlCotizacion(d), { autoImprimir: true })
+        else w.close()
+      } catch (e) {
+        w.close()
+      }
+    },
+
+    // Carga una cotización en el POS para convertirla en venta (precios y lotes de la cotización)
+    async cargarCotizacion(id) {
+      let d
+      try { d = await this.$service.get(`cotizaciones/${id}`) } catch (e) { return }
+      if (!d) return
+      const c = d.cotizacion
+      if (c.estadoCotizacion === 'CONVERTIDA') return this.$message.error(`La cotización ${c.nroCotizacion} ya se convirtió en la venta ${c.nroVenta || ''}`)
+      if (c.estadoCotizacion === 'ANULADA') return this.$message.error(`La cotización ${c.nroCotizacion} está anulada`)
+
+      this.nuevaVenta(false)
+      Object.assign(this.form, {
+        sucursalId: c.sucursalId,
+        tipoOperacion: 'VENTA',
+        tipoPrecio: ['SF', 'CF', 'OFERTA'].includes(c.tipoPrecio) ? c.tipoPrecio : 'SF',
+        contactoClienteId: c.contactoClienteId || '',
+        codigoCliente: c.contactoClienteId || '',
+        nombreCliente: c.nombreCliente || '',
+        nombreFactura: c.nombreCliente || '',
+        nitCi: c.nitCi || '',
+        celular: c.telefonoCliente || '',
+        glosa: `Según cotización ${c.nroCotizacion}`,
+      })
+      this.cotizacionOrigen = { id: c.id, nro: c.nroCotizacion, vencida: c.estadoCotizacion === 'VENCIDA' }
+
+      const faltantes = []
+      for (const det of d.detalles) {
+        const prod = this.productos.find(p => p.id === det.productoId)
+        if (!prod) { faltantes.push(det.nombreProducto); continue }
+        const item = this.crearItem(prod)
+        Object.assign(item, {
+          cantidad: Number(det.cantidad),
+          precioUnitario: Number(det.precioUnitario),
+          precioManual: true,
+          loteSeleccionado: det.loteId || '',
+        })
+        this.recalcularLinea(item)
+      }
+      if (faltantes.length) this.$message.error(`Productos de la cotización que ya no están activos: ${faltantes.join(', ')}`)
+      else if (this.cotizacionOrigen.vencida) this.$message.error(`Atención: la cotización ${c.nroCotizacion} está vencida`)
+      else this.$message.success(`Cotización ${c.nroCotizacion} cargada. Revisa y cobra o guarda la venta.`)
     },
 
     // Recibo (nota de venta) con el diálogo de impresión abierto automáticamente.
@@ -1035,6 +1177,7 @@ export default {
         nitCi: this.form.nitCi || undefined,
         telefonoCliente: this.form.celular || undefined,
         observaciones: observaciones || undefined,
+        cotizacionId: this.cotizacionOrigen?.id || undefined,
         detalles: this.detalle.map(i => ({
           productoId: i.productoId,
           loteId: i.loteSeleccionado || undefined,
@@ -1044,8 +1187,11 @@ export default {
       }
     },
 
-    nuevaVenta() {
+    nuevaVenta(limpiarRuta = true) {
       this.ticketModal = false
+      this.ultimaCotizacion = null
+      this.cotizacionOrigen = null
+      if (limpiarRuta && this.$route.query.cotizacion) this.$router.replace({ query: {} }).catch(() => {})
       this.registrarDeuda = false
       this.form = emptyForm()
       this.detalle = []
@@ -1333,6 +1479,24 @@ export default {
   transition: opacity .15s;
 }
 .pos-btn-pdf:hover { opacity: .8; }
+
+.pos-cot-banner {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin: 0 16px 8px; padding: 10px 14px; border-radius: 10px;
+  background: #6366f118; border: 1px solid #6366f155; color: var(--t2); font-size: 12px;
+}
+.pos-cot-banner strong { color: #818cf8; }
+.pos-valida-hasta { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+.pos-valida-hasta span { font-size: 10px; font-weight: 700; color: var(--t4); text-transform: uppercase; white-space: nowrap; }
+.pos-valida-hasta .pos-input { padding: 4px 8px; flex: 1; min-width: 0; }
+.pos-btn-cotizar {
+  display: flex; align-items: center; gap: 7px;
+  padding: 10px 22px; border-radius: 8px;
+  background: #6366f1; border: none; color: #fff;
+  font-size: 13px; font-weight: 800; cursor: pointer; transition: background .15s;
+}
+.pos-btn-cotizar:hover:not(:disabled) { background: #4f46e5; }
+.pos-btn-cotizar:disabled { opacity: .4; cursor: not-allowed; }
 
 .pos-btn-guardar {
   display: flex; align-items: center; gap: 7px;

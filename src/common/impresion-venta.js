@@ -1,5 +1,6 @@
 // Impresiones de venta (nota de venta y hoja de ruta) a partir de GET ventas/:id/impresion.
 // Las usan el Historial de ventas y el Punto de venta.
+import { resolverLogo } from './logo'
 
 const ESTILOS = `
   * { box-sizing: border-box; }
@@ -8,7 +9,7 @@ const ESTILOS = `
   @page { size: letter portrait; margin: 12mm; }
   .hoja { width: 8.5in; min-height: 11in; margin: 12px auto; padding: 12mm; background: #fff; font-size: 11px; }
   .cabecera { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 10px; }
-  .logo { max-height: 70px; max-width: 280px; }
+  .logo { height: 70px; width: auto; max-width: 280px; object-fit: contain; }
   .empresa-nombre { font-size: 26px; font-weight: 800; color: #1e3a8a; }
   .empresa-datos { text-align: left; font-size: 10px; line-height: 1.5; }
   h1 { text-align: center; font-size: 15px; margin: 10px 0 12px; }
@@ -48,7 +49,7 @@ const encabezadoEmpresa = d => {
   const meta = e.metadatos || {}
   const direccion = meta.direccion || meta.direccionEmpresa || ''
   const logo = e.logoUrl
-    ? `<img src="${esc(e.logoUrl)}" alt="${esc(e.nombre)}" class="logo">`
+    ? `<img src="${esc(resolverLogo(e.logoUrl))}" alt="${esc(e.nombre)}" class="logo">`
     : `<div class="empresa-nombre">${esc(e.nombre || '')}</div>`
   return `<div class="cabecera">
     <div>${logo}</div>
@@ -171,6 +172,50 @@ export function htmlHojaRuta (d) {
     <p class="pie">El transportista declara haber recibido la mercadería detallada en buen estado y se compromete a entregarla en el destino indicado.<br>
     <b>IMPORTANTE:</b> El cliente debe verificar la cantidad y el estado del producto al momento de la recepción.</p>`
   return { titulo: `Hoja de ruta ${h.nroHojaRuta || ''} - ${v.nroVenta}`, cuerpo }
+}
+
+/** Cuerpo HTML de la cotización (d = respuesta de GET cotizaciones/:id/impresion). */
+export function htmlCotizacion (d) {
+  const c = d.cotizacion
+  const e = d.empresa || {}
+  const linea = '____________'
+  const nombreCliente = c.nombreCliente || (d.contacto && d.contacto.nombre) || ''
+  const direccion = (d.contacto && d.contacto.direccion) || ''
+  const n = x => formatNum(x)
+  const filas = d.lineas.map((l, i) => `
+    <tr>
+      <td class="c">${i + 1}</td>
+      <td class="c">${esc(formatCant(l.cantidad))}${l.unidadMedida ? ` ${esc(abrevUdm(l.unidadMedida))}` : ''}</td>
+      <td>${esc([l.categoria, l.descripcion].filter(Boolean).join(' '))}</td>
+      <td class="r">${n(l.precioUnitario)}</td>
+      <td class="r">${l.porcentajeFactura > 0 ? n(l.precioUnitario * (1 + l.porcentajeFactura / 100)) : ''}</td>
+      <td class="r">${n(l.subtotal)}</td>
+    </tr>`).join('')
+  const cuerpo = `
+    ${encabezadoEmpresa(d)}
+    <h1>COTIZACIÓN N° ${esc(c.nroCotizacion)}</h1>
+    <table class="grid datos">
+      <tr><td>Fecha: ${esc(formatFecha(c.fecha))}</td><td>Válida hasta: ${esc(c.validoHasta ? formatFecha(c.validoHasta) : linea)}</td></tr>
+      <tr><td>Cliente: ${esc(nombreCliente)}</td><td>NIT/C.I.: ${esc(c.nitCi || '')}</td></tr>
+      <tr><td>Dirección: ${esc(direccion)}</td><td>Teléfonos: ${esc(c.telefonoCliente || '')}</td></tr>
+    </table>
+    <table class="grid items">
+      <thead><tr><th>ITEM</th><th>CANTIDAD</th><th>DESCRIPCIÓN</th><th>Precio Unit.</th><th>Precio U. + IVA</th><th>Sub Total</th></tr></thead>
+      <tbody>${filas}</tbody>
+    </table>
+    <table class="grid">
+      <tr><td style="width:65%;">Obs.: ${esc(c.observaciones || '')}</td><td class="r">Total en Bs.: ${n(c.total)}</td></tr>
+    </table>
+    <table class="grid totales">
+      <tr><td colspan="3">TOTAL COTIZADO: Bs. ${n(c.total)}</td></tr>
+    </table>
+    <table class="grid firmas" style="width:40%;margin-left:auto;">
+      <thead><tr><th>${esc((e.nombre || '').toUpperCase())}</th></tr></thead>
+      <tr><td>Firma:<br>Nombre: ${esc(nombreVendedor(d) || linea)}<br>Celular: ${esc((d.vendedor && d.vendedor.telefono) || e.telefono || linea)}</td></tr>
+    </table>
+    <p class="pie">Precios en bolivianos, sujetos a disponibilidad de stock al momento de la compra.<br>
+    <b>IMPORTANTE:</b> Esta cotización no es una factura ni una nota de venta${c.validoHasta ? `; es válida hasta el ${esc(formatFecha(c.validoHasta))}` : ''}.</p>`
+  return { titulo: `Cotización ${c.nroCotizacion}`, cuerpo }
 }
 
 /**

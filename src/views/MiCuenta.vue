@@ -50,9 +50,27 @@
                 <label>Teléfono</label>
                 <input v-model="forma.telefono" class="ide-input" placeholder="+52 55 1234 5678" />
               </div>
-              <div class="ide-field">
-                <label>URL del logo</label>
-                <input v-model="forma.logoUrl" class="ide-input" placeholder="https://..." />
+              <div class="ide-field"></div>
+            </div>
+
+            <!-- Logo: se usa en el menú lateral y en notas de venta, cotizaciones y hojas de ruta -->
+            <div class="ide-field" style="margin-bottom:16px;">
+              <label>Logo de la empresa</label>
+              <div class="mc-logo">
+                <div class="mc-logo-preview">
+                  <img v-if="logoSrc" :src="logoSrc" alt="Logo de la empresa" />
+                  <span v-else>Sin logo</span>
+                </div>
+                <div class="mc-logo-acciones">
+                  <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <button class="mc-btn mc-btn--primary mc-btn--sm" :disabled="subiendoLogo" @click="$refs.logoInput.click()">
+                      {{ subiendoLogo ? 'Subiendo...' : (forma.logoUrl ? 'Cambiar logo' : 'Subir logo') }}
+                    </button>
+                    <button v-if="forma.logoUrl" class="mc-btn mc-btn--ghost mc-btn--sm" :disabled="subiendoLogo" @click="quitarLogo">Quitar</button>
+                  </div>
+                  <div class="mc-logo-ayuda">PNG, JPG o WEBP, hasta 2 MB. Se muestra en el menú y en los documentos impresos (nota de venta, cotización, hoja de ruta). Recomendado: fondo transparente, formato horizontal.</div>
+                </div>
+                <input ref="logoInput" type="file" accept="image/png,image/jpeg,image/webp" style="display:none;" @change="onLogoSeleccionado" />
               </div>
             </div>
 
@@ -326,6 +344,7 @@
 </template>
 
 <script>
+import { resolverLogo } from '@/common/logo';
 export default {
   name: 'MiCuenta',
   data: () => ({
@@ -364,6 +383,7 @@ export default {
     formRol: { nombre: '', descripcion: '', permisos: {} },
     cargando: false,
     guardando: false,
+    subiendoLogo: false,
     forma: {
       nombre: '',
       correoContacto: '',
@@ -391,6 +411,9 @@ export default {
     form: { nombres: '', apellidos: '', usuario: '', correoElectronico: '', contrasena: '', rol: 'COLABORADOR', rolClienteId: '' },
   }),
   computed: {
+    logoSrc() {
+      return resolverLogo(this.forma.logoUrl);
+    },
     clienteNombre() {
       return this.$store.getters.clienteInfo?.nombre || this.forma.nombre || '';
     },
@@ -437,6 +460,45 @@ export default {
       } finally {
         this.guardando = false;
       }
+    },
+    // El logo se guarda al instante (no depende del botón Guardar del formulario)
+    async onLogoSeleccionado(e) {
+      const file = e.target.files[0];
+      e.target.value = '';
+      if (!file) return;
+      if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) return this.$message.error('Formato no permitido. Usa PNG, JPG o WEBP');
+      if (file.size > 2 * 1024 * 1024) return this.$message.error('El logo supera el tamaño máximo de 2 MB');
+      this.subiendoLogo = true;
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        const res = await this.$http.post(`${this.$baseServer}mi-cuenta/logo`, formData);
+        this.aplicarLogo(res.data?.datos?.logoUrl || '');
+        this.$message.success('Logo actualizado');
+      } catch {
+        // el interceptor ya muestra el error
+      } finally {
+        this.subiendoLogo = false;
+      }
+    },
+    quitarLogo() {
+      this.$confirm('¿Quitar el logo de la empresa? Dejará de mostrarse en el menú y en los documentos.', async () => {
+        try {
+          await this.$http.delete(`${this.$baseServer}mi-cuenta/logo`);
+          this.aplicarLogo('');
+          this.$message.success('Logo eliminado');
+        } catch {
+          // el interceptor ya muestra el error
+        }
+      });
+    },
+    // Actualiza el formulario, el menú lateral (store) y la empresa guardada en el navegador
+    aplicarLogo(logoUrl) {
+      this.forma.logoUrl = logoUrl;
+      const info = this.$store.getters.clienteInfo;
+      if (info) this.$store.commit('setClienteInfo', { ...info, logoUrl });
+      const guardada = this.$storage.get('empresaActual');
+      if (guardada && String(guardada.id) === String(info?.id)) this.$storage.set('empresaActual', { ...guardada, logoUrl });
     },
     diaActivo(dia) {
       return this.forma.horarios.some(h => h.dia === dia);
@@ -665,6 +727,15 @@ export default {
 
 /* Form */
 .mc-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.mc-logo { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.mc-logo-preview {
+  width: 220px; height: 90px; border-radius: 10px; border: 1px dashed var(--b0); background: #fff;
+  display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;
+}
+.mc-logo-preview img { max-width: 100%; max-height: 100%; object-fit: contain; padding: 6px; }
+.mc-logo-preview span { font-size: 12px; color: #94a3b8; }
+.mc-logo-acciones { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 220px; }
+.mc-logo-ayuda { font-size: 11px; color: var(--t4); line-height: 1.5; }
 
 .ide-field { display: flex; flex-direction: column; gap: 5px; }
 .ide-field label { font-size: 11px; font-weight: 700; color: var(--t3); }

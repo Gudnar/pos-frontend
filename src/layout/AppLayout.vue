@@ -1,8 +1,11 @@
 <template>
   <div class="ide-app">
 
-    <!-- ── SIDEBAR ── -->
-    <div class="ide-sidebar" :class="{ 'ide-sidebar--collapsed': collapsed }">
+    <!-- Fondo del menú abierto en móvil -->
+    <div v-if="esMovil && menuMovil" class="ide-overlay" @click="menuMovil = false"></div>
+
+    <!-- ── SIDEBAR ── (en móvil es un panel deslizable) -->
+    <div class="ide-sidebar" :class="{ 'ide-sidebar--collapsed': collapsed, 'ide-sidebar--abierto': menuMovil }">
 
       <!-- Logo -->
       <div class="ide-sidebar__header" :class="{ 'ide-sidebar__header--collapsed': collapsed }">
@@ -85,6 +88,9 @@
       <!-- Top Bar -->
       <div class="ide-topbar">
         <div class="ide-topbar__left">
+          <button v-if="esMovil" class="ide-menu-btn" title="Menú" @click="menuMovil = true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
           <span class="ide-topbar__title">{{ moduleTitle }}</span>
           <!-- Selector de sucursal -->
           <div v-if="sucursales.length > 0" class="ide-sucursal-selector">
@@ -134,6 +140,7 @@
 </template>
 
 <script>
+import { resolverLogo } from '@/common/logo';
 const SVGS = {
   grid:     `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>`,
   bot:      `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/><line x1="12" y1="17" x2="12" y2="17" stroke-width="3" stroke-linecap="round"/><line x1="8" y1="17" x2="8" y2="17" stroke-width="3" stroke-linecap="round"/><line x1="16" y1="17" x2="16" y2="17" stroke-width="3" stroke-linecap="round"/></svg>`,
@@ -280,6 +287,8 @@ export default {
   data() {
     return {
       collapsed: false,
+      esMovil: false,
+      menuMovil: false,
       time: new Date(),
       expandedGroups: [],
       isLight: false,
@@ -340,7 +349,7 @@ export default {
       return this.$store.getters.clienteInfo?.nombre || null;
     },
     clienteLogo() {
-      return this.$store.getters.clienteInfo?.logoUrl || null;
+      return resolverLogo(this.$store.getters.clienteInfo?.logoUrl);
     },
     clienteNombreSidebar() {
       return this.$store.getters.clienteInfo?.nombre || 'POS-IA';
@@ -357,6 +366,12 @@ export default {
     },
   },
   watch: {
+    // Al navegar en móvil se cierra el menú
+    '$route.fullPath'() { this.menuMovil = false; },
+    esMovil(movil) {
+      if (movil) this.collapsed = false;
+      else this.menuMovil = false;
+    },
     '$store.state.clienteId'(newVal, oldVal) {
       if (newVal !== oldVal) {
         this.$store.commit('setSucursales', []);
@@ -366,6 +381,9 @@ export default {
     },
   },
   mounted() {
+    this._actualizarMovil = () => { this.esMovil = window.innerWidth <= 768; };
+    this._actualizarMovil();
+    window.addEventListener('resize', this._actualizarMovil);
     this._restoreAuth();
     this._timer = setInterval(() => { this.time = new Date(); }, 60000);
     this._cargarSucursales();
@@ -380,6 +398,7 @@ export default {
   },
   beforeDestroy() {
     clearInterval(this._timer);
+    window.removeEventListener('resize', this._actualizarMovil);
   },
   methods: {
     _restoreAuth() {
@@ -734,4 +753,37 @@ export default {
   cursor: pointer; max-width: 180px;
 }
 .ide-sucursal-select option { background: var(--bg-c); color: var(--t2); }
+
+/* ── Móvil: menú como panel deslizable y barra superior compacta ── */
+.ide-menu-btn {
+  background: none; border: none; cursor: pointer; color: var(--t2);
+  padding: 6px; margin-left: -6px; border-radius: 8px; display: flex; flex-shrink: 0;
+}
+.ide-overlay { position: fixed; inset: 0; background: #00000088; z-index: 300; }
+@media (max-width: 768px) {
+  .ide-app { height: 100vh; height: 100dvh; }
+  .ide-sidebar {
+    position: fixed; top: 0; bottom: 0; left: 0;
+    width: 260px !important; z-index: 310;
+    transform: translateX(-100%);
+    transition: transform 0.25s cubic-bezier(.4,0,.2,1);
+    box-shadow: 0 0 40px #00000066;
+  }
+  .ide-sidebar--abierto { transform: translateX(0); }
+  .ide-nav__item { padding: 12px 12px; font-size: 14px; }
+  .ide-collapse-btn { display: none; }
+  .ide-logo-name { max-width: 170px; }
+
+  .ide-main { width: 100%; min-width: 0; }
+  .ide-topbar { padding: 0 12px; gap: 8px; }
+  .ide-topbar__left { min-width: 0; flex: 1; gap: 8px; }
+  .ide-topbar__title { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .ide-topbar__time, .ide-topbar__user, .ide-topbar__badges { display: none; }
+  .ide-topbar__right { gap: 4px; }
+  .ide-sucursal-selector { margin-left: 0; padding: 4px 6px; flex-shrink: 1; min-width: 0; }
+  .ide-sucursal-select { max-width: 110px; }
+
+  /* El contenido del módulo se desplaza verticalmente */
+  .ide-module { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+}
 </style>
