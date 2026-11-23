@@ -69,10 +69,10 @@
                 <div v-if="item.productoId" style="font-size:11px;color:var(--t4);">{{ categoriasDeProducto(item.productoId) }}</div>
               </td>
               <td>{{ item.cantidadUnidades }}</td>
-              <td>{{ fmtNum(item.precioUnitarioMonedaCompra) }}</td>
-              <td><strong>{{ fmtNum(item.precioUnitarioMonedaCompra * item.cantidadUnidades) }}</strong></td>
+              <td :title="fmtNum6(item.precioUnitarioMonedaCompra)">{{ fmtNum4(item.precioUnitarioMonedaCompra) }}</td>
+              <td><strong>{{ fmtNum(totalCompraItem(item)) }}</strong></td>
               <td>{{ fmtNum6(item.tipoCambio) }}</td>
-              <td>{{ fmtNum(item.precioUnitarioMonedaBase) }}</td>
+              <td :title="fmtNum6(item.precioUnitarioMonedaBase)">{{ fmtNum4(item.precioUnitarioMonedaBase) }}</td>
               <td><strong>{{ fmtNum(item.subtotalMonedaBase) }}</strong></td>
               <td>{{ item.costoTotalUnitario ? fmtNum(item.costoTotalUnitario) : '—' }}</td>
               <td>
@@ -447,7 +447,7 @@
           <div class="ide-field" v-if="itemForm.precioUnitarioMonedaCompra">
             <label style="font-size:10px;color:var(--t5);">Precio Unit. Calculado</label>
             <div style="font-size:13px;font-weight:700;color:#818cf8;padding:8px 12px;background:var(--bg-n);border:1px solid var(--b1);border-radius:6px;">
-              {{ fmtNum(itemForm.precioUnitarioMonedaCompra) }}
+              {{ fmtNum6(itemForm.precioUnitarioMonedaCompra) }}
             </div>
           </div>
           <div class="ide-field">
@@ -463,8 +463,8 @@
           </div>
           <div class="ide-field ide-field--full" v-if="itemForm.totalDeCompra && itemForm.tipoCambio">
             <div class="ide-preview-calc">
-              <div>Precio unitario base: <strong>{{ fmtNum(itemForm.precioUnitarioMonedaCompra * itemForm.tipoCambio) }}</strong></div>
-              <div>Subtotal base (total compra × TC): <strong>{{ fmtNum(itemForm.totalDeCompra * itemForm.tipoCambio) }}</strong></div>
+              <div>Precio unitario base: <strong>{{ fmtNum6(itemForm.cantidadUnidades ? aCentavos(itemForm.totalDeCompra * itemForm.tipoCambio) / itemForm.cantidadUnidades : 0) }}</strong></div>
+              <div>Subtotal base (total compra × TC): <strong>{{ fmtNum(aCentavos(itemForm.totalDeCompra * itemForm.tipoCambio)) }}</strong></div>
             </div>
           </div>
         </div>
@@ -1184,7 +1184,7 @@ export default {
       return this.items.reduce((sum, item) => sum + Number(item.subtotalMonedaBase ?? 0), 0)
     },
     totalProductosCompra() {
-      return this.items.reduce((sum, item) => sum + Number(item.precioUnitarioMonedaCompra ?? 0) * Number(item.cantidadUnidades ?? 0), 0)
+      return this.items.reduce((sum, item) => sum + this.totalCompraItem(item), 0)
     },
     previewItemsDirecto() {
       const iva = Number(this.tasaIvaOrden || 0) / 100
@@ -1365,6 +1365,15 @@ export default {
     fmtNum(v) {
       if (v == null) return '—'
       return Number(v).toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    },
+    /** Total de la línea tal como se registró (factura); registros antiguos: unitario × cantidad */
+    totalCompraItem(item) {
+      return item.subtotalMonedaCompra != null
+        ? Number(item.subtotalMonedaCompra)
+        : Number(item.precioUnitarioMonedaCompra ?? 0) * Number(item.cantidadUnidades ?? 0)
+    },
+    fmtNum4(v) {
+      return Number(v || 0).toLocaleString('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 4 })
     },
     fmtNum6(v) {
       if (v == null) return '—'
@@ -1679,7 +1688,7 @@ export default {
       this.productoDropdownOpen = false
       this.productoHighlightIndex = -1
       this.itemForm = item
-        ? { productoId: item.productoId || '', descripcionProducto: item.descripcionProducto, cantidadUnidades: Number(item.cantidadUnidades), totalDeCompra: Number(item.precioUnitarioMonedaCompra) * Number(item.cantidadUnidades), precioUnitarioMonedaCompra: Number(item.precioUnitarioMonedaCompra), tipoCambio: Number(item.tipoCambio), monedaCompraId: item.monedaCompraId || '' }
+        ? { productoId: item.productoId || '', descripcionProducto: item.descripcionProducto, cantidadUnidades: Number(item.cantidadUnidades), totalDeCompra: this.totalCompraItem(item), precioUnitarioMonedaCompra: Number(item.precioUnitarioMonedaCompra), tipoCambio: Number(item.tipoCambio), monedaCompraId: item.monedaCompraId || '' }
         : { productoId: '', descripcionProducto: '', cantidadUnidades: 1, totalDeCompra: 0, precioUnitarioMonedaCompra: 0, tipoCambio: 1, monedaCompraId: '' }
       this.itemDialog = true
     },
