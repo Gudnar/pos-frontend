@@ -81,6 +81,12 @@ export function calcularConversion(total, v, esBase) {
   return { valido: true, montoIntermedio: null, montoBase: centavos(aplicar(t, tc1, v.tcOperacion)) }
 }
 
+/** Boliviano: la moneda marcada como base o con código BS/BOB/BOL */
+export function esMonedaBs(m) {
+  if (!m) return false
+  return !!m.esMonedaBase || ['BS', 'BOB', 'BOL'].includes(String(m.codigo || '').trim().toUpperCase().replace('.', ''))
+}
+
 export function conversionVacia() {
   return { tipoCambio: 1, tcOperacion: 'MULTIPLICAR', monedaIntermediaId: null, tcPaso2: null, tcPaso2Operacion: 'MULTIPLICAR' }
 }
@@ -108,19 +114,19 @@ export default {
   },
   data: () => ({ dosPasosManual: false }),
   computed: {
-    base() { return this.monedas.find(m => m.esMonedaBase) || null },
+    base() { return this.monedas.find(m => m.esMonedaBase) || this.monedas.find(esMonedaBs) || null },
     codBase() { return this.base ? this.base.codigo : 'Bs' },
     // Sin moneda elegida (compras) = pago en moneda base
     esBase() {
       if (!this.monedaPagoId) return this.sinMonedaEsBase
-      return !!this.base && this.monedaPagoId === this.base.id
+      return esMonedaBs(this.monedas.find(m => m.id === this.monedaPagoId))
     },
     codPago() { const m = this.monedas.find(x => x.id === this.monedaPagoId); return m ? m.codigo : 'moneda' },
     codInter() { const m = this.monedas.find(x => x.id === this.value.monedaIntermediaId); return m ? m.codigo : '' },
     dosPasos() { return this.dosPasosManual || !!this.value.monedaIntermediaId },
     destino1() { return this.dosPasos ? (this.codInter || 'inter.') : this.codBase },
     monedasIntermedias() {
-      return this.monedas.filter(m => m.id !== this.monedaPagoId && !m.esMonedaBase && m.activo !== false)
+      return this.monedas.filter(m => m.id !== this.monedaPagoId && !esMonedaBs(m) && m.activo !== false)
     },
     calculo() { return calcularConversion(this.total, this.value, this.esBase) },
   },

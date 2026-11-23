@@ -1089,7 +1089,7 @@
 </template>
 
 <script>
-import ConversionMoneda, { conversionVacia, conversionDesde } from '../components/ConversionMoneda.vue'
+import ConversionMoneda, { conversionVacia, conversionDesde, esMonedaBs } from '../components/ConversionMoneda.vue'
 
 export default {
   name: 'LogisticaOrdenDetalle',
@@ -1806,9 +1806,8 @@ export default {
       if (!fuenteId) return null
       const fuente = this.fuentes.find(f => f.id === fuenteId)
       if (!fuente || fuente.saldoActual == null) return null
-      const base = this.monedas.find(m => m.esMonedaBase)
       let monto
-      if (!fuente.monedaId || (base && fuente.monedaId === base.id)) monto = calc.montoBase
+      if (!fuente.monedaId || esMonedaBs(this.monedas.find(m => m.id === fuente.monedaId))) monto = calc.montoBase
       else if (conv.monedaIntermediaId && fuente.monedaId === conv.monedaIntermediaId) monto = calc.montoIntermedio
       else if (fuente.monedaId === monedaPagoId) monto = this.aCentavos(total)
       else return `La fuente "${fuente.nombre}" está en ${this.monedaNombre(fuente.monedaId)}: registra el pago en esa moneda o úsala como moneda intermedia.`
