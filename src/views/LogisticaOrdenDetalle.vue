@@ -172,9 +172,9 @@
                 <td>{{ p.fechaPago }}</td>
                 <td>
                   <span style="font-weight:600;">Pago</span>
-                  <span style="font-size:11px;color:var(--t4);">{{ monedaNombre(p.monedaId) }} {{ fmtNum(p.monto) }} @ {{ fmtNum6(p.tipoCambio) }}</span>
+                  <span style="font-size:11px;color:var(--t4);">{{ monedaNombre(p.monedaId) }} {{ fmtNum(p.monto) }} {{ tcTexto(p) }}</span>
                 </td>
-                <td style="text-align:right;font-weight:600;color:#22c55e;">{{ fmtNum(Number(p.monto) * Number(p.tipoCambio)) }}</td>
+                <td style="text-align:right;font-weight:600;color:#22c55e;">{{ fmtNum(basePago(p)) }}</td>
                 <td style="text-align:right;color:#ef4444;font-weight:600;">{{ fmtNum(saldoAnteriorPago(idx)) }}</td>
                 <td style="text-align:right;font-weight:600;" :class="saldoPosteriorPago(idx) > 0 ? 'pago-estado__val--pendiente' : 'pago-estado__val--saldado'">
                   {{ saldoPosteriorPago(idx) > 0 ? fmtNum(saldoPosteriorPago(idx)) : '✓ Saldado' }}
@@ -206,8 +206,8 @@
                 <td>{{ p.fechaPago }}</td>
                 <td><span class="moneda-chip">{{ monedaNombre(p.monedaId) }}</span></td>
                 <td style="text-align:right;"><strong>{{ fmtNum(p.monto) }}</strong></td>
-                <td style="color:var(--t4);text-align:center;">{{ fmtNum6(p.tipoCambio) }}</td>
-                <td style="text-align:right;"><strong style="color:#6366f1;">{{ fmtNum(Number(p.monto) * Number(p.tipoCambio)) }}</strong></td>
+                <td style="color:var(--t4);text-align:center;font-size:11px;">{{ tcTexto(p) }}</td>
+                <td style="text-align:right;"><strong style="color:#6366f1;">{{ fmtNum(basePago(p)) }}</strong></td>
                 <td>{{ p.metodoPago }}</td>
                 <td>{{ p.referencia || '—' }}</td>
                 <td class="ide-actions">
@@ -261,8 +261,8 @@
               </td>
               <td style="text-align:center;">{{ g.cantidad || 1 }}</td>
               <td><strong>{{ fmtNum(g.monto * (g.cantidad || 1)) }}</strong></td>
-              <td style="color:var(--t4);">{{ fmtNum6(g.tipoCambio) }}</td>
-              <td><strong>{{ fmtNum(Number(g.monto) * (Number(g.cantidad) || 1) * Number(g.tipoCambio)) }}</strong></td>
+              <td style="color:var(--t4);font-size:11px;">{{ tcTexto(g) }}</td>
+              <td><strong>{{ fmtNum(baseGasto(g)) }}</strong></td>
               <td class="ide-actions">
                 <button class="ide-btn ide-btn--sm" :disabled="orden.estadoOrden === 'CERRADO'" @click="abrirGastoDialog(g)">Editar</button>
                 <button class="ide-btn ide-btn--sm ide-btn--danger" :disabled="orden.estadoOrden === 'CERRADO'" @click="eliminarGasto(g)">✕</button>
@@ -525,28 +525,9 @@
             <label>Monto *</label>
             <input v-model.number="pagoForm.monto" class="ide-input" type="number" min="0" step="0.01" />
           </div>
-          <div class="ide-field">
-            <label>{{ pagoForm.monedaId ? `T.C.: 1 ${monedaNombre(pagoForm.monedaId)} = ? base` : 'Tipo de Cambio *' }}</label>
-            <input v-model.number="pagoForm.tipoCambio" class="ide-input" type="number" min="0" step="0.000001"
-              :readonly="pagoTcCadena" :class="{ 'ide-input--readonly': pagoTcCadena }" />
-            <div class="tc-doble-trigger" :class="{ 'tc-doble-trigger--on': pagoTcCadena }" @click="pagoTcCadena = !pagoTcCadena">
-              <span>⇄</span> {{ pagoTcCadena ? 'Ocultar conversión en dos pasos' : 'Pago con conversión en dos pasos' }}
-            </div>
-            <div v-if="pagoTcCadena" class="tc-doble-inline">
-              <div class="tc-doble-campo">
-                <span class="tc-doble-hint">{{ monedaNombre(pagoForm.monedaId) || 'moneda' }} → inter.</span>
-                <input v-model.number="pagoTc1" class="ide-input tc-doble-input" type="number" min="0" step="0.000001" placeholder="0.001050" @input="recalcTcPago" />
-              </div>
-              <span class="tc-doble-op">×</span>
-              <div class="tc-doble-campo">
-                <span class="tc-doble-hint">inter. → base</span>
-                <input v-model.number="pagoTc2" class="ide-input tc-doble-input" type="number" min="0" step="0.000001" placeholder="10.13" @input="recalcTcPago" />
-              </div>
-              <div v-if="pagoTc1 && pagoTc2" class="tc-doble-result">
-                <span class="tc-doble-hint">TC efectivo</span>
-                <strong>{{ fmtNum6(pagoTc1 * pagoTc2) }}</strong>
-              </div>
-            </div>
+          <div class="ide-field ide-field--full">
+            <label>Conversión a moneda base *</label>
+            <conversion-moneda v-model="pagoConv" :monedas="monedas" :moneda-pago-id="pagoForm.monedaId" :total="Number(pagoForm.monto) || 0" @calculo="pagoCalc = $event" />
           </div>
           <div class="ide-field">
             <label>Fecha de Pago *</label>
@@ -565,24 +546,14 @@
             <label>Referencia / N° Operación</label>
             <input v-model="pagoForm.referencia" class="ide-input" />
           </div>
-          <div class="ide-field ide-field--full" v-if="pagoForm.monto && pagoForm.tipoCambio">
-            <div class="ide-preview-calc ide-preview-calc--conversion">
-              <span class="preview-moneda">{{ fmtNum(pagoForm.monto) }} <span class="preview-cod">{{ monedaNombre(pagoForm.monedaId) }}</span></span>
-              <span class="preview-op">×</span>
-              <span>{{ fmtNum6(pagoForm.tipoCambio) }}</span>
-              <span class="preview-op">=</span>
-              <strong>{{ fmtNum(pagoForm.monto * pagoForm.tipoCambio) }}</strong>
-              <span class="preview-base-label">[base]</span>
-            </div>
-          </div>
           <div class="ide-field ide-field--full">
             <label>{{ editandoPago ? 'Fuente de fondos' : 'Registrar egreso en fuente (opcional)' }}</label>
             <select v-model="pagoForm.fuenteId" class="ide-input">
               <option value="">— No registrar en ninguna fuente —</option>
               <option v-for="f in fuentes" :key="f.id" :value="f.id">{{ f.nombre }}{{ f.banco ? ' — ' + f.banco : '' }}</option>
             </select>
-            <div v-if="editandoPago && pagoForm.fuenteId" class="ide-field-hint">
-              Al guardar se registrará un nuevo egreso en la fuente seleccionada.
+            <div v-if="editandoPago && editandoPago.fuenteId" class="ide-field-hint">
+              Al guardar se reemplaza el egreso anterior por el monto actualizado. Elige «No registrar» para quitarlo de la fuente.
             </div>
           </div>
           <div class="ide-field ide-field--full">
@@ -636,28 +607,9 @@
               Total: {{ fmtNum(gastoForm.monto * (gastoForm.cantidad || 1)) }}
             </div>
           </div>
-          <div class="ide-field">
-            <label>{{ gastoForm.monedaId ? `T.C.: 1 ${monedaNombre(gastoForm.monedaId)} = ? base` : 'Tipo de Cambio *' }}</label>
-            <input v-model.number="gastoForm.tipoCambio" class="ide-input" type="number" min="0" step="0.000001"
-              :readonly="gastoTcCadena" :class="{ 'ide-input--readonly': gastoTcCadena }" />
-            <div class="tc-doble-trigger" :class="{ 'tc-doble-trigger--on': gastoTcCadena }" @click="gastoTcCadena = !gastoTcCadena">
-              <span>⇄</span> {{ gastoTcCadena ? 'Ocultar conversión en dos pasos' : 'Gasto con conversión en dos pasos' }}
-            </div>
-            <div v-if="gastoTcCadena" class="tc-doble-inline">
-              <div class="tc-doble-campo">
-                <span class="tc-doble-hint">{{ monedaNombre(gastoForm.monedaId) || 'moneda' }} = ? inter. (ej. 920 CLP = 1 USD)</span>
-                <input v-model.number="gastoTc1" class="ide-input tc-doble-input" type="number" min="0" step="0.01" placeholder="920" @input="recalcTcGasto" />
-              </div>
-              <span class="tc-doble-op">÷</span>
-              <div class="tc-doble-campo">
-                <span class="tc-doble-hint">1 inter. = ? base (ej. 1 USD = 10.57 BOB)</span>
-                <input v-model.number="gastoTc2" class="ide-input tc-doble-input" type="number" min="0" step="0.000001" placeholder="10.57" @input="recalcTcGasto" />
-              </div>
-              <div v-if="gastoTc1 && gastoTc2" class="tc-doble-result">
-                <span class="tc-doble-hint">TC efectivo</span>
-                <strong>{{ fmtNum6(gastoTc2 / gastoTc1) }}</strong>
-              </div>
-            </div>
+          <div class="ide-field ide-field--full">
+            <label>Conversión a moneda base *</label>
+            <conversion-moneda v-model="gastoConv" :monedas="monedas" :moneda-pago-id="gastoForm.monedaId" :total="(Number(gastoForm.monto) || 0) * (Number(gastoForm.cantidad) || 1)" @calculo="gastoCalc = $event" />
           </div>
           <div class="ide-field">
             <label>Fecha del Gasto *</label>
@@ -670,43 +622,14 @@
               <option v-for="p in paisesConfig" :key="p.id" :value="p.nombre">{{ p.nombre }}</option>
             </select>
           </div>
-          <div v-if="gastoTcCadena && gastoTc1 && gastoTc2" class="ide-field ide-field--full">
-            <div class="ide-preview-calc ide-preview-calc--conversion" style="flex-direction:column;align-items:flex-start;gap:10px;">
-              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                <span class="preview-moneda">{{ fmtNum(gastoForm.monto * (gastoForm.cantidad || 1)) }} <span class="preview-cod">{{ monedaNombre(gastoForm.monedaId) }}</span></span>
-                <span class="preview-op">÷</span>
-                <span>{{ fmtNum6(gastoTc1) }}</span>
-                <span class="preview-op">=</span>
-                <strong style="color:#f97316;">{{ fmtNum6((gastoForm.monto * (gastoForm.cantidad || 1)) / gastoTc1) }} inter.</strong>
-              </div>
-              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                <strong style="color:#f97316;">{{ fmtNum6((gastoForm.monto * (gastoForm.cantidad || 1)) / gastoTc1) }} inter.</strong>
-                <span class="preview-op">×</span>
-                <span>{{ fmtNum6(gastoTc2) }}</span>
-                <span class="preview-op">=</span>
-                <strong style="color:#6366f1;">{{ fmtNum((gastoForm.monto * (gastoForm.cantidad || 1) / gastoTc1) * gastoTc2) }}</strong>
-                <span class="preview-base-label">[base]</span>
-              </div>
-            </div>
-          </div>
-          <div v-else-if="gastoForm.monto && gastoForm.tipoCambio && !gastoTcCadena" class="ide-field ide-field--full">
-            <div class="ide-preview-calc ide-preview-calc--conversion">
-              <span class="preview-moneda">{{ fmtNum(gastoForm.monto * (gastoForm.cantidad || 1)) }} <span class="preview-cod">{{ monedaNombre(gastoForm.monedaId) }}</span></span>
-              <span class="preview-op">×</span>
-              <span>{{ fmtNum6(gastoForm.tipoCambio) }}</span>
-              <span class="preview-op">=</span>
-              <strong>{{ fmtNum(gastoForm.monto * gastoForm.tipoCambio * (gastoForm.cantidad || 1)) }}</strong>
-              <span class="preview-base-label">[base]</span>
-            </div>
-          </div>
           <div class="ide-field ide-field--full">
             <label>{{ editandoGasto ? 'Fuente de fondos' : 'Registrar egreso en fuente (opcional)' }}</label>
             <select v-model="gastoForm.fuenteId" class="ide-input">
               <option value="">— No registrar en ninguna fuente —</option>
               <option v-for="f in fuentes" :key="f.id" :value="f.id">{{ f.nombre }}{{ f.banco ? ' — ' + f.banco : '' }}</option>
             </select>
-            <div v-if="editandoGasto && gastoForm.fuenteId" class="ide-field-hint">
-              Al guardar se registrará un nuevo egreso en la fuente seleccionada.
+            <div v-if="editandoGasto && editandoGasto.fuenteId" class="ide-field-hint">
+              Al guardar se reemplaza el egreso anterior por el monto actualizado. Elige «No registrar» para quitarlo de la fuente.
             </div>
           </div>
           <div class="ide-field">
@@ -873,7 +796,7 @@
                       />
                     </td>
                     <td style="text-align:right;font-weight:600;" :style="{ color: gastosParaPrecioMap[g.id] === false ? 'var(--b3)' : 'var(--t3)' }">
-                      {{ fmtNum(Number(g.monto) * tcEfectivo(g)) }}
+                      {{ fmtNum(baseGastoPrecio(g)) }}
                     </td>
                   </tr>
                 </tbody>
@@ -1028,7 +951,7 @@
                       />
                     </td>
                     <td style="text-align:right;font-weight:600;" :style="{ color: logGastosMap[g.id] === false ? 'var(--b3)' : 'var(--t3)' }">
-                      {{ fmtNum(Number(g.monto) * (logTcMap[g.id] ? Number(logTcMap[g.id]) : Number(g.tipoCambio))) }}
+                      {{ fmtNum(logTcMap[g.id] ? Number(g.monto) * (Number(g.cantidad) || 1) * Number(logTcMap[g.id]) : baseGasto(g)) }}
                     </td>
                   </tr>
                 </tbody>
@@ -1166,8 +1089,11 @@
 </template>
 
 <script>
+import ConversionMoneda, { conversionVacia, conversionDesde } from '../components/ConversionMoneda.vue'
+
 export default {
   name: 'LogisticaOrdenDetalle',
+  components: { ConversionMoneda },
   data: () => ({
     loading: false,
     orden: null,
@@ -1181,8 +1107,8 @@ export default {
     itemDialog: false, editandoItem: null, itemForm: {}, productoSearchText: '', productoDropdownOpen: false, productoHighlightIndex: -1,
     pagoDialog: false, editandoPago: null, pagoForm: {},
     gastoDialog: false, editandoGasto: null, gastoForm: {},
-    pagoTcCadena: false, pagoTc1: '', pagoTc2: '',
-    gastoTcCadena: false, gastoTc1: '', gastoTc2: '',
+    pagoConv: conversionVacia(), pagoCalc: { valido: false, montoBase: 0, montoIntermedio: null },
+    gastoConv: conversionVacia(), gastoCalc: { valido: false, montoBase: 0, montoIntermedio: null },
     cierreDialog: false, ingresarInventario: false, sucursalCierreId: '', sucursales: [],
     // Modo de cierre (1: directo, 2: fórmula avanzada, 3: logística simplificada)
     cierreModo: 1,
@@ -1223,7 +1149,7 @@ export default {
     totalGastosParaPrecio() {
       return this.gastos
         .filter(g => this.gastosParaPrecioMap[g.id] !== false)
-        .reduce((s, g) => s + Number(g.monto) * this.tcEfectivo(g), 0)
+        .reduce((s, g) => s + this.baseGastoPrecio(g), 0)
     },
     previewItemsConPrecio() {
       if (!this.itemsConCosto.length) return []
@@ -1291,7 +1217,7 @@ export default {
       const unidadesTot = this.itemsConCosto.reduce((s, i) => s + Number(i.cantidadUnidades), 0)
       const totalLogBase = this.gastos
         .filter(g => this.logGastosMap[g.id] !== false)
-        .reduce((s, g) => s + Number(g.monto) * (this.logTcMap[g.id] ? Number(this.logTcMap[g.id]) : Number(g.tipoCambio)), 0)
+        .reduce((s, g) => s + (this.logTcMap[g.id] ? Number(g.monto) * (Number(g.cantidad) || 1) * Number(this.logTcMap[g.id]) : this.baseGasto(g)), 0)
 
       return this.itemsConCosto.map(item => {
         const factor = this.orden.metodoDistribucion === 'POR_CANTIDAD'
@@ -1344,10 +1270,10 @@ export default {
       )
     },
     totalPagosBase() {
-      return this.pagos.reduce((s, p) => s + Number(p.monto) * Number(p.tipoCambio), 0)
+      return this.pagos.reduce((s, p) => s + this.basePago(p), 0)
     },
     totalGastosBase() {
-      return this.gastos.reduce((s, g) => s + Number(g.monto) * (Number(g.cantidad) || 1) * Number(g.tipoCambio), 0)
+      return this.gastos.reduce((s, g) => s + this.baseGasto(g), 0)
     },
     totalPagosPorMoneda() {
       const m = {}
@@ -1376,9 +1302,7 @@ export default {
       return Math.min(100, (this.totalPagosBase / this.totalOrdenBase) * 100)
     },
     pagoActualBase() {
-      const m = Number(this.pagoForm.monto) || 0
-      const tc = Number(this.pagoForm.tipoCambio) || 0
-      return m * tc
+      return this.pagoCalc.valido ? this.pagoCalc.montoBase : 0
     },
     pagoActualCompra() {
       const m = Number(this.pagoForm.monto) || 0
@@ -1387,9 +1311,7 @@ export default {
         return m
       }
       // Si es en otra moneda, convertir a base y luego a compra
-      const tc = Number(this.pagoForm.tipoCambio) || 0
-      const montoBase = m * tc
-      const montoCompra = montoBase / this.tipoCambioCompra
+      const montoCompra = this.pagoActualBase / this.tipoCambioCompra
       return montoCompra
     },
     tipoCambioCompra() {
@@ -1410,8 +1332,7 @@ export default {
           return sum + monto
         }
         // Si está en otra moneda, convertir a base y luego a compra
-        const tipoCambioPago = Number(p.tipoCambio) || 1
-        const montoBase = monto * tipoCambioPago
+        const montoBase = this.basePago(p)
         const montoCompra = montoBase / this.tipoCambioCompra
         return sum + montoCompra
       }, 0)
@@ -1517,6 +1438,12 @@ export default {
         await this.cargarTodo()
         this.subTab = 'trazabilidad'
       } finally { this.calculando = false }
+    },
+    /** Bs del gasto para el precio: con TC sobrescrito se recalcula, si no se usa el monto guardado */
+    baseGastoPrecio(g) {
+      const v = this.tcOverridesMap[g.id]
+      const hayOverride = v !== '' && v != null && !isNaN(Number(v))
+      return hayOverride ? Number(g.monto) * (Number(g.cantidad) || 1) * Number(v) : this.baseGasto(g)
     },
     tcEfectivo(g) {
       const v = this.tcOverridesMap[g.id]
@@ -1791,21 +1718,17 @@ export default {
     // ── Pagos ────────────────────────────────────────────────
     abrirPagoDialog(p = null) {
       this.editandoPago = p
-      this.pagoTcCadena = false; this.pagoTc1 = ''; this.pagoTc2 = ''
+      this.pagoConv = p ? conversionDesde(p) : conversionVacia()
       this.pagoForm = p
-        ? { monedaId: p.monedaId, monto: Number(p.monto), tipoCambio: Number(p.tipoCambio), fechaPago: p.fechaPago, metodoPago: p.metodoPago, referencia: p.referencia || '', observaciones: p.observaciones || '', fuenteId: p.fuenteId || '' }
-        : { monedaId: '', monto: 0, tipoCambio: 1, fechaPago: '', metodoPago: 'TRANSFERENCIA', referencia: '', observaciones: '', fuenteId: '' }
+        ? { monedaId: p.monedaId, monto: Number(p.monto), fechaPago: p.fechaPago, metodoPago: p.metodoPago, referencia: p.referencia || '', observaciones: p.observaciones || '', fuenteId: p.fuenteId || '' }
+        : { monedaId: '', monto: 0, fechaPago: '', metodoPago: 'TRANSFERENCIA', referencia: '', observaciones: '', fuenteId: '' }
       this.pagoDialog = true
-    },
-    recalcTcPago() {
-      if (this.pagoTc1 && this.pagoTc2) {
-        this.pagoForm.tipoCambio = Number(this.pagoTc1) * Number(this.pagoTc2)
-      }
     },
     async guardarPago() {
       if (!this.pagoForm.monedaId) return this.$message.error('Selecciona la moneda.')
       if (!this.pagoForm.monto || this.pagoForm.monto <= 0) return this.$message.error('El monto debe ser mayor a 0.')
-      if (!this.pagoForm.tipoCambio || this.pagoForm.tipoCambio <= 0) return this.$message.error('El tipo de cambio debe ser mayor a 0.')
+      if (!this.pagoCalc.valido) return this.$message.error('Completa el tipo de cambio de la conversión.')
+      if (this.pagoConv.tcPaso2 && !this.pagoConv.monedaIntermediaId) return this.$message.error('Selecciona la moneda intermedia.')
       if (!this.pagoForm.fechaPago) return this.$message.error('La fecha de pago es obligatoria.')
       if (this.totalOrdenCompra > 0) {
         let pagoAnteriorCompra = 0
@@ -1813,7 +1736,7 @@ export default {
           if (this.editandoPago.monedaId === this.monedaCompraId) {
             pagoAnteriorCompra = Number(this.editandoPago.monto)
           } else {
-            const montoBase = Number(this.editandoPago.monto) * Number(this.editandoPago.tipoCambio)
+            const montoBase = this.basePago(this.editandoPago)
             pagoAnteriorCompra = montoBase / this.tipoCambioCompra
           }
         }
@@ -1824,21 +1747,18 @@ export default {
           )
         }
       }
-      if (this.pagoForm.fuenteId) {
-        const fuente = this.fuentes.find(f => f.id === this.pagoForm.fuenteId)
-        if (fuente && fuente.saldoActual != null) {
-          const montoNativo = Number(this.pagoForm.monto) * Number(this.pagoForm.tipoCambio)
-          if (montoNativo > fuente.saldoActual + 0.001) {
-            return this.$message.error(
-              `Saldo insuficiente en "${fuente.nombre}". Disponible: ${this.fmtNum(fuente.saldoActual)} — Requerido: ${this.fmtNum(montoNativo)}`
-            )
-          }
-        }
+      if (!this.editandoPago) {
+        const err = this.errorSaldoFuente(this.pagoForm.fuenteId, this.pagoForm.monedaId, Number(this.pagoForm.monto), this.pagoCalc, this.pagoConv)
+        if (err) return this.$message.error(err)
       }
       this.saving = true
       try {
-        const payload = { ...this.pagoForm }
-        if (!payload.fuenteId) delete payload.fuenteId
+        const payload = { ...this.pagoForm, ...this.payloadConversion(this.pagoConv) }
+        if (!payload.fuenteId) {
+          // Al editar, null quita el egreso de la fuente
+          if (this.editandoPago) payload.fuenteId = null
+          else delete payload.fuenteId
+        }
         if (this.editandoPago) {
           await this.$service.put(`logistica-ordenes/${this.$route.params.id}/pagos/${this.editandoPago.id}`, payload)
           this.$message.success('Pago actualizado.')
@@ -1851,6 +1771,43 @@ export default {
         await this.cargarTodo()
       } finally { this.saving = false }
     },
+    aCentavos(n) { return Math.round((Number(n) + Number.EPSILON) * 100) / 100 },
+    basePago(p) { return p.montoMonedaBase != null ? Number(p.montoMonedaBase) : Number(p.monto) * Number(p.tipoCambio) },
+    baseGasto(g) { return g.montoMonedaBase != null ? Number(g.montoMonedaBase) : Number(g.monto) * (Number(g.cantidad) || 1) * Number(g.tipoCambio) },
+    /** Texto del TC: "÷ 925 → USD × 6.96" en dos pasos, o el TC directo */
+    tcTexto(r) {
+      const op = o => (o === 'DIVIDIR' ? '÷' : '×')
+      const n = v => Number(v).toLocaleString('es-BO', { maximumFractionDigits: 6 })
+      if (r.tcPaso1 == null) return '× ' + this.fmtNum6(r.tipoCambio)
+      if (r.monedaIntermediaId) return `${op(r.tcOperacion)} ${n(r.tcPaso1)} → ${this.monedaNombre(r.monedaIntermediaId)} ${op(r.tcPaso2Operacion)} ${n(r.tcPaso2)}`
+      return `${op(r.tcOperacion)} ${n(r.tcPaso1)}`
+    },
+    payloadConversion(c) {
+      const inter = c.monedaIntermediaId || null
+      return {
+        tipoCambio: Number(c.tipoCambio),
+        tcOperacion: c.tcOperacion || 'MULTIPLICAR',
+        monedaIntermediaId: inter,
+        tcPaso2: inter ? Number(c.tcPaso2) : null,
+        tcPaso2Operacion: inter ? (c.tcPaso2Operacion || 'MULTIPLICAR') : null,
+      }
+    },
+    /** Igual que el backend: el egreso sale en la moneda de la fuente (Bs, intermedia o la del pago) */
+    errorSaldoFuente(fuenteId, monedaPagoId, total, calc, conv) {
+      if (!fuenteId) return null
+      const fuente = this.fuentes.find(f => f.id === fuenteId)
+      if (!fuente || fuente.saldoActual == null) return null
+      const base = this.monedas.find(m => m.esMonedaBase)
+      let monto
+      if (!fuente.monedaId || (base && fuente.monedaId === base.id)) monto = calc.montoBase
+      else if (conv.monedaIntermediaId && fuente.monedaId === conv.monedaIntermediaId) monto = calc.montoIntermedio
+      else if (fuente.monedaId === monedaPagoId) monto = this.aCentavos(total)
+      else return `La fuente "${fuente.nombre}" está en ${this.monedaNombre(fuente.monedaId)}: registra el pago en esa moneda o úsala como moneda intermedia.`
+      if (this.aCentavos(monto) > this.aCentavos(fuente.saldoActual)) {
+        return `Saldo insuficiente en "${fuente.nombre}". Disponible: ${this.fmtNum(fuente.saldoActual)} — Requerido: ${this.fmtNum(monto)}`
+      }
+      return null
+    },
     async eliminarPago(p) {
       this.$confirm('¿Eliminar este pago?', async () => {
         await this.$service.delete(`logistica-ordenes/${this.$route.params.id}/pagos/${p.id}`)
@@ -1862,38 +1819,31 @@ export default {
     // ── Gastos ───────────────────────────────────────────────
     abrirGastoDialog(g = null) {
       this.editandoGasto = g
-      this.gastoTcCadena = false; this.gastoTc1 = ''; this.gastoTc2 = ''
+      this.gastoConv = g ? conversionDesde(g) : conversionVacia()
       this.gastoForm = g
-        ? { tipoGastoId: g.tipoGastoId || '', descripcion: g.descripcion, monedaId: g.monedaId, monto: Number(g.monto), cantidad: g.cantidad || 1, tipoCambio: Number(g.tipoCambio), fechaGasto: g.fechaGasto, pais: g.pais || '', comprobante: g.comprobante || '', observaciones: g.observaciones || '', fuenteId: g.fuenteId || '' }
-        : { tipoGastoId: '', descripcion: '', monedaId: '', monto: 0, cantidad: 1, tipoCambio: 1, fechaGasto: '', pais: this.orden?.paisOrigen || '', comprobante: '', observaciones: '', fuenteId: '' }
+        ? { tipoGastoId: g.tipoGastoId || '', descripcion: g.descripcion, monedaId: g.monedaId, monto: Number(g.monto), cantidad: g.cantidad || 1, fechaGasto: g.fechaGasto, pais: g.pais || '', comprobante: g.comprobante || '', observaciones: g.observaciones || '', fuenteId: g.fuenteId || '' }
+        : { tipoGastoId: '', descripcion: '', monedaId: '', monto: 0, cantidad: 1, fechaGasto: '', pais: this.orden?.paisOrigen || '', comprobante: '', observaciones: '', fuenteId: '' }
       this.gastoDialog = true
-    },
-    recalcTcGasto() {
-      if (this.gastoTc1 && this.gastoTc2) {
-        this.gastoForm.tipoCambio = Number(this.gastoTc2) / Number(this.gastoTc1)
-      }
     },
     async guardarGasto() {
       if (!this.gastoForm.descripcion.trim()) return this.$message.error('La descripción es obligatoria.')
       if (!this.gastoForm.monedaId) return this.$message.error('Selecciona la moneda.')
       if (!this.gastoForm.monto || this.gastoForm.monto <= 0) return this.$message.error('El monto debe ser mayor a 0.')
-      if (!this.gastoForm.tipoCambio || this.gastoForm.tipoCambio <= 0) return this.$message.error('El tipo de cambio debe ser mayor a 0.')
+      if (!this.gastoCalc.valido) return this.$message.error('Completa el tipo de cambio de la conversión.')
+      if (this.gastoConv.tcPaso2 && !this.gastoConv.monedaIntermediaId) return this.$message.error('Selecciona la moneda intermedia.')
       if (!this.gastoForm.fechaGasto) return this.$message.error('La fecha del gasto es obligatoria.')
-      if (this.gastoForm.fuenteId) {
-        const fuente = this.fuentes.find(f => f.id === this.gastoForm.fuenteId)
-        if (fuente && fuente.saldoActual != null) {
-          const montoNativo = Number(this.gastoForm.monto) * (Number(this.gastoForm.cantidad) || 1) * Number(this.gastoForm.tipoCambio)
-          if (montoNativo > fuente.saldoActual + 0.001) {
-            return this.$message.error(
-              `Saldo insuficiente en "${fuente.nombre}". Disponible: ${this.fmtNum(fuente.saldoActual)} — Requerido: ${this.fmtNum(montoNativo)}`
-            )
-          }
-        }
+      if (!this.editandoGasto) {
+        const total = (Number(this.gastoForm.monto) || 0) * (Number(this.gastoForm.cantidad) || 1)
+        const err = this.errorSaldoFuente(this.gastoForm.fuenteId, this.gastoForm.monedaId, total, this.gastoCalc, this.gastoConv)
+        if (err) return this.$message.error(err)
       }
       this.saving = true
-      const payload = { ...this.gastoForm }
+      const payload = { ...this.gastoForm, ...this.payloadConversion(this.gastoConv) }
       if (!payload.tipoGastoId) delete payload.tipoGastoId
-      if (!payload.fuenteId) delete payload.fuenteId
+      if (!payload.fuenteId) {
+        if (this.editandoGasto) payload.fuenteId = null
+        else delete payload.fuenteId
+      }
       try {
         if (this.editandoGasto) {
           await this.$service.put(`logistica-ordenes/${this.$route.params.id}/gastos/${this.editandoGasto.id}`, payload)
@@ -1923,14 +1873,14 @@ export default {
       // Suma de pagos anteriores + este pago
       let pagosAnteriores = 0
       for (let i = 0; i < pagoIdx; i++) {
-        pagosAnteriores += Number(this.pagos[i].monto) * Number(this.pagos[i].tipoCambio)
+        pagosAnteriores += this.basePago(this.pagos[i])
       }
       return this.totalOrdenBase - pagosAnteriores
     },
     saldoPosteriorPago(pagoIdx) {
       let pagosAcumulados = 0
       for (let i = 0; i <= pagoIdx; i++) {
-        pagosAcumulados += Number(this.pagos[i].monto) * Number(this.pagos[i].tipoCambio)
+        pagosAcumulados += this.basePago(this.pagos[i])
       }
       return Math.max(0, this.totalOrdenBase - pagosAcumulados)
     },

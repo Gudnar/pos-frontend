@@ -425,6 +425,16 @@
                     class="pos-input pco-ref-input"
                     :placeholder="m.value === 'CHEQUE' ? 'Nro. cheque' : 'Referencia'"
                   />
+                  <!-- Fuente de fondos donde entra el dinero -->
+                  <select
+                    v-if="m.value !== 'ADELANTO' && fuentesCobro.length"
+                    v-model="m.fuenteId"
+                    :class="['pos-select', 'pco-fuente-select', { 'pco-fuente-select--falta': !m.fuenteId && Number(m.monto) > 0 }]"
+                    title="Fuente de fondos donde entra este pago"
+                  >
+                    <option value="">Fuente de fondos...</option>
+                    <option v-for="f in fuentesCobro" :key="f.id" :value="f.id">{{ f.nombre }}</option>
+                  </select>
                   <!-- Adelanto: selector -->
                   <div v-if="m.value === 'ADELANTO'" style="flex:1;">
                     <div v-if="cargandoAdelantos" style="font-size:11px;color:var(--t5);">Cargando...</div>
@@ -570,12 +580,15 @@ export default {
 
     // Métodos de pago
     metodosPago: [
-      { value: 'EFECTIVO',      label: 'Efectivo',      activo: false, monto: '', referencia: '' },
-      { value: 'TRANSFERENCIA', label: 'Transferencia', activo: false, monto: '', referencia: '' },
-      { value: 'CHEQUE',        label: 'Cheque',        activo: false, monto: '', referencia: '' },
-      { value: 'QR',            label: 'QR',            activo: false, monto: '', referencia: '' },
+      { value: 'EFECTIVO',      label: 'Efectivo',      activo: false, monto: '', referencia: '', fuenteId: '' },
+      { value: 'TRANSFERENCIA', label: 'Transferencia', activo: false, monto: '', referencia: '', fuenteId: '' },
+      { value: 'CHEQUE',        label: 'Cheque',        activo: false, monto: '', referencia: '', fuenteId: '' },
+      { value: 'QR',            label: 'QR',            activo: false, monto: '', referencia: '', fuenteId: '' },
       { value: 'ADELANTO',      label: 'Adelanto',      activo: false, monto: '', referencia: '', adelantoId: null },
     ],
+
+    // Fuentes de fondos donde entra el dinero de cada cobro
+    fuentesCobro: [],
 
     // Adelantos disponibles para el cliente seleccionado
     adelantosDisponibles: [],
@@ -638,6 +651,7 @@ export default {
 
   async created() {
     this.verificarCaja()
+    this.cargarFuentesCobro()
     await Promise.all([this.cargarSucursales(), this.cargarProductos()])
     // Viene desde el historial con "Convertir en venta"
     if (this.$route.query.cotizacion) this.cargarCotizacion(this.$route.query.cotizacion)
@@ -661,6 +675,19 @@ export default {
     async cargarProductos() {
       try { this.productos = await this.$service.list('productos/pos') || [] }
       catch { this.productos = [] }
+    },
+
+    async cargarFuentesCobro() {
+      try { this.fuentesCobro = await this.$service.get('ventas/fuentes-cobro') || [] }
+      catch { this.fuentesCobro = [] }
+    },
+
+    // Fuente sugerida para un método: la última usada con ese método o la única que exista
+    fuentePorDefecto(metodo) {
+      let ultima = ''
+      try { ultima = localStorage.getItem(`pos-fuente-${metodo}`) || '' } catch (e) { /* sin almacenamiento */ }
+      if (ultima && this.fuentesCobro.some(f => f.id === ultima)) return ultima
+      return this.fuentesCobro.length === 1 ? this.fuentesCobro[0].id : ''
     },
 
     async verificarCaja() {
@@ -909,6 +936,7 @@ export default {
         const restante = Math.max(0, this.subtotal - yaAsignado)
         metodo.monto = restante > 0 ? restante : ''
         if (metodo.value === 'ADELANTO') this.cargarAdelantos()
+        else if (!metodo.fuenteId) metodo.fuenteId = this.fuentePorDefecto(metodo.value)
       }
     },
 
@@ -1019,7 +1047,11 @@ export default {
       // Auto-seleccionar Efectivo con el total si no hay ningún método activo
       if (!this.pagoActivos.length) {
         const efectivo = this.metodosPago.find(m => m.value === 'EFECTIVO')
-        if (efectivo) { efectivo.activo = true; efectivo.monto = this.subtotal }
+        if (efectivo) {
+          efectivo.activo = true
+          efectivo.monto = this.subtotal
+          if (!efectivo.fuenteId) efectivo.fuenteId = this.fuentePorDefecto('EFECTIVO')
+        }
       }
       this.cobrarModal = true
     },
@@ -1028,6 +1060,8 @@ export default {
       const adelanto = this.pagoActivos.find(m => m.value === 'ADELANTO')
       if (adelanto && Number(adelanto.monto) > 0 && !adelanto.adelantoId) return this.$message.error('Selecciona el adelanto a aplicar')
       if (this.saldoPendiente > 0.01 && !this.registrarDeuda) return this.$message.error('Completa el pago o regístralo como deuda')
+      const sinFuente = this.fuentesCobro.length && this.pagoActivos.find(m => m.value !== 'ADELANTO' && Number(m.monto) > 0 && !m.fuenteId)
+      if (sinFuente) return this.$message.error(`Elige la fuente de fondos del pago en ${sinFuente.label}`)
       if (this.registrarDeuda && this.saldoPendiente > 0.01 && !this.form.nombreCliente && !this.form.contactoClienteId) {
         return this.$message.error('Indica el cliente para registrar la deuda')
       }
@@ -1044,10 +1078,15 @@ export default {
               monto: Number(m.monto),
               referencia: m.referencia || undefined,
               adelantoId: m.value === 'ADELANTO' ? m.adelantoId : undefined,
+              fuenteId: m.value === 'ADELANTO' ? undefined : (m.fuenteId || undefined),
             })),
         }
         const venta = await this.$service.post('ventas/cobrar', payload)
         if (venta) {
+          // Recordar la fuente usada por método para el próximo cobro
+          payload.pagos.forEach(pg => {
+            if (pg.fuenteId) { try { localStorage.setItem(`pos-fuente-${pg.metodoPago}`, pg.fuenteId) } catch (e) { /* sin almacenamiento */ } }
+          })
           this.ultimaVenta = venta
           this.cobrarModal = false
           this.ticketModal = true
@@ -1199,6 +1238,7 @@ export default {
         m.activo = false
         m.monto = ''
         m.referencia = ''
+        if ('fuenteId' in m) m.fuenteId = ''
         if (m.value === 'ADELANTO') m.adelantoId = null
       })
       this.adelantosDisponibles = []
@@ -1571,6 +1611,9 @@ export default {
 .pco-currency { padding: 0 8px; font-size: 11px; font-weight: 700; color: var(--t4); border-right: 1px solid var(--b1); display: flex; align-items: center; flex-shrink: 0; }
 .pco-amount-input { border: none !important; border-radius: 0 !important; background: transparent !important; flex: 1; text-align: right; font-size: 13px; font-weight: 700; min-width: 0; padding: 6px 8px; outline: none; color: var(--t2); }
 .pco-ref-input { flex: 1; font-size: 11px; min-width: 0; }
+.pco-metodo-inputs { flex-wrap: wrap; }
+.pco-fuente-select { flex: 1 1 100%; font-size: 11px; min-width: 0; }
+.pco-fuente-select--falta { border-color: #f59e0b !important; }
 .pco-resumen { background: var(--bg-n); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; }
 .pco-res-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; font-size: 12px; color: var(--t4); }
 .pco-res-row + .pco-res-row { border-top: 1px solid var(--b2); }

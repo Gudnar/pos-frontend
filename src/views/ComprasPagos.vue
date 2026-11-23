@@ -74,8 +74,8 @@
                 <div v-for="p in c.pagos" :key="p.id" class="cp-pago-row">
                   <span style="font-size:11px;color:var(--t3);">{{ p.fecha }}</span>
                   <span style="font-size:11px;color:var(--t4);background:var(--bg-c);padding:1px 6px;border-radius:4px;">{{ p.metodoPago }}</span>
-                  <span v-if="p.monedaCodigo && p.monedaCodigo !== 'BS'" class="cp-pago-moneda" :title="`TC: ${Number(p.tipoCambio).toFixed(4)}`">
-                    {{ p.monedaCodigo }} {{ formatMonto(p.monto) }} × {{ Number(p.tipoCambio).toFixed(2) }}
+                  <span v-if="p.monedaCodigo && p.monedaCodigo !== 'BS'" class="cp-pago-moneda" :title="`TC efectivo: ${Number(p.tipoCambio).toFixed(8)}`">
+                    {{ p.monedaCodigo }} {{ formatMonto(p.monto) }} {{ tcTexto(p) }}
                   </span>
                   <span v-if="p.fuenteNombre" class="cp-pago-fuente" :title="p.fuenteTipo">
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
@@ -119,16 +119,9 @@
                 <label>Monto {{ pagoForm.monedaId ? '(' + (monedaSeleccionada && monedaSeleccionada.codigo) + ') *' : '* (Saldo: Bs ' + (compraParaPago ? formatMonto(saldo(compraParaPago)) : '0.00') + ')' }}</label>
                 <input v-model.number="pagoForm.monto" class="ide-input" type="number" min="0.01" step="0.01" />
               </div>
-              <div v-if="pagoForm.monedaId" class="ide-field">
-                <label>TC de la transferencia (Bs por {{ monedaSeleccionada && monedaSeleccionada.codigo }}) *</label>
-                <input v-model.number="pagoForm.tipoCambio" class="ide-input" type="number" min="0.000001" step="0.01" placeholder="Ej: 7.07" />
-              </div>
-              <div v-if="pagoForm.monedaId && pagoForm.monto && pagoForm.tipoCambio" class="ide-field ct-form-full">
-                <div class="cp-monto-bs-preview">
-                  <span style="font-size:10px;color:var(--t4);">Equivalente en Bs</span>
-                  <span style="font-size:15px;font-weight:800;color:#4ade80;">Bs {{ formatMonto(pagoForm.monto * pagoForm.tipoCambio) }}</span>
-                  <span style="font-size:10px;color:var(--t5);">Saldo: Bs {{ compraParaPago ? formatMonto(saldo(compraParaPago)) : '0.00' }}</span>
-                </div>
+              <div v-if="pagoForm.monedaId" class="ide-field ct-form-full">
+                <label>Conversión a Bs * <span style="color:var(--t5);font-weight:400;">(saldo de la compra: Bs {{ compraParaPago ? formatMonto(saldo(compraParaPago)) : '0.00' }})</span></label>
+                <conversion-moneda v-model="pagoConv" :monedas="monedas" :moneda-pago-id="pagoForm.monedaId" :total="Number(pagoForm.monto) || 0" @calculo="pagoCalc = $event" />
               </div>
               <div class="ide-field">
                 <label>Método de Pago *</label>
@@ -177,6 +170,7 @@
 </template>
 
 <script>
+import ConversionMoneda, { conversionVacia } from '../components/ConversionMoneda.vue'
 const TIPO_FUENTE_LABELS = {
   CUENTA_BANCARIA: 'Cuenta bancaria',
   CAJA: 'Caja',
@@ -187,17 +181,19 @@ const TIPO_FUENTE_LABELS = {
 const emptyPagoForm = () => ({
   fecha: new Date().toISOString().split('T')[0],
   monto: 0, metodoPago: 'EFECTIVO', referencia: '', notas: '', fuenteId: '',
-  monedaId: '', tipoCambio: 1,
+  monedaId: '',
 })
 
 export default {
   name: 'ComprasPagos',
+  components: { ConversionMoneda },
   data: () => ({
     resumen: [], loading: false,
     proveedores: [], fuentes: [], monedas: [],
     selectedProv: null,
     comprasProveedor: [], loadingCompras: false,
     pagoDialog: false, pagoForm: emptyPagoForm(), compraParaPago: null, savingPago: false,
+    pagoConv: conversionVacia(), pagoCalc: { valido: true, montoBase: 0, montoIntermedio: null },
   }),
   computed: {
     fuenteSeleccionada() { return this.fuentes.find(f => f.id === this.pagoForm.fuenteId) || null },
@@ -224,7 +220,17 @@ export default {
       catch { this.monedas = [] }
     },
     onMonedaChange() {
-      if (!this.pagoForm.monedaId) { this.pagoForm.tipoCambio = 1 }
+      this.pagoConv = conversionVacia()
+    },
+    tcTexto(p) {
+      const op = o => (o === 'DIVIDIR' ? '÷' : '×')
+      const n = v => Number(v).toLocaleString('es-BO', { maximumFractionDigits: 6 })
+      if (p.tcPaso1 == null) return '× ' + Number(p.tipoCambio).toFixed(2)
+      if (p.monedaIntermediaId) {
+        const mi = this.monedas.find(m => m.id === p.monedaIntermediaId)
+        return `${op(p.tcOperacion)} ${n(p.tcPaso1)} → ${mi ? mi.codigo : '?'} ${op(p.tcPaso2Operacion)} ${n(p.tcPaso2)}`
+      }
+      return `${op(p.tcOperacion)} ${n(p.tcPaso1)}`
     },
     async seleccionar(r) {
       this.selectedProv = r.proveedorId
@@ -241,6 +247,7 @@ export default {
       this.compraParaPago = compra
       const saldoActualBs = this.saldo(compra)
       const form = emptyPagoForm()
+      this.pagoConv = conversionVacia()
       // Si la compra es en moneda extranjera, pre-llenar moneda y TC
       if (this.esMonedaExtranjera(compra)) {
         const monedaEncontrada = this.monedas.find(m =>
@@ -248,7 +255,7 @@ export default {
         )
         if (monedaEncontrada) {
           form.monedaId = monedaEncontrada.id
-          form.tipoCambio = Number(compra.tipoCambio) || 1
+          this.pagoConv = { ...conversionVacia(), tipoCambio: Number(compra.tipoCambio) || 1 }
           // Monto pre-llenado en la moneda extranjera (saldo Bs ÷ TC)
           const tc = Number(compra.tipoCambio) || 1
           form.monto = tc > 0 ? parseFloat((saldoActualBs / tc).toFixed(4)) : 0
@@ -263,14 +270,22 @@ export default {
     },
     async guardarPago() {
       if (!this.pagoForm.monto || this.pagoForm.monto <= 0) return this.$message.error('Ingresa un monto válido')
-      if (this.pagoForm.monedaId && (!this.pagoForm.tipoCambio || this.pagoForm.tipoCambio <= 0)) {
-        return this.$message.error('Ingresa el tipo de cambio')
-      }
+      const c = this.pagoConv
+      if (this.pagoForm.monedaId && !this.pagoCalc.valido) return this.$message.error('Completa el tipo de cambio de la conversión')
+      if (this.pagoForm.monedaId && c.tcPaso2 && !c.monedaIntermediaId) return this.$message.error('Selecciona la moneda intermedia')
       this.savingPago = true
+      const resto = { ...this.pagoForm }
+      const conv = this.pagoForm.monedaId
+        ? {
+          tipoCambio: Number(c.tipoCambio),
+          tcOperacion: c.tcOperacion || 'MULTIPLICAR',
+          ...(c.monedaIntermediaId ? { monedaIntermediaId: c.monedaIntermediaId, tcPaso2: Number(c.tcPaso2), tcPaso2Operacion: c.tcPaso2Operacion || 'MULTIPLICAR' } : {}),
+        }
+        : {}
       const payload = {
-        ...this.pagoForm,
+        ...resto,
+        ...conv,
         monedaId: this.pagoForm.monedaId || undefined,
-        tipoCambio: this.pagoForm.monedaId ? Number(this.pagoForm.tipoCambio) : undefined,
         fuenteId: this.pagoForm.fuenteId || undefined,
       }
       try {
