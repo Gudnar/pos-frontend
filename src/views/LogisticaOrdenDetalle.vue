@@ -71,7 +71,7 @@
               <td>{{ item.cantidadUnidades }}</td>
               <td :title="fmtNum6(item.precioUnitarioMonedaCompra)">{{ fmtNum4(item.precioUnitarioMonedaCompra) }}</td>
               <td><strong>{{ fmtNum(totalCompraItem(item)) }}</strong></td>
-              <td>{{ fmtNum6(item.tipoCambio) }}</td>
+              <td style="font-size:11px;" :title="`TC efectivo: ${fmtNum6(item.tipoCambio)}`">{{ tcTexto(item) }}</td>
               <td :title="fmtNum6(item.precioUnitarioMonedaBase)">{{ fmtNum4(item.precioUnitarioMonedaBase) }}</td>
               <td><strong>{{ fmtNum(item.subtotalMonedaBase) }}</strong></td>
               <td>{{ item.costoTotalUnitario ? fmtNum(item.costoTotalUnitario) : '—' }}</td>
@@ -438,21 +438,11 @@
           </div>
           <div class="ide-field">
             <label>Cantidad de Unidades *</label>
-            <input v-model.number="itemForm.cantidadUnidades" class="ide-input" type="number" min="1" @input="calcularPrecioUnitario" />
+            <input v-model.number="itemForm.cantidadUnidades" class="ide-input" type="number" min="1" />
           </div>
           <div class="ide-field">
             <label>Total de Compra (Moneda de Compra) *</label>
-            <input v-model.number="itemForm.totalDeCompra" class="ide-input" type="number" min="0" step="0.0001" @input="calcularPrecioUnitario" />
-          </div>
-          <div class="ide-field" v-if="itemForm.precioUnitarioMonedaCompra">
-            <label style="font-size:10px;color:var(--t5);">Precio Unit. Calculado</label>
-            <div style="font-size:13px;font-weight:700;color:#818cf8;padding:8px 12px;background:var(--bg-n);border:1px solid var(--b1);border-radius:6px;">
-              {{ fmtNum6(itemForm.precioUnitarioMonedaCompra) }}
-            </div>
-          </div>
-          <div class="ide-field">
-            <label>Tipo de Cambio (1 moneda compra = ? base) *</label>
-            <input v-model.number="itemForm.tipoCambio" class="ide-input" type="number" min="0" step="0.000001" />
+            <input v-model.number="itemForm.totalDeCompra" class="ide-input" type="number" min="0" step="0.0001" />
           </div>
           <div class="ide-field">
             <label>Moneda de Compra</label>
@@ -461,10 +451,20 @@
               <option v-for="m in monedas" :key="m.id" :value="m.id">{{ m.codigo }} — {{ m.nombre }}</option>
             </select>
           </div>
-          <div class="ide-field ide-field--full" v-if="itemForm.totalDeCompra && itemForm.tipoCambio">
+          <div class="ide-field" v-if="itemForm.totalDeCompra && itemForm.cantidadUnidades">
+            <label style="font-size:10px;color:var(--t5);">Precio Unit. Calculado</label>
+            <div style="font-size:13px;font-weight:700;color:#818cf8;padding:8px 12px;background:var(--bg-n);border:1px solid var(--b1);border-radius:6px;">
+              {{ fmtNum6(itemForm.totalDeCompra / itemForm.cantidadUnidades) }}
+            </div>
+          </div>
+          <div class="ide-field ide-field--full">
+            <label>Conversión a moneda base *</label>
+            <conversion-moneda v-model="itemConv" :monedas="monedas" :moneda-pago-id="itemForm.monedaCompraId" :total="Number(itemForm.totalDeCompra) || 0" :sin-moneda-es-base="false" @calculo="itemCalc = $event" />
+          </div>
+          <div class="ide-field ide-field--full" v-if="itemForm.totalDeCompra && itemCalc.valido">
             <div class="ide-preview-calc">
-              <div>Precio unitario base: <strong>{{ fmtNum6(itemForm.cantidadUnidades ? aCentavos(itemForm.totalDeCompra * itemForm.tipoCambio) / itemForm.cantidadUnidades : 0) }}</strong></div>
-              <div>Subtotal base (total compra × TC): <strong>{{ fmtNum(aCentavos(itemForm.totalDeCompra * itemForm.tipoCambio)) }}</strong></div>
+              <div>Precio unitario base: <strong>{{ fmtNum6(itemForm.cantidadUnidades ? itemCalc.montoBase / itemForm.cantidadUnidades : 0) }}</strong></div>
+              <div>Subtotal base: <strong>{{ fmtNum(itemCalc.montoBase) }}</strong></div>
             </div>
           </div>
         </div>
@@ -1107,6 +1107,7 @@ export default {
     itemDialog: false, editandoItem: null, itemForm: {}, productoSearchText: '', productoDropdownOpen: false, productoHighlightIndex: -1,
     pagoDialog: false, editandoPago: null, pagoForm: {},
     gastoDialog: false, editandoGasto: null, gastoForm: {},
+    itemConv: conversionVacia(), itemCalc: { valido: false, montoBase: 0, montoIntermedio: null },
     pagoConv: conversionVacia(), pagoCalc: { valido: false, montoBase: 0, montoIntermedio: null },
     gastoConv: conversionVacia(), gastoCalc: { valido: false, montoBase: 0, montoIntermedio: null },
     cierreDialog: false, ingresarInventario: false, sucursalCierreId: '', sucursales: [],
@@ -1675,33 +1676,32 @@ export default {
           break
       }
     },
-    calcularPrecioUnitario() {
-      if (this.itemForm.totalDeCompra && this.itemForm.cantidadUnidades) {
-        this.itemForm.precioUnitarioMonedaCompra = this.itemForm.totalDeCompra / this.itemForm.cantidadUnidades
-      } else {
-        this.itemForm.precioUnitarioMonedaCompra = 0
-      }
-    },
     abrirItemDialog(item = null) {
       this.editandoItem = item
       this.productoSearchText = ''
       this.productoDropdownOpen = false
       this.productoHighlightIndex = -1
       this.itemForm = item
-        ? { productoId: item.productoId || '', descripcionProducto: item.descripcionProducto, cantidadUnidades: Number(item.cantidadUnidades), totalDeCompra: this.totalCompraItem(item), precioUnitarioMonedaCompra: Number(item.precioUnitarioMonedaCompra), tipoCambio: Number(item.tipoCambio), monedaCompraId: item.monedaCompraId || '' }
-        : { productoId: '', descripcionProducto: '', cantidadUnidades: 1, totalDeCompra: 0, precioUnitarioMonedaCompra: 0, tipoCambio: 1, monedaCompraId: '' }
+        ? { productoId: item.productoId || '', descripcionProducto: item.descripcionProducto, cantidadUnidades: Number(item.cantidadUnidades), totalDeCompra: this.totalCompraItem(item), monedaCompraId: item.monedaCompraId || '' }
+        : { productoId: '', descripcionProducto: '', cantidadUnidades: 1, totalDeCompra: 0, monedaCompraId: '' }
+      this.itemConv = item ? conversionDesde(item) : conversionVacia()
       this.itemDialog = true
     },
     async guardarItem() {
       if (!this.itemForm.descripcionProducto.trim()) return this.$message.error('La descripción es obligatoria.')
       if (!this.itemForm.cantidadUnidades || this.itemForm.cantidadUnidades < 1) return this.$message.error('La cantidad debe ser mayor a 0.')
       if (!this.itemForm.totalDeCompra || this.itemForm.totalDeCompra < 0) return this.$message.error('El total de compra debe ser mayor o igual a 0.')
-      if (!this.itemForm.tipoCambio || this.itemForm.tipoCambio <= 0) return this.$message.error('El tipo de cambio debe ser mayor a 0.')
+      if (!this.itemCalc.valido) return this.$message.error('Completa el tipo de cambio de la conversión.')
+      if (this.itemConv.tcPaso2 && !this.itemConv.monedaIntermediaId) return this.$message.error('Selecciona la moneda intermedia.')
       if (this.itemForm.productoId && this.productosIdsEnOrden.has(this.itemForm.productoId)) {
         return this.$message.error('Este producto ya está en la orden. Edita el ítem existente.')
       }
       this.saving = true
-      const payload = { ...this.itemForm, precioUnitarioMonedaCompra: this.itemForm.precioUnitarioMonedaCompra }
+      const payload = {
+        ...this.itemForm,
+        precioUnitarioMonedaCompra: this.itemForm.totalDeCompra / this.itemForm.cantidadUnidades,
+        ...this.payloadConversion(this.itemConv),
+      }
       if (!payload.productoId) delete payload.productoId
       if (!payload.monedaCompraId) delete payload.monedaCompraId
       try {

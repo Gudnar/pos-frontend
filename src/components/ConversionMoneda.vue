@@ -103,14 +103,19 @@ export default {
     monedas: { type: Array, default: () => [] },
     monedaPagoId: { type: String, default: '' },
     total: { type: Number, default: 0 },
+    // En compras «sin moneda» = Bs; en ítems de logística «sin especificar» igual requiere TC
+    sinMonedaEsBase: { type: Boolean, default: true },
   },
   data: () => ({ dosPasosManual: false }),
   computed: {
     base() { return this.monedas.find(m => m.esMonedaBase) || null },
     codBase() { return this.base ? this.base.codigo : 'Bs' },
     // Sin moneda elegida (compras) = pago en moneda base
-    esBase() { return !this.monedaPagoId || (this.base && this.monedaPagoId === this.base.id) },
-    codPago() { const m = this.monedas.find(x => x.id === this.monedaPagoId); return m ? m.codigo : '' },
+    esBase() {
+      if (!this.monedaPagoId) return this.sinMonedaEsBase
+      return !!this.base && this.monedaPagoId === this.base.id
+    },
+    codPago() { const m = this.monedas.find(x => x.id === this.monedaPagoId); return m ? m.codigo : 'moneda' },
     codInter() { const m = this.monedas.find(x => x.id === this.value.monedaIntermediaId); return m ? m.codigo : '' },
     dosPasos() { return this.dosPasosManual || !!this.value.monedaIntermediaId },
     destino1() { return this.dosPasos ? (this.codInter || 'inter.') : this.codBase },
