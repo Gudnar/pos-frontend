@@ -1,5 +1,6 @@
 <template>
-  <div id="ide-root">
+  <!-- data-app: punto de montaje que necesitan v-dialog/v-menu de Vuetify (no se usa <v-app>) -->
+  <div id="ide-root" data-app>
     <router-view />
   </div>
 </template>

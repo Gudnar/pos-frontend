@@ -826,7 +826,7 @@
 
             <!-- Pasos de la fórmula -->
             <div class="fb-section">
-              <div class="fb-section__title">Pasos de la fórmula</div>
+              <div class="fb-section__title">Pasos generales de la fórmula <span style="font-size:10px;font-weight:400;color:var(--t5);"> — se aplican a todos los productos sin fórmula propia ni precio fijo</span></div>
               <div v-if="!formulaPasos.length" style="font-size:12px;color:var(--t4);padding:8px 0;">
                 Sin pasos — el precio propuesto será igual a la base seleccionada.
               </div>
@@ -879,28 +879,84 @@
                 <span style="font-size:10px;font-weight:400;color:var(--t5);"> — actualiza en tiempo real</span>
               </div>
               <div v-if="!itemsConCosto.length" style="font-size:12px;color:var(--t4);padding:8px 0;">
-                No hay ítems con costo calculado. Ejecuta "Calcular Costos" antes de cerrar.
+                <template v-if="!items.length">La orden no tiene productos.</template>
+                <template v-else>Ningún producto está vinculado al catálogo: vincúlalos (Editar producto → «Producto del catálogo») para proponerles precio.</template>
               </div>
-              <table v-else class="ide-table" style="margin-top:4px;">
+              <div v-else style="overflow-x:auto;">
+              <div style="font-size:11px;color:var(--t5);margin-bottom:6px;">
+                El precio propuesto parte de los pasos generales y se actualiza al cambiarlos. Puedes darle a un producto su <strong>fórmula propia</strong> o escribir su <strong>precio</strong>; bórralo para volver al sugerido.
+              </div>
+              <table class="ide-table fb-preview-table" style="margin-top:4px;">
                 <thead>
                   <tr>
                     <th>Producto</th>
-                    <th style="text-align:right;">Costo Contable</th>
-                    <th style="text-align:right;">Log. asignada</th>
-                    <th style="text-align:right;">Costo p/Precio</th>
-                    <th style="text-align:right;color:#f59e0b;">Precio Propuesto</th>
+                    <th style="text-align:right;">Costo cont.</th>
+                    <th style="text-align:right;">Log. asig.</th>
+                    <th style="text-align:right;">Costo p/precio</th>
+                    <th style="text-align:center;">Fórmula</th>
+                    <th style="text-align:right;color:#f59e0b;">Precio propuesto</th>
+                    <th style="text-align:right;">% s/costo</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="row in previewItemsConPrecio" :key="row.id">
-                    <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ row.descripcionProducto }}</td>
-                    <td style="text-align:right;color:var(--t4);">{{ fmtNum(row.costoTotalUnitario) }}</td>
-                    <td style="text-align:right;color:#60a5fa;">{{ fmtNum(row.gastoAsignadoPrecio / Number(row.cantidadUnidades)) }}</td>
-                    <td style="text-align:right;">{{ fmtNum(row.costoUnitParaPrecio) }}</td>
-                    <td style="text-align:right;font-weight:700;color:#fbbf24;">{{ fmtNum(row.precioPropuesto) }}</td>
-                  </tr>
+                  <template v-for="row in previewItemsConPrecio">
+                    <tr :key="row.id">
+                      <td class="fb-prod-cell" :title="row.descripcionProducto">{{ row.descripcionProducto }}</td>
+                      <td style="text-align:right;color:var(--t4);">{{ fmtNum(row.costoTotalUnitario) }}</td>
+                      <td style="text-align:right;color:#60a5fa;">{{ fmtNum(row.gastoAsignadoPrecio / Number(row.cantidadUnidades)) }}</td>
+                      <td style="text-align:right;">{{ fmtNum(row.costoUnitParaPrecio) }}</td>
+                      <td style="text-align:center;white-space:nowrap;">
+                        <span v-if="row.origenPrecio === 'manual'" class="fb-origen fb-origen--manual" title="Precio escrito a mano">Precio fijo</span>
+                        <button v-else class="fb-origen" :class="{ 'fb-origen--propia': row.origenPrecio === 'propia' }"
+                          :title="row.origenPrecio === 'propia' ? 'Editar la fórmula de este producto' : 'Usar pasos distintos para este producto'"
+                          @click="toggleFormulaItem(row.id)">
+                          {{ row.origenPrecio === 'propia' ? '✎ Propia: ' + resumenPasos(formulaItemMap[row.id].pasos) : 'General' }}
+                        </button>
+                      </td>
+                      <td style="text-align:right;padding:4px 8px;">
+                        <input
+                          :value="formulaItemMap[row.id] && formulaItemMap[row.id].precio !== '' ? formulaItemMap[row.id].precio : row.precioFormula.toFixed(2)"
+                          class="ide-input cierre-precio-input fb-precio-input"
+                          :class="{ 'fb-precio-input--manual': row.origenPrecio === 'manual' }"
+                          type="number" min="0" step="0.01"
+                          :title="row.origenPrecio === 'manual' ? 'Precio fijado a mano (fórmula: ' + fmtNum(row.precioFormula) + '). Bórralo para volver a la fórmula.' : 'Sugerido por la fórmula — escribe otro valor para fijarlo'"
+                          @input="setPrecioItem(row.id, $event.target.value)"
+                        />
+                      </td>
+                      <td style="text-align:right;font-weight:700;" :style="{ color: row.porcentaje >= 0 ? '#22c55e' : '#ef4444' }">
+                        {{ row.porcentaje == null ? '—' : (row.porcentaje >= 0 ? '+' : '') + row.porcentaje.toFixed(2) + '%' }}
+                      </td>
+                    </tr>
+                    <tr v-if="formulaItemAbierto === row.id" :key="row.id + '-pasos'" class="fb-item-pasos-row">
+                      <td colspan="7">
+                        <div class="fb-item-pasos">
+                          <div style="font-size:11px;font-weight:700;color:var(--t3);margin-bottom:6px;">
+                            Pasos para {{ row.descripcionProducto }} <span style="font-weight:400;color:var(--t5);">(base: {{ fmtNum(row.baseVal) }})</span>
+                          </div>
+                          <div v-for="(paso, idx) in formulaItemMap[row.id].pasos" :key="idx" class="fb-paso">
+                            <span class="fb-paso__num">{{ idx + 1 }}</span>
+                            <select v-model="paso.operacion" class="ide-input fb-paso__op">
+                              <option value="multiplicar">× Multiplicar</option>
+                              <option value="dividir">÷ Dividir</option>
+                              <option value="sumar">+ Sumar</option>
+                              <option value="restar">− Restar</option>
+                            </select>
+                            <input v-model.number="paso.valor" class="ide-input fb-paso__val" type="number" min="0" step="0.01" placeholder="Valor" />
+                            <div class="fb-paso__preview">= {{ fmtNum(evaluarPasos(row.baseVal, formulaItemMap[row.id].pasos, idx)) }}</div>
+                            <button class="ide-btn ide-btn--sm ide-btn--danger" style="flex-shrink:0;" @click="formulaItemMap[row.id].pasos.splice(idx, 1)">✕</button>
+                          </div>
+                          <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
+                            <button class="ide-btn ide-btn--sm ide-btn--outline" @click="formulaItemMap[row.id].pasos.push({ operacion: 'multiplicar', valor: 1 })">+ Agregar paso</button>
+                            <button class="ide-btn ide-btn--sm" @click="quitarFormulaItem(row.id)">Volver a la fórmula general</button>
+                            <button class="ide-btn ide-btn--sm ide-btn--primary" @click="formulaItemAbierto = null">Listo</button>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </template>
                 </tbody>
               </table>
+              </div>
             </div>
 
           </template>
@@ -1031,7 +1087,8 @@
             <div class="fb-section" style="margin-top:16px;">
               <div class="fb-section__title">Vista previa por producto</div>
               <div v-if="!itemsConCosto.length" style="font-size:12px;color:var(--t4);padding:8px 0;">
-                No hay ítems con costo calculado. Ejecuta "Calcular Costos" antes de cerrar.
+                <template v-if="!items.length">La orden no tiene productos.</template>
+                <template v-else>Ningún producto está vinculado al catálogo: vincúlalos (Editar producto → «Producto del catálogo») para proponerles precio.</template>
               </div>
               <table v-else class="ide-table" style="margin-top:4px;">
                 <thead>
@@ -1121,6 +1178,9 @@ export default {
     formulaBase: 'costoTotal',
     formulaPasos: [{ operacion: 'multiplicar', valor: 1.30 }],
     formulaRedondeo: { tipo: 'ninguno', multiplo: 0.5 },
+    // Por producto: { personalizado, pasos, precio } — precio fijo o pasos propios
+    formulaItemMap: {},
+    formulaItemAbierto: null,
     gastosParaPrecioMap: {},
     tcOverridesMap: {},
     // Modo fórmula LOGÍSTICA simplificada
@@ -1171,7 +1231,17 @@ export default {
         const baseVal = this.formulaBase === 'costoProducto'
           ? Number(item.precioUnitarioMonedaBase)
           : costoUnitParaPrecio
-        return { ...item, gastoAsignadoPrecio, costoUnitParaPrecio, precioPropuesto: this.calcularPrecioFormula(baseVal) }
+        // Por producto: precio fijo > pasos propios > pasos generales
+        const ajuste = this.formulaItemMap[item.id]
+        const propia = !!(ajuste && ajuste.personalizado && ajuste.pasos.length)
+        const precioFormula = this.calcularPrecioFormula(baseVal, propia ? ajuste.pasos : this.formulaPasos)
+        const precioManual = ajuste && Number(ajuste.precio) > 0 ? Number(ajuste.precio) : 0
+        const precioPropuesto = precioManual || precioFormula
+        const porcentaje = costoUnitParaPrecio > 0 ? ((precioPropuesto / costoUnitParaPrecio) - 1) * 100 : null
+        return {
+          ...item, gastoAsignadoPrecio, costoUnitParaPrecio, baseVal, precioFormula, precioPropuesto, porcentaje,
+          origenPrecio: precioManual ? 'manual' : (propia ? 'propia' : 'general'),
+        }
       })
     },
     previewBase() {
@@ -1462,9 +1532,9 @@ export default {
     toggleGastoPrecio(id) {
       this.$set(this.gastosParaPrecioMap, id, this.gastosParaPrecioMap[id] === false ? true : false)
     },
-    calcularPrecioFormula(base) {
+    calcularPrecioFormula(base, pasos = this.formulaPasos) {
       let precio = Number(base) || 0
-      for (const paso of this.formulaPasos) {
+      for (const paso of pasos) {
         const v = Number(paso.valor) || 0
         if (paso.operacion === 'multiplicar') precio = precio * v
         else if (paso.operacion === 'dividir') precio = v !== 0 ? precio / v : precio
@@ -1490,6 +1560,56 @@ export default {
       }
       return Math.max(0, precio)
     },
+    /** Valor tras aplicar los pasos 0..idx sobre la base (sin redondeo) */
+    evaluarPasos(base, pasos, idx) {
+      let precio = Number(base) || 0
+      for (let i = 0; i <= idx; i++) {
+        const v = Number(pasos[i].valor) || 0
+        const op = pasos[i].operacion
+        if (op === 'multiplicar') precio = precio * v
+        else if (op === 'dividir') precio = v !== 0 ? precio / v : precio
+        else if (op === 'sumar') precio = precio + v
+        else if (op === 'restar') precio = precio - v
+      }
+      return Math.max(0, precio)
+    },
+    ajusteItem(id) {
+      if (!this.formulaItemMap[id]) this.$set(this.formulaItemMap, id, { personalizado: false, pasos: [], precio: '' })
+      return this.formulaItemMap[id]
+    },
+    /** Abre/cierra el editor de pasos del producto; al abrirlo por primera vez copia los pasos generales */
+    toggleFormulaItem(id) {
+      const a = this.ajusteItem(id)
+      if (!a.personalizado) {
+        a.personalizado = true
+        a.pasos = this.formulaPasos.map(p => ({ operacion: p.operacion, valor: p.valor }))
+      }
+      this.formulaItemAbierto = this.formulaItemAbierto === id ? null : id
+    },
+    quitarFormulaItem(id) {
+      const a = this.ajusteItem(id)
+      a.personalizado = false
+      a.pasos = []
+      this.formulaItemAbierto = null
+    },
+    setPrecioItem(id, valor) {
+      this.ajusteItem(id).precio = valor
+    },
+    formulaPorItemPayload() {
+      const lista = []
+      for (const [itemId, a] of Object.entries(this.formulaItemMap)) {
+        const precio = Number(a.precio) > 0 ? Number(a.precio) : undefined
+        const pasos = a.personalizado && a.pasos.length
+          ? a.pasos.map(p => ({ operacion: p.operacion, valor: Number(p.valor) || 0 }))
+          : undefined
+        if (precio || pasos) lista.push({ itemId, precio, pasos })
+      }
+      return lista.length ? lista : undefined
+    },
+    resumenPasos(pasos) {
+      const s = { multiplicar: '×', dividir: '÷', sumar: '+', restar: '−' }
+      return (pasos || []).map(p => `${s[p.operacion] || ''}${p.valor}`).join(' ') || '—'
+    },
     aplicarMargenATodos() {
       const m = Number(this.margenSugerido) / 100
       for (const item of this.items) {
@@ -1498,6 +1618,22 @@ export default {
       }
     },
     async abrirCierreDialog() {
+      // Recalcular costos al abrir: la vista previa necesita el costo por unidad actualizado
+      // (si nunca se presionó «Calcular costos» o cambió un gasto/TC, los productos no aparecían o salían con costo viejo)
+      if (this.items.length && this.orden?.estado !== 'CERRADO') {
+        this.calculando = true
+        try {
+          await this.$service.post(`logistica-ordenes/${this.$route.params.id}/calcular`, {})
+          const detalle = await this.$service.get(`logistica-ordenes/${this.$route.params.id}`)
+          if (detalle) {
+            this.orden = { ...detalle, items: undefined, pagos: undefined, gastos: undefined }
+            this.items = detalle.items || []
+            this.gastos = detalle.gastos || []
+          }
+        } catch {
+          // el interceptor ya muestra el error; se abre igual con los datos actuales
+        } finally { this.calculando = false }
+      }
       this.ingresarInventario = false
       this.sucursalCierreId = ''
       this.cierreModo = 1
@@ -1512,6 +1648,8 @@ export default {
       this.formulaBase = 'costoTotal'
       this.formulaPasos = [{ operacion: 'multiplicar', valor: 1.30 }]
       this.formulaRedondeo = { tipo: 'ninguno', multiplo: 0.5 }
+      this.formulaItemMap = {}
+      this.formulaItemAbierto = null
       const mapaGastos = {}
       const mapaTC = {}
       for (const g of this.gastos) {
@@ -1593,6 +1731,7 @@ export default {
               base: this.formulaBase,
               pasos: this.formulaPasos.map(p => ({ operacion: p.operacion, valor: Number(p.valor) })),
               redondeo: this.formulaRedondeo,
+              porItem: this.formulaPorItemPayload(),
             },
             gastosParaPrecio: gastosExcluidos ? gastosSeleccionados : undefined,
             tiposCambioOverride: tcOverrides.length ? tcOverrides : undefined,
@@ -2211,4 +2350,18 @@ export default {
 }
 .preview-op { color: var(--t5); font-size: 12px; }
 .preview-base-label { font-size: 10px; color: var(--b3); }
+.fb-origen { font-size: 11px; padding: 3px 8px; border-radius: 6px; border: 1px dashed var(--b2); background: transparent; color: var(--t4); cursor: pointer; white-space: nowrap; }
+.fb-origen:hover { border-color: #6366f1; color: #a5b4fc; }
+.fb-origen--propia { border-style: solid; border-color: #6366f166; background: #6366f11a; color: #a5b4fc; font-weight: 700; }
+.fb-origen--manual { display: inline-block; border-style: solid; border-color: #f59e0b66; background: #f59e0b1a; color: #fbbf24; font-weight: 700; cursor: default; }
+.fb-precio-input { width: 92px; text-align: right; font-weight: 700; padding-left: 6px; padding-right: 6px; }
+.fb-preview-table { width: 100%; font-size: 12px; }
+.fb-preview-table th, .fb-preview-table td { padding-left: 6px; padding-right: 6px; }
+.fb-prod-cell { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fb-preview-table th { white-space: normal; line-height: 1.25; vertical-align: bottom; }
+.fb-preview-table td { white-space: nowrap; }
+.fb-origen { max-width: 130px; overflow: hidden; text-overflow: ellipsis; }
+.fb-precio-input--manual { border-color: #f59e0b !important; color: #fbbf24; }
+.fb-item-pasos-row td { background: var(--bg-n); }
+.fb-item-pasos { padding: 6px 4px; }
 </style>
